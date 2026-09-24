@@ -86,6 +86,23 @@ uv run scripts/smoke_test.py                    # modèle → SQL → exécution
 - **Apprendre** : le chat template du modèle, l'importance du format de prompt, le décodage (greedy ou sampling).
 - **Livrable** : le score du modèle brut, c'est-à-dire le point de référence de tout le projet.
 
+```sh
+uv run scripts/eval.py --name baseline-1.7b                                      # 500 exemples, ~3 min
+uv run scripts/eval.py --name baseline-4b --model Qwen/Qwen3-4B-Instruct-2507
+uv run scripts/eval.py --name debug --n 40                                       # test rapide
+```
+
+Le détail par exemple va dans `results/<name>.jsonl`, la synthèse de chaque run dans `results/scores.jsonl`.
+
+Choix de la métrique :
+
+- Le jeu de test est figé : 500 exemples de Spider dev, tirés avec un seed fixe (`EVAL_SEED` dans `eval.py`).
+- L'ordre des colonnes est ignoré, et l'ordre des lignes ne compte que si la référence contient un `ORDER BY`. C'est ce
+  que fait l'éval officielle de Spider.
+- Les erreurs sont classées en `wrong_result` (la requête s'exécute mais donne un mauvais résultat), `sql_error`
+  (requête invalide) et `timeout`.
+- Le format de prompt est défini dans `scripts/common.py` et partagé par toutes les étapes.
+
 ### Étape 2 : préparation des données SFT
 
 - **Faire** : convertir gretel au format JSONL `messages` (system / user / assistant) attendu par mlx-lm, filtrer les

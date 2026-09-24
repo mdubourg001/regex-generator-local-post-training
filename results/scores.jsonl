@@ -1,0 +1,1 @@
+{"name": "baseline-1.7b", "model": "Qwen/Qwen3-1.7B", "adapter": null, "n": 500, "execution_accuracy": 0.634, "statuses": {"correct": 317, "wrong_result": 132, "sql_error": 51}, "generation_seconds": 160.7}
