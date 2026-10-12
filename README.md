@@ -95,7 +95,7 @@ partagé par toutes les étapes.
 
 | Usage              | Source                                                                              | Remarque                                                         |
 | ------------------ | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Train / valid      | Synthétiques : taxonomie → professeur **DeepSeek V3.x** (OpenRouter)                | ~10 000 exemples validés après filtrage                          |
+| Train / valid      | Synthétiques : taxonomie → professeur **DeepSeek V4.1 Flash** (OpenRouter)          | ~10 000 exemples validés après filtrage                          |
 | Held-out (dev)     | Split des données synthétiques                                                      | Pour itérer vite. Même distribution que le train                 |
 | Benchmark          | ~150 à 300 cas, brouillon par **Qwen3-235B**, **relus et enrichis à la main**       | Fait foi. Figé une fois constitué, décontaminé contre le train   |
 | DPO                | **Généré par nous** à partir du modèle SFT                                          | Données _on-policy_                                              |
@@ -132,7 +132,7 @@ positifs). Chaque exemple généré doit passer, dans Node :
 ### Coût et reproductibilité
 
 Toutes les réponses brutes du professeur sont stockées dans `data/raw/` (prompt, modèle, tokens, coût). La génération
-est **reprenable** : une relance ne refait pas les appels déjà payés. Un plafond configurable (8 $ par défaut, le compte
+est **reprenable** : une relance ne refait pas les appels déjà payés. Un plafond configurable (9 $ par défaut, le compte
 OpenRouter est plafonné à 10 $) arrête le script. Le coût réel est loggé.
 
 > ⚠️ On ne mélange jamais train et évaluation. Le benchmark est décontaminé contre le train par similarité des
@@ -195,6 +195,61 @@ backticks ou de guillemets. Une réponse bavarde (« Here is the regex: /a/ ») 
   coût, puis générer le volume.
 - **Apprendre** : la distillation par un modèle professeur, le filtrage par exécution, le bruit d'un dataset synthétique.
 - **Livrable** : `data/sft/{train,valid}.jsonl`, un held-out, et les statistiques de rejet par garde-fou.
+
+```sh
+echo 'OPENROUTER_API_KEY=sk-or-…' > .env       # ignoré par git
+uv run scripts/generate.py --batches 20        # pilote : 100 besoins, mesure du coût et du taux de rejet
+uv run scripts/validate.py                     # garde-fous → data/prepared/, data/sft/ + statistiques
+uv run scripts/generate.py --batches 4000      # volume : reprend là où le pilote s'est arrêté
+```
+
+Les modèles, le plafond de dépense et les seuils des garde-fous sont dans `configs/generation.yaml`.
+
+Pilote sur les mêmes 20 lots (100 besoins), avec ou sans raisonnement du professeur :
+
+| DeepSeek V4.1 Flash        | Gardés | Désaccord regex / tests | Coût pour 1 000 gardés |
+| -------------------------- | ------ | ----------------------- | ---------------------- |
+| Sans raisonnement          | 52 %   | 37 %                    | 0,53 $                 |
+| Raisonnement « low »       | 76 %   | 8 %                     | 2,98 $                 |
+| Raisonnement par défaut    | 77 %   | 2 %                     | 4,46 $                 |
+
+- Le raisonnement (6 000 à 11 000 tokens par appel) divise les désaccords par 5 à 20, mais coûte 6 à 8 fois plus cher
+  par exemple gardé. Avec un budget de 9 $, on génère **sans raisonnement** et on laisse le filtre trier.
+- Le filtre ne déforme pas la distribution : on garde à peu près la même part de cas simples, intermédiaires et
+  difficiles.
+- Les désaccords viennent des deux côtés : regex fausse (port `65536` accepté) ou tests faux (`9999` donné comme un PIN
+  valide alors que « pas tous les chiffres identiques »).
+- Premiers bugs du pipeline : le professeur écrivait parfois `"x".repeat(30)` dans le JSON des tests, et une réponse
+  qui boucle n'a pas de fin sans `max_tokens` (OpenRouter garde la connexion ouverte, donc il faut aussi un délai total).
+
+**Second avis** : Qwen3-235B écrit sa propre regex pour 200 exemples gardés, avec le prompt du modèle entraîné.
+
+```sh
+uv run scripts/second_opinion.py --n 200
+```
+
+Sur les 100 premiers lots : accord sur 51 % des exemples, 34 % de réponses mal formées (sorties cassées du
+fournisseur). Sur 15 désaccords inspectés, la référence du professeur est juste dans 13 cas, et 2 sont ambigus. Le
+bruit résiduel des données gardées est donc faible. Sur les données finales : accord sur 66,5 % des exemples, 88 % des
+tests réussis, 8 % de réponses mal formées.
+
+**Résultat** : 4 800 lots du plan principal, puis un complément ciblé de 700 lots sur les catégories où le filtre
+rejette le plus (`logs`, `exclusions`, `multiline`, `dev-tooling`, `passwords`…) :
+
+```sh
+uv run scripts/generate.py --batches 700 --prefix t --categories logs,exclusions,multiline,…   # poids = répétitions
+```
+
+| Besoins générés | Gardés         | Train / valid / held-out | Coût   | Coût pour 1 000 gardés |
+| --------------- | -------------- | ------------------------ | ------ | ---------------------- |
+| 27 460          | **9 819** (36 %) | 8 810 / 538 / 471      | 6,05 $ | 0,62 $                 |
+
+- Premier motif de rejet : le désaccord entre regex et tests (45 %). Il dépend beaucoup de la catégorie : 9 % de
+  besoins gardés en `logs` (lignes longues aux règles imbriquées), 61 % en `identifiers`.
+- Difficulté : 31 % simple, 51 % intermédiaire, 18 % difficile. 30 % des entrées ont des exemples.
+- Couverture de la flavor : les fonctionnalités de base sont partout, mais les groupes nommés (0 %), le lookbehind
+  (0,9 %), les flags `m` et `s` (< 1 %) et les regex non ancrées (1,8 %) sont rares : pour « contient X », le
+  professeur écrit presque toujours `^.*X.*$`. Le benchmark dira si c'est un problème.
 
 ### Étape 4 : benchmark
 

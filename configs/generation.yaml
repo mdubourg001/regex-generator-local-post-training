@@ -1,0 +1,33 @@
+# Génération des données synthétiques (étape 3) : scripts/generate.py, scripts/validate.py, scripts/second_opinion.py.
+
+# Modèles OpenRouter. Prix au moment du choix (octobre 2026, $ par million de tokens entrée / sortie) :
+#   deepseek/deepseek-v4.1-flash  0,15 / 0,60
+#   qwen/qwen3-235b-a22b-2507     0,09 / 0,55
+teacher: deepseek/deepseek-v4.1-flash
+second_opinion: qwen/qwen3-235b-a22b-2507
+
+# Raisonnement du professeur : false, ou un niveau d'effort (low, medium, high).
+reasoning: false
+
+# Plafond de dépense cumulée sur toute la génération (le compte OpenRouter est plafonné à 10 $).
+budget_usd: 9.0
+concurrency: 16
+seed: 0
+
+# Un appel « descriptions » produit `batch_size` besoins d'une même catégorie, puis un appel « tests » produit les
+# tests de ces mêmes besoins à partir de leurs seules descriptions.
+batch_size: 5
+temperature_descriptions: 1.0
+temperature_tests: 0.7
+# Une réponse normale fait moins de 2 000 tokens : au-delà, le professeur boucle.
+max_tokens: 4000
+
+# Tests demandés au professeur, et minimums exigés après filtrage et retrait des exemples montrés dans le prompt.
+tests_requested: { match: 8, near_miss: 5, other_no_match: 3 }
+tests_required: { match: 5, no_match: 5, near_miss: 3 }
+
+# Exemples montrés dans le prompt (tirés des tests, puis retirés des tests cachés).
+max_examples: 3
+
+# Split par lot de génération : les variantes d'un même lot restent du même côté.
+split: { train: 0.9, valid: 0.05, heldout: 0.05 }
