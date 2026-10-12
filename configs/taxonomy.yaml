@@ -1,0 +1,310 @@
+# Taxonomie des besoins, qui guide la génération des données synthétiques (étape 3).
+#
+# Le professeur reçoit une catégorie, une de ses intentions comme point de départ, une difficulté et un registre. Il en
+# tire une description, une regex et des tests. Les intentions sont des graines, pas une liste exhaustive : le
+# professeur les décline et les varie (pays, bornes, séparateurs, contraintes…).
+#
+# Tout est en anglais, car repris tel quel dans les prompts du professeur. Pour l'instant, on ne fait que de la
+# validation : `regex.test(s)` sur la chaîne entière (voir README, section 4).
+
+# Fonctionnalités de la flavor ES2018 à couvrir. Chaque catégorie déclare celles qu'elle sollicite typiquement, pour
+# vérifier que le train couvre toute la flavor (contrôlé par tests/test_taxonomy.py).
+features:
+  anchors: "^ and $ anchoring"
+  word_boundary: "\\b and \\B"
+  char_class: "character classes, ranges and negated classes"
+  shorthand: "\\d \\w \\s and their negations"
+  dot: "the . wildcard"
+  quantifiers: "*, +, ?, {n}, {n,}, {n,m}"
+  alternation: "alternation with |"
+  non_capturing: "non-capturing groups (?:...)"
+  backreference: "capturing groups and backreferences \\1"
+  named_groups: "named groups (?<name>...) and named backreferences \\k<name>"
+  lookahead: "lookahead (?=...) and negative lookahead (?!...)"
+  lookbehind: "lookbehind (?<=...) and negative lookbehind (?<!...)"
+  unicode_property: "Unicode property escapes \\p{...} and \\P{...} (u flag)"
+  unicode_escape: "\\u{...} code point escapes and non-BMP characters (u flag)"
+  escaping: "escaping metacharacters such as . + ( ) [ ] { } / \\ | ? * ^ $"
+  flag_i: "case-insensitive flag i"
+  flag_m: "multiline flag m"
+  flag_s: "dotAll flag s"
+  numeric_range: "numeric ranges expressed with alternations (e.g. 0-255, 1-12)"
+  unanchored: "deliberately unanchored search (the string only has to contain the pattern)"
+
+difficulties:
+  share: { simple: 0.3, medium: 0.5, hard: 0.2 }
+  simple: >-
+    One clear format with few rules. A competent developer writes it in under a minute.
+  medium: >-
+    Several constraints combined: bounded numeric ranges, optional parts, alternatives, case rules, or a common
+    pitfall such as anchoring or escaping.
+  hard: >-
+    Subtle requirements that are easy to get slightly wrong: exclusions, lookarounds, backreferences, Unicode,
+    multiline input, or many interacting edge cases. Tests must include near-misses that break naive solutions.
+
+registers:
+  terse: >-
+    How a developer types into a search box or a commit: a short fragment, lowercase, no punctuation.
+    Example: "french mobile numbers with optional spaces".
+  sentence: >-
+    One or two plain sentences describing what is valid. Example: "Match a French mobile phone number. Spaces
+    between pairs of digits are allowed."
+  spec: >-
+    A precise specification listing the rules, possibly as bullet points or numbered constraints, as in a ticket.
+  business: >-
+    An indirect need stated in product or business terms, from which the developer must infer the format.
+    Example: "we need to check the phone number field in our signup form, only French mobiles are accepted".
+
+# Part des entrées accompagnées d'exemples (1 à 3), tirés des tests et retirés des tests cachés.
+examples_share: 0.3
+
+categories:
+  - id: numbers
+    description: Integers, decimals and numeric formats.
+    features: [anchors, quantifiers, char_class, shorthand, numeric_range, non_capturing, escaping]
+    intents:
+      - positive integer without leading zeros
+      - signed decimal number with an optional fractional part
+      - integer between 1 and 100
+      - percentage from 0 to 100 with up to two decimals
+      - number in scientific notation
+      - octet value from 0 to 255
+      - number with thousands separated by commas
+      - even number
+
+  - id: money
+    description: Prices and amounts in various currencies and locales.
+    features: [anchors, quantifiers, alternation, escaping, non_capturing, unicode_escape, char_class]
+    intents:
+      - US dollar amount with optional cents
+      - euro price in French format (comma decimal, space thousands, trailing €)
+      - amount with an ISO 4217 currency code prefix
+      - price with exactly two decimals
+      - negative amounts in accounting format with parentheses
+      - amount in yen without decimals
+
+  - id: dates-times
+    description: Dates, times, timestamps and durations.
+    features: [anchors, numeric_range, alternation, non_capturing, backreference, named_groups, quantifiers]
+    intents:
+      - ISO 8601 date
+      - European date dd/mm/yyyy
+      - US date with consistent separators (slash or dash, not mixed)
+      - 24-hour time with optional seconds
+      - 12-hour time with AM/PM
+      - ISO 8601 timestamp with timezone
+      - ISO 8601 duration such as P3DT4H
+      - month name abbreviation
+
+  - id: identifiers
+    description: Generated identifiers, hashes and codes.
+    features: [anchors, char_class, quantifiers, flag_i, alternation]
+    intents:
+      - UUID of a given version
+      - git commit hash, short or full
+      - SHA-256 hex digest
+      - ULID
+      - product SKU with a fixed pattern of letters and digits
+      - ticket reference such as JIRA keys
+      - URL slug
+      - hexadecimal string of even length
+
+  - id: web
+    description: URLs, domains and front-end formats.
+    features: [anchors, alternation, non_capturing, quantifiers, escaping, flag_i, char_class]
+    intents:
+      - http or https URL
+      - domain name with a given top-level domain
+      - CSS hex color
+      - CSS length with a unit
+      - HTML opening tag of a given element
+      - URL path without query string
+      - relative URL starting with a slash
+      - data URI of an image
+
+  - id: network
+    description: Addresses and network identifiers.
+    features: [anchors, numeric_range, non_capturing, quantifiers, char_class, flag_i]
+    intents:
+      - IPv4 address
+      - IPv4 CIDR block
+      - MAC address with a consistent separator
+      - port number from 1 to 65535
+      - hostname following RFC 1123
+      - private IPv4 address range
+      - simplified full IPv6 address
+
+  - id: email-accounts
+    description: Emails, usernames and social handles.
+    features: [anchors, char_class, quantifiers, lookahead, flag_i, escaping, alternation]
+    intents:
+      - email address (practical, not RFC-complete)
+      - email address from a specific domain
+      - email address excluding free webmail domains
+      - username with length and character rules
+      - social media handle starting with @
+      - username that cannot start or end with a separator
+
+  - id: phone-numbers
+    description: Phone numbers in national and international formats.
+    features: [anchors, quantifiers, non_capturing, alternation, backreference, char_class]
+    intents:
+      - French phone number
+      - French mobile number
+      - E.164 international number
+      - North American phone number with optional formatting
+      - UK mobile number
+      - phone number with an optional country code
+
+  - id: postal-official
+    description: Postal codes and official identifiers (format only, no checksum).
+    features: [anchors, char_class, quantifiers, alternation, flag_i, numeric_range]
+    intents:
+      - French postal code
+      - US ZIP or ZIP+4 code
+      - UK postcode
+      - Canadian postal code
+      - IBAN format of a given country
+      - French SIRET or SIREN number
+      - credit card number format with optional groups of four
+      - EU VAT number of a given country
+
+  - id: passwords
+    description: Password and secret policies.
+    features: [anchors, lookahead, char_class, quantifiers, shorthand, backreference]
+    intents:
+      - password with minimum length and character class requirements
+      - password without whitespace and without the same character three times in a row
+      - PIN code of 4 to 6 digits, not all identical
+      - passphrase of at least four words
+      - API key with a known prefix
+      - password that must not contain the word password
+
+  - id: files-paths
+    description: File names, extensions and paths.
+    features: [anchors, escaping, alternation, flag_i, char_class, quantifiers, lookbehind]
+    intents:
+      - image file name by extension
+      - Unix absolute path
+      - Windows path with a drive letter
+      - file name without forbidden characters
+      - hidden dotfile name
+      - test file such as *.spec.ts or *.test.js
+      - file name with a date prefix
+
+  - id: versions
+    description: Version numbers and release tags.
+    features: [anchors, quantifiers, non_capturing, alternation, numeric_range, escaping]
+    intents:
+      - semantic version
+      - semantic version with pre-release and build metadata
+      - git tag such as v1.2 or v1.2.3
+      - calendar version such as 2024.06
+      - Python version specifier
+      - npm version range with a caret or tilde
+
+  - id: code-syntax
+    description: Identifiers and naming conventions in code.
+    features: [anchors, char_class, quantifiers, unicode_property, alternation, lookahead]
+    intents:
+      - valid JavaScript identifier
+      - camelCase name
+      - snake_case or SCREAMING_SNAKE_CASE name
+      - kebab-case name
+      - environment variable name
+      - CSS class name following BEM
+      - TODO or FIXME comment line
+      - import statement of a given module
+
+  - id: dev-tooling
+    description: Formats from development tools and workflows.
+    features: [anchors, alternation, non_capturing, quantifiers, char_class, lookahead]
+    intents:
+      - Conventional Commits title
+      - git branch name following a convention
+      - Docker image reference with optional tag
+      - npm package name, scoped or not
+      - five-field cron expression (simplified)
+      - semantic PR title with a ticket key
+      - Kubernetes resource name
+
+  - id: logs
+    description: Log lines and server output.
+    features: [anchors, unanchored, alternation, word_boundary, quantifiers, shorthand, lookbehind]
+    intents:
+      - log line starting with a given level
+      - line containing an error code
+      - Apache or nginx access log line
+      - HTTP status line with a 4xx or 5xx code
+      - line containing a stack trace frame
+      - log line with an ISO timestamp prefix
+      - line mentioning a duration above one second
+
+  - id: text
+    description: Words, sentences and text constraints.
+    features: [unanchored, word_boundary, flag_i, backreference, anchors, quantifiers, char_class]
+    intents:
+      - text containing a given whole word
+      - text with a repeated word
+      - sentence starting with a capital letter and ending with a period
+      - string of at most N words
+      - title case text
+      - text without double spaces
+      - string wrapped in matching quotes
+
+  - id: unicode
+    description: International text and Unicode-aware validation.
+    features: [unicode_property, unicode_escape, anchors, quantifiers, lookahead]
+    intents:
+      - name in any language with letters, hyphens and apostrophes
+      - text written only in a given script (Greek, Cyrillic, Han…)
+      - string containing at least one emoji
+      - string without control characters
+      - word made of letters from any language
+      - number using any Unicode decimal digits
+
+  - id: structured-data
+    description: Small structured formats inside a single string.
+    features: [anchors, quantifiers, non_capturing, escaping, char_class, backreference, named_groups]
+    intents:
+      - CSV row with a fixed number of fields
+      - list of key=value pairs separated by ampersands
+      - comma-separated list of integers without trailing comma
+      - Base64 string
+      - JWT shape (three Base64URL parts)
+      - simple JSON array of numbers
+      - opening and closing tag with the same name
+
+  - id: multiline
+    description: Multi-line input where line-based semantics matter.
+    features: [flag_m, flag_s, anchors, dot, unanchored, quantifiers]
+    intents:
+      - text where every line is a number
+      - text with at least one blank line
+      - block delimited by start and end markers across lines
+      - text where some line starts with a hash
+      - text without trailing whitespace on any line
+      - text of at most three lines
+
+  - id: exclusions
+    description: Validation by exclusion and negative constraints.
+    features: [lookahead, lookbehind, anchors, alternation, word_boundary, char_class]
+    intents:
+      - string not containing a given substring
+      - word that is not one of a list of reserved words
+      - number not ending in a given digit
+      - file name not ending with a given extension
+      - string that does not start with a prefix
+      - identifier that is not all uppercase
+
+  - id: measurements
+    description: Measurements, units and coordinates.
+    features: [anchors, quantifiers, alternation, numeric_range, non_capturing, escaping, unicode_escape]
+    intents:
+      - temperature in Celsius or Fahrenheit
+      - latitude between -90 and 90
+      - longitude in decimal degrees
+      - coordinates in degrees, minutes and seconds
+      - file size with a unit such as KB, MB or GB
+      - dimensions such as 1920x1080
+      - weight in kilograms or grams
