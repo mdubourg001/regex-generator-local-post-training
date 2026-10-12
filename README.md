@@ -283,6 +283,29 @@ train (garde-fou 5) : 489 exemples de train, 33 de valid et 29 de held-out sont 
   sur le held-out et sur le benchmark.
 - **Livrable** : le point de référence de tout le projet.
 
+```sh
+uv run scripts/eval.py --name baseline-0.6b-benchmark --data data/eval/benchmark.jsonl
+uv run scripts/eval.py --name baseline-0.6b-benchmark-fewshot --data data/eval/benchmark.jsonl --few-shot
+uv run scripts/eval.py --name baseline-1.7b-heldout --data data/prepared/heldout.jsonl --model Qwen/Qwen3-1.7B
+```
+
+Le few-shot ajoute au prompt trois exemples fixes (`common.FEW_SHOT`), choisis pour ne recouper ni le benchmark ni le
+train.
+
+| Modèle brut          | Held-out : succès | tests réussis | mal formées | Benchmark : succès | tests réussis | mal formées |
+| -------------------- | ----------------- | ------------- | ----------- | ------------------ | ------------- | ----------- |
+| Qwen3-0.6B           | 2,5 %             | 46,5 %        | 24,4 %      | 0,0 %              | 40,6 %        | 29,0 %      |
+| Qwen3-0.6B few-shot  | 2,3 %             | 43,8 %        | 27,2 %      | 0,9 %              | 39,7 %        | 33,8 %      |
+| Qwen3-1.7B           | 2,3 %             | 26,3 %        | 62,7 %      | 0,9 %              | 25,4 %        | 60,5 %      |
+| Qwen3-1.7B few-shot  | 5,0 %             | 53,6 %        | 22,0 %      | 3,3 %              | 50,8 %        | 20,5 %      |
+
+- Les modèles bruts ne savent pas faire la tâche : au mieux 5 % de regex entièrement justes.
+- Le 1.7B en zero-shot répond mal au format dans 60 % des cas (pattern sans délimiteurs, `/…/.test(str)`, texte
+  autour). Le few-shot corrige surtout le format (20 % de sorties mal formées), et double le taux de tests réussis.
+- Quand le format est bon, les regex sont fausses sur les détails : flag `i` ajouté sans raison (qui accepte `UserId`
+  pour du camelCase), ancres oubliées, tirets en début ou fin de nom acceptés, `\p{L}` ignoré.
+- À titre de repère, Qwen3-235B (second avis, étape 3) passe tous les tests sur 66,5 % des exemples du train.
+
 ### Étape 6 : SFT avec LoRA
 
 - **Faire** : entraîner un adapter avec `mlx_lm.lora`, piloté par `configs/sft.yaml`. Mesurer aussi l'effet du volume

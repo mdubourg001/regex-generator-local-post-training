@@ -24,14 +24,17 @@ from common import RegexRunner, build_messages, grade, score
 RESULTS_DIR = Path("results")
 
 
-def generate(model_name: str, adapter: str | None, examples: list[dict], max_tokens: int, batch_size: int) -> list[str]:
+def generate(
+    model_name: str, adapter: str | None, examples: list[dict], max_tokens: int, batch_size: int, few_shot: bool
+) -> list[str]:
     from mlx_lm import batch_generate, load
     from tqdm import tqdm
 
     model, tokenizer = load(model_name, adapter_path=adapter)
     # enable_thinking=False : désactive le mode « raisonnement » de Qwen3 (ignoré par les modèles qui ne l'ont pas).
     prompts = [
-        tokenizer.apply_chat_template(build_messages(e), add_generation_prompt=True, enable_thinking=False) for e in examples
+        tokenizer.apply_chat_template(build_messages(e, few_shot=few_shot), add_generation_prompt=True, enable_thinking=False)
+        for e in examples
     ]
     # Les prompts de longueur proche sont générés ensemble : moins de padding, donc moins de mémoire et de calcul.
     order = sorted(range(len(prompts)), key=lambda i: len(prompts[i]))
@@ -51,6 +54,7 @@ def main() -> None:
     parser.add_argument("--model", default="Qwen/Qwen3-0.6B")
     parser.add_argument("--adapter", default=None, help="dossier d'un adapter LoRA")
     parser.add_argument("--reference", action="store_true", help="note les regex de référence au lieu d'un modèle")
+    parser.add_argument("--few-shot", action="store_true", help="ajoute au prompt les exemples fixes de common.FEW_SHOT")
     parser.add_argument("--n", type=int, default=None, help="nombre de cas (pour un test rapide)")
     parser.add_argument("--max-tokens", type=int, default=128)
     parser.add_argument("--batch-size", type=int, default=16)
@@ -62,7 +66,7 @@ def main() -> None:
     if args.reference:
         outputs = [e["regex"] for e in examples]
     else:
-        outputs = generate(args.model, args.adapter, examples, args.max_tokens, args.batch_size)
+        outputs = generate(args.model, args.adapter, examples, args.max_tokens, args.batch_size, args.few_shot)
     gen_time = time.monotonic() - start
     with RegexRunner(timeout_ms=args.timeout_ms) as runner:
         grades = grade(runner, examples, outputs)
@@ -77,6 +81,7 @@ def main() -> None:
         "name": args.name,
         "model": "reference" if args.reference else args.model,
         "adapter": args.adapter,
+        "few_shot": args.few_shot,
         "data": str(args.data),
         **{k: round(v, 4) if isinstance(v, float) else v for k, v in result.items()},
         "generation_seconds": round(gen_time, 1),

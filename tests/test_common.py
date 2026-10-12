@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from common import RegexRunner, build_messages, grade, parse_answer, parse_literal, score
+from common import FEW_SHOT, RegexRunner, build_messages, grade, parse_answer, parse_literal, score
 
 FIXTURES = [json.loads(line) for line in (Path(__file__).parent / "fixtures" / "cases.jsonl").open()]
 
@@ -184,3 +184,10 @@ def test_grade_counts_timeouts_as_failures(runner):
     example = {"tests": {"match": ["a" * 40], "no_match": ["a" * 40 + "b"]}}
     [g] = grade(runner, [example], ["/^(a+)+$/"])
     assert (g["status"], g["success"], g["pass_rate"]) == ("timeout", False, 0.0)
+
+
+def test_few_shot_prompt_and_answers_are_valid():
+    messages = build_messages({"description": "d"}, few_shot=True)
+    assert [m["role"] for m in messages] == ["system"] + ["user", "assistant"] * len(FEW_SHOT) + ["user"]
+    assert all(parse_answer(shot["regex"]) for shot in FEW_SHOT)
+    assert "Should match:" in messages[1]["content"]

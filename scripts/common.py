@@ -24,6 +24,25 @@ SYSTEM_PROMPT = (
 )
 
 
+# Exemples du mode few-shot (baselines des modèles bruts) : un cas ancré avec exemples, une recherche non ancrée avec
+# flag, une liste. Choisis pour ne recouper ni le benchmark ni le train.
+FEW_SHOT = [
+    {
+        "description": "French license plate: two uppercase letters, a hyphen, three digits, a hyphen, two uppercase letters",
+        "examples": {"match": ["AB-123-CD"], "no_match": ["AB123CD"]},
+        "regex": r"/^[A-Z]{2}-\d{3}-[A-Z]{2}$/",
+    },
+    {
+        "description": "does the commit message contain the word wip, in any case, as a whole word",
+        "regex": r"/\bwip\b/i",
+    },
+    {
+        "description": "A semicolon-separated list of one to five two-letter uppercase country codes, with no spaces.",
+        "regex": r"/^[A-Z]{2}(?:;[A-Z]{2}){0,4}$/",
+    },
+]
+
+
 # --- Prompt -----------------------------------------------------------------------------------------------------------
 
 
@@ -38,11 +57,11 @@ def build_user_prompt(example: dict) -> str:
     return "\n\n".join(sections)
 
 
-def build_messages(example: dict, with_answer: bool = False) -> list[dict]:
-    messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": build_user_prompt(example)},
-    ]
+def build_messages(example: dict, with_answer: bool = False, few_shot: bool = False) -> list[dict]:
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    for shot in FEW_SHOT if few_shot else []:
+        messages += [{"role": "user", "content": build_user_prompt(shot)}, {"role": "assistant", "content": shot["regex"]}]
+    messages.append({"role": "user", "content": build_user_prompt(example)})
     if with_answer:
         messages.append({"role": "assistant", "content": example["regex"]})
     return messages
