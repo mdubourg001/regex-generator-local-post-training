@@ -1,0 +1,121 @@
+# Benchmark, catégorie email-accounts. Format et contrôles : scripts/benchmark.py.
+
+- id: email-accounts-01
+  difficulty: simple
+  status: ok
+  description: >-
+    Username for our app: 3 to 16 characters, only lowercase letters, digits and underscores, and it must start with a
+    letter.
+  regex: '/^[a-z][a-z0-9_]{2,15}$/'
+  match: ['abc', 'a_1', 'x__', 'user_name', 'john99', 'a234567890123456']
+  no_match: ['ab', '1abc', 'Abc', '_abc', 'a2345678901234567', 'user-name', 'abc ']
+  pitfall: Getting the length bounds off by one once the first letter is counted separately.
+
+- id: email-accounts-02
+  difficulty: simple
+  status: ok
+  description: >-
+    Only accept emails at our company domain example.com, case-insensitive. The local part is letters, digits, dots,
+    hyphens and underscores; it cannot start or end with a dot and cannot contain two dots in a row. Subdomains of
+    example.com are not accepted.
+  regex: '/^[a-z0-9_-]+(?:\.[a-z0-9_-]+)*@example\.com$/i'
+  match: ['john.doe@example.com', 'J_D@EXAMPLE.COM', 'a@example.com', 'first-last@example.com', 'x.y.z@Example.Com', 'user_1@example.com']
+  no_match: ['john@example.org', 'john@sub.example.com', '.john@example.com', 'john.@example.com', 'john..doe@example.com', 'john@examplexcom', 'john@example.com ']
+  pitfall: Leaving the dot of example.com unescaped, or accepting any subdomain.
+
+- id: email-accounts-03
+  difficulty: medium
+  status: ok
+  description: >-
+    Check whether a post contains a mention: an @ followed by 1 to 15 letters, digits or underscores, where the @ is
+    at the very start of the text or right after whitespace (so email addresses do not count), and the handle is not
+    immediately followed by another letter, digit or underscore.
+  regex: '/(?<!\S)@\w{1,15}(?!\w)/'
+  match: ['@alice hi', 'hello @bob_99', 'cc @a', "line one\n@user", 'thanks @x12345678901234 !', '@Z']
+  no_match: ['mail me at bob@example.com', 'hello @', 'hello @@bob', 'price 5@home', 'hey @abcdefghijklmnop', 'hello @-bob', 'no mentions here']
+  pitfall: Matching the @ inside email addresses, or accepting handles longer than 15 characters by matching a prefix.
+
+- id: email-accounts-04
+  difficulty: medium
+  status: ok
+  description: >-
+    Display name for a gaming profile: 2 to 20 characters made of letters from any alphabet, ASCII digits and spaces.
+    It cannot start or end with a space and cannot contain two spaces in a row.
+  regex: '/^(?=.{2,20}$)[\p{L}\d]+(?: [\p{L}\d]+)*$/u'
+  match: ['Jo', 'Zoë 42', 'Ελένη', '李小龙', 'Player One', 'a b c d']
+  no_match: ['J', ' Jo', 'Jo ', 'Jo  Doe', 'Jo_Doe', 'abcdefghijklmnopqrstu', 'Jo!']
+  pitfall: Restricting letters to A-Z, which rejects Ελένη or Zoë.
+
+- id: email-accounts-05
+  difficulty: medium
+  status: ok
+  description: >-
+    Practical email validation for a newsletter form, case-insensitive. Local part: 1 to 64 characters among letters,
+    digits and . _ % + -, not starting or ending with a dot, with no two dots in a row. Then @. Then the domain: one or
+    more labels of letters, digits and hyphens, each label not starting or ending with a hyphen and followed by a dot,
+    and finally a top-level domain of 2 to 24 letters.
+  regex: '/^(?=[^@]{1,64}@)[a-z0-9_%+-]+(?:\.[a-z0-9_%+-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,24}$/i'
+  match: ['a@b.co', 'john.doe+news@mail.example.org', 'X_Y%z@EXAMPLE.IO', 'first-last@my-domain.fr', 'u@a1.b2.museum', 'a.b.c@d.com']
+  no_match: ['john@example', 'john@.example.com', 'john@-example.com', 'john@example-.com', '.john@example.com', 'john..d@example.com', 'john@example.c', 'john doe@example.com']
+  pitfall: Allowing labels that start or end with a hyphen, or a one-letter top-level domain.
+
+- id: email-accounts-06
+  difficulty: hard
+  status: ok
+  description: >-
+    Signup username: 3 to 20 characters of lowercase letters, digits and hyphens. It must start with a letter, cannot
+    end with a hyphen and cannot contain two hyphens in a row. The whole name must not be one of the reserved words
+    admin, root, support or system, but names that merely contain them, like admin2 or myroot, are fine.
+  regex: '/^(?!(?:admin|root|support|system)$)[a-z](?:[a-z0-9]|-(?!-)){1,18}[a-z0-9]$/'
+  match: ['admin2', 'myroot', 'bob', 'alice-smith', 'a1-b2-c3', 'sys']
+  no_match: ['admin', 'root', 'system', 'al', 'alice--smith', 'alice-', '1alice', 'Alice', 'abcdefghijklmnopqrstu']
+  pitfall: Excluding every name that contains a reserved word instead of only exact matches.
+
+- id: email-accounts-07
+  difficulty: hard
+  status: ok
+  description: >-
+    In our import file, each email is typed twice in the same field to confirm it, separated by a single comma with no
+    spaces. Both copies must be exactly identical, including case. Each copy is a simple email: one or more characters
+    other than whitespace, @ and commas, then @, then a domain made of the same kind of characters with at least one
+    dot inside.
+  regex: '/^([^\s@,]+@[^\s@,]+\.[^\s@,]+),\1$/'
+  match: ['a@b.co,a@b.co', 'john.doe@mail.com,john.doe@mail.com', 'x@y.z,x@y.z', 'A@B.COM,A@B.COM', 'u+1@d.io,u+1@d.io', 'n_1@ex-ample.org,n_1@ex-ample.org']
+  no_match: ['a@b.co,a@b.com', 'a@b.co, a@b.co', 'a@b.co,A@B.CO', 'a@b.co', 'a@b.co,a@b.co,a@b.co', 'a b@c.d,a b@c.d', 'xa@b.co,a@b.co', 'a@b.co,a@b.coX']
+  pitfall: Validating each copy separately without checking that they are identical.
+
+- id: email-accounts-08
+  difficulty: simple
+  status: ok
+  description: >-
+    GitHub-style username, case-insensitive: 1 to 39 characters, letters and digits, with single hyphens allowed only
+    between two letters or digits (so no hyphen at the start or end, and no double hyphens).
+  regex: '/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i'
+  match: ['a', 'octocat', 'Octo-Cat', 'a-b-c', 'user123', 'A1']
+  no_match: ['-octo', 'octo-', 'octo--cat', 'octo_cat', 'octo cat', '', 'a123456789012345678901234567890123456789']
+  pitfall: Forgetting the 39-character limit or allowing a trailing hyphen.
+
+- id: email-accounts-09
+  difficulty: medium
+  status: ok
+  description: >-
+    Instagram-like handle as entered in a profile: an optional leading @, then 1 to 30 characters among ASCII letters,
+    digits, periods and underscores. The handle (after the optional @) cannot start or end with a period and cannot
+    contain two periods in a row.
+  regex: '/^@?(?!\.)(?!.*\.\.)(?!.*\.$)[\w.]{1,30}$/'
+  match: ['john.doe', '@john_doe', 'a', '@a.b.c', 'user_123.x', '__init__']
+  no_match: ['.john', 'john.', 'john..doe', '@', '@@john', 'john-doe', 'john doe', 'abcdefghijklmnopqrstuvwxyz12345']
+  pitfall: Applying the period rules to the whole string including the @, or forgetting the length limit.
+
+- id: email-accounts-10
+  difficulty: hard
+  status: ok
+  description: >-
+    Check whether a block of text contains an email address on a disposable domain: exactly mailinator.com or
+    yopmail.com (subdomains excluded), case-insensitive. The address has a local part of letters, digits, dots, plus
+    signs, hyphens and underscores directly before the @, and the domain must not be immediately followed by another
+    letter, digit, dot or hyphen.
+  regex: '/[\w.+-]+@(?:mailinator|yopmail)\.com(?![\w.-])/i'
+  match: ['Sign-ups from test@mailinator.com today', 'YOPMAIL user: A.B+1@YopMail.com', 'x@yopmail.com', 'list: a@b.fr, c_d@mailinator.com; e@f.org', '(contact: j-k@mailinator.com)', '<z@yopmail.com>']
+  no_match: ['test@gmail.com', 'user@mail.mailinator.com', 'test@mailinator.co', 'test@mailinator.com.au', 'test@notmailinator.com', 'mailinator.com', '@yopmail.com', 'x@@yopmail.com']
+  pitfall: Matching longer domains such as mailinator.com.au because nothing checks what follows .com.

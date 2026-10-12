@@ -1,0 +1,116 @@
+# Benchmark, catégorie phone-numbers. Format et contrôles : scripts/benchmark.py.
+
+- id: phone-numbers-01
+  difficulty: simple
+  status: ok
+  description: >-
+    French phone number in national format, without any separator: ten digits, starting with 0, and the second digit
+    is between 1 and 9.
+  regex: '/^0[1-9]\d{8}$/'
+  match: ['0123456789', '0612345678', '0987654321', '0712345678', '0511111111', '0900000000']
+  no_match: ['1234567890', '0012345678', '061234567', '06123456789', '06 12 34 56 78', '+33612345678', '061234567a']
+  pitfall: Accepting 00 as a prefix or a wrong number of digits.
+
+- id: phone-numbers-02
+  difficulty: simple
+  status: ok
+  description: >-
+    E.164 phone number: a plus sign followed by 8 to 15 digits in total, the first digit not being zero. No spaces.
+  regex: '/^\+[1-9]\d{7,14}$/'
+  match: ['+33612345678', '+14155552671', '+12345678', '+123456789012345', '+447911123456', '+861012345678']
+  no_match: ['33612345678', '+0612345678', '+1234567', '+1234567890123456', '+33 612345678', '++33612345678', '+3361234567x']
+  pitfall: Counting the first digit twice and getting the 8 to 15 digit bounds wrong.
+
+- id: phone-numbers-03
+  difficulty: medium
+  status: ok
+  description: >-
+    French mobile number for a contact form: 06 or 07, then four more pairs of digits. The five pairs can be written
+    without separators, or separated by a space, a dot or a hyphen, but the same separator must be used between every
+    pair.
+  regex: '/^0[67](?<sep>[ .-]?)\d{2}(?:\k<sep>\d{2}){3}$/'
+  match: ['0612345678', '06 12 34 56 78', '07.12.34.56.78', '06-00-11-22-33', '0799999999', '07 98 76 54 32']
+  no_match: ['06 12.34 56 78', '06-12-34-56 78', '0612 34 56 78', '06  12 34 56 78', '05 12 34 56 78', '06 12 34 56 7', '06 12 34 56 78 ']
+  pitfall: Using an independent optional separator between each pair, which accepts mixed separators.
+
+- id: phone-numbers-04
+  difficulty: hard
+  status: ok
+  description: >-
+    US phone number for a contact form, ten digits, in exactly one of these layouts: area code in parentheses followed
+    by one space, then three digits, a hyphen and four digits; or three groups (3, 3 and 4 digits) separated by the
+    same separator, either hyphens or dots; or ten digits with no separator. The area code and the following
+    three-digit exchange code must both start with a digit from 2 to 9. No country code.
+  regex: '/^(?:\([2-9]\d{2}\) [2-9]\d{2}-\d{4}|[2-9]\d{2}([-.])[2-9]\d{2}\1\d{4}|[2-9]\d{2}[2-9]\d{6})$/'
+  match: ['(415) 555-2671', '415-555-2671', '415.555.2671', '4155552671', '(212) 234-5678', '999.999.0000']
+  no_match: ['(415)555-2671', '415-555.2671', '(415) 555.2671', '115-555-2671', '415-155-2671', '415 555 2671', '1-415-555-2671', '415-555-267', '4151552671']
+  pitfall: Allowing mixed separators, or forgetting that the exchange code cannot start with 0 or 1.
+
+- id: phone-numbers-05
+  difficulty: medium
+  status: ok
+  description: >-
+    UK mobile number. Either the national form, 07 followed by 9 digits, where one optional space may separate the
+    first five digits from the last six; or the international form, +44 then an optional space, then 7 followed by 9
+    digits (no leading zero after +44).
+  regex: '/^(?:07\d{3} ?\d{6}|\+44 ?7\d{9})$/'
+  match: ['07911123456', '07911 123456', '+447911123456', '+44 7911123456', '07000000000', '+447000000000']
+  no_match: ['0791112345', '079111234567', '+4407911123456', '+44 07911123456', '07911  123456', '7911123456', '08911123456', '+44 791112345']
+  pitfall: Keeping the leading 0 after +44.
+
+- id: phone-numbers-06
+  difficulty: hard
+  status: ok
+  description: >-
+    Phone number for our internal directory: +33, then a digit from 1 to 9 and 8 more digits, without spaces.
+    Optionally followed by an extension, written either as a space, "ext.", a space and 1 to 5 digits, or as a space,
+    the letter x and 1 to 5 digits.
+  regex: '/^\+33[1-9]\d{8}(?: ext\. \d{1,5}| x\d{1,5})?$/'
+  match: ['+33123456789', '+33612345678 ext. 42', '+33612345678 x1', '+33912345678 ext. 12345', '+33512345678 x99999', '+33712345678']
+  no_match: ['+33012345678', '+3312345678', '+33612345678 ext 42', '+33612345678 ext. 123456', '+33612345678x1', '+33612345678 x', '+33612345678 ext.42']
+  pitfall: Leaving the dot of ext. unescaped or accepting an empty extension.
+
+- id: phone-numbers-07
+  difficulty: hard
+  status: ok
+  description: >-
+    Check whether a support message contains something that looks like a French mobile number: 06 or 07 followed by
+    four pairs of digits, each pair optionally preceded by a single space or a dot (separators do not need to be
+    consistent). The number must not be glued to other digits on either side.
+  regex: '/(?<!\d)0[67](?:[ .]?\d{2}){4}(?!\d)/'
+  match: ['Call me at 06 12 34 56 78 please', 'my number:0712345678', '06.12.34.56.78', 'Tel 07 12.34 56.78 thanks', '(0611223344)', 'reach me on 0799999999.']
+  no_match: ['ref 106123456789', 'order 0612345678912', '01 23 45 56 78', '06 12 34 56', '06-12-34-56-78', 'no phone here', '+33 6 12 34 56 78']
+  pitfall: Without the digit checks on both sides, it matches inside longer numbers such as order references.
+
+- id: phone-numbers-08
+  difficulty: simple
+  status: ok
+  description: >-
+    Belgian mobile number in national format: 04 followed by exactly 8 digits, without separators.
+  regex: '/^04\d{8}$/'
+  match: ['0470123456', '0499999999', '0400000000', '0485123456', '0412345678', '0456789012']
+  no_match: ['047012345', '04701234567', '0370123456', '470123456', '+32470123456', '0470 12 34 56', '0470123456 ']
+  pitfall: Not anchoring, so longer numbers pass.
+
+- id: phone-numbers-09
+  difficulty: medium
+  status: ok
+  description: >-
+    International phone number as typed by users: a plus sign, a country code of 1 to 3 digits, one space, then 6 to
+    12 digits where a single space or hyphen may appear between any two digits.
+  regex: '/^\+\d{1,3} \d(?:[ -]?\d){5,11}$/'
+  match: ['+33 612345678', '+1 415-555-2671', '+44 7911 123456', '+352 621 123 456', '+49 30 1234567', '+7 123456']
+  no_match: ['+33612345678', '33 612345678', '+1234 612345678', '+33 12345', '+33 1234567890123', '+33 6--12345678', '+33 612345678 ', '+33  612345678']
+  pitfall: Counting separators as digits, so the 6 to 12 digit bounds are not enforced.
+
+- id: phone-numbers-10
+  difficulty: hard
+  status: ok
+  description: >-
+    Phone column in a CSV import: exactly 10 digits, possibly with separators. A separator is a single space, dot or
+    hyphen placed between two digits; separators can differ along the number. The value cannot start or end with a
+    separator.
+  regex: '/^\d(?:[ .-]?\d){9}$/'
+  match: ['0123456789', '01 23 45 67 89', '012.345.6789', '0-1-2-3-4-5-6-7-8-9', '01234 56789', '987-654 32.10']
+  no_match: ['012345678', '01234567890', '01  23456789', '-0123456789', '0123456789-', '01_23456789', '01 23 45 67 8']
+  pitfall: Counting characters instead of digits once separators are allowed.

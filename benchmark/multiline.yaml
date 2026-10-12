@@ -1,0 +1,127 @@
+# Benchmark, catégorie multiline. Format et contrôles : scripts/benchmark.py.
+
+- id: multiline-01
+  difficulty: simple
+  status: ok
+  description: >-
+    A multi-line text where every line is a non-negative integer made of digits only. Lines are separated by a single
+    newline character; there are no empty lines and no trailing newline.
+  regex: '/^\d+(?:\n\d+)*$/'
+  match: ["1", "1\n2\n3", "10\n0\n999", "42\n7", "0", "123\n456"]
+  no_match: ["", "1\n", "1\n\n2", "1\na", "1 \n2", "\n1", "1\r\n2", "1.5\n2"]
+  pitfall: Using the m flag with ^\d+$, which only checks that one line is a number.
+
+- id: multiline-02
+  difficulty: simple
+  status: ok
+  description: >-
+    Detect whether a text contains at least one blank line between two other lines, a blank line being empty or made
+    only of spaces and tabs.
+  regex: '/\n[ \t]*\n/'
+  match: ["a\n\nb", "a\n   \nb", "\n\n", "x\n\t\ny", "a\nb\n\nc", "a\n \t \nb"]
+  no_match: ["a\nb", "a b", "", "a\n b\nc", "a\nb\n", "\n"]
+  pitfall: Using \s* between the newlines, which also crosses lines that have content.
+
+- id: multiline-03
+  difficulty: medium
+  status: ok
+  description: >-
+    Check whether a text contains a line that starts with a hash sign, at the very beginning of the line (no
+    indentation).
+  regex: '/^#/m'
+  match: ["# title", "text\n# comment", "a\nb\n#c", "#", "x\n#\ny", "\n#x"]
+  no_match: ["a # b", "text\n #indented", "", "no comments\nhere", "a\nb#", "\t# tab"]
+  pitfall: Forgetting the m flag, so only the first line is checked.
+
+- id: multiline-04
+  difficulty: medium
+  status: ok
+  description: >-
+    A pre-commit check: no line of the text may end with trailing whitespace, meaning a space or tab right before a
+    newline or at the very end of the text. Empty text is fine.
+  regex: '/^(?![\s\S]*[ \t](?:\n|$))[\s\S]*$/'
+  match: ["", "a\nb", "clean line", "a b\nc d", "x\n\ny", "\tindented\nok"]
+  no_match: ["a \nb", "a\nb ", "a\t\nb", " ", "line\n \n", "end\t"]
+  pitfall: Checking only the end of the whole text instead of the end of every line.
+
+- id: multiline-05
+  difficulty: hard
+  status: ok
+  description: >-
+    A PEM certificate block: a first line exactly equal to five hyphens, BEGIN CERTIFICATE, five hyphens; then one or
+    more lines of 1 to 64 Base64 characters (letters, digits, plus, slash, equals sign); then a last line exactly
+    equal to five hyphens, END CERTIFICATE, five hyphens. Lines are separated by a single newline, and the text may
+    end with one optional newline.
+  regex: '/^-----BEGIN CERTIFICATE-----\n(?:[A-Za-z0-9+\/=]{1,64}\n)+-----END CERTIFICATE-----\n?$/'
+  match:
+    - "-----BEGIN CERTIFICATE-----\nMIIB\n-----END CERTIFICATE-----"
+    - "-----BEGIN CERTIFICATE-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA\nAB==\n-----END CERTIFICATE-----\n"
+    - "-----BEGIN CERTIFICATE-----\nABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/\n-----END CERTIFICATE-----"
+    - "-----BEGIN CERTIFICATE-----\na\nb\nc\n-----END CERTIFICATE-----"
+    - "-----BEGIN CERTIFICATE-----\n====\n-----END CERTIFICATE-----\n"
+    - "-----BEGIN CERTIFICATE-----\nx/y+z\n-----END CERTIFICATE-----"
+  no_match:
+    - "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----"
+    - "-----BEGIN CERTIFICATE-----\nABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/A\n-----END CERTIFICATE-----"
+    - "-----BEGIN CERTIFICATE-----\nMI IB\n-----END CERTIFICATE-----"
+    - "-----BEGIN CERTIFICATE-----\nMIIB\n-----END CERTIFICATE-----\n\n"
+    - "-----begin certificate-----\nMIIB\n-----end certificate-----"
+    - "-----BEGIN CERTIFICATE-----\nMIIB\n-----END PRIVATE KEY-----"
+    - " -----BEGIN CERTIFICATE-----\nMIIB\n-----END CERTIFICATE-----"
+    - "-----BEGIN CERTIFICATE-----\nMIIB\n\n-----END CERTIFICATE-----"
+  pitfall: Using .* for the body, which accepts empty lines, spaces and over-long lines.
+
+- id: multiline-06
+  difficulty: hard
+  status: ok
+  description: >-
+    A short note field: between one and three lines, separated by single newline characters, and no line may be
+    empty. A line can contain any character other than a newline, spaces included.
+  regex: '/^[^\n]+(?:\n[^\n]+){0,2}$/'
+  match: ["a", "a\nb", "a\nb\nc", "hello world\nsecond", " \n \n ", "x y z"]
+  no_match: ["", "a\nb\nc\nd", "a\n\nb", "a\n", "\na", "a\nb\nc\n"]
+  pitfall: Counting newlines without forbidding empty lines, or allowing a trailing newline.
+
+- id: multiline-07
+  difficulty: medium
+  status: ok
+  description: >-
+    Check whether a text contains the uppercase word TODO and, somewhere after it, possibly several lines later, the
+    uppercase word DONE. Case matters.
+  regex: '/TODO.*DONE/s'
+  match: ["TODO: x DONE", "TODO\nwork\nDONE", "a TODO b\nc DONE", "TODODONE", "x\nTODO\n\nDONE\n", "TODO DONE DONE"]
+  no_match: ["DONE then TODO", "TODO only", "todo\nDONE", "TODO\nDone", "", "TO DO\nDONE"]
+  pitfall: Forgetting the s flag, so the dot does not cross newlines.
+
+- id: multiline-08
+  difficulty: hard
+  status: ok
+  description: >-
+    Detect consecutive duplicate lines: the text contains a non-empty line that is exactly identical to the line right
+    after it. Lines are separated by newline characters, and the comparison is case-sensitive.
+  regex: '/^(.+)\n\1$/m'
+  match: ["a\na", "x\nhello\nhello\ny", "1\n2\n2", "same line\nsame line", "a\nb\nb\nc", "foo bar\nfoo bar\nbaz"]
+  no_match: ["a\nb", "ab\nabc", "abc\nab", "a\nb\na", "hello\nHello", "", "\n\n"]
+  pitfall: Without line anchors, a line that is a prefix or suffix of the next one is reported as a duplicate.
+
+- id: multiline-09
+  difficulty: simple
+  status: ok
+  description: >-
+    A Markdown bullet list: at least one line, every line starting with a hyphen and a space followed by at least one
+    character. Lines are separated by single newlines, with no empty line and no trailing newline.
+  regex: '/^- .+(?:\n- .+)*$/'
+  match: ["- a", "- one\n- two", "- x\n- y\n- z", "- item with - dash", "-  double space", "- 1"]
+  no_match: ["", "-a", "- ", "* a", "- a\n", "- a\nb", " - a", "- a\n\n- b"]
+  pitfall: Using the m flag on a single-line pattern, which accepts a list where only one line is a bullet.
+
+- id: multiline-10
+  difficulty: medium
+  status: ok
+  description: >-
+    Check whether a Markdown document contains a level-2 heading: a line that starts with exactly two hash signs, then
+    one space, then a non-space character.
+  regex: '/^## \S.*$/m'
+  match: ["## Title", "intro\n## Usage\ntext", "## A", "x\n## Install steps", "## 1. Setup\n", "a\n\n## b"]
+  no_match: ["# Title", "### Title", "##Title", "text ## Title", "##  ", "## ", " ## Title"]
+  pitfall: Not anchoring at the line start, so a level-3 heading also contains a level-2 marker.

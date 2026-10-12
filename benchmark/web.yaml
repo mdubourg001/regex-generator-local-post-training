@@ -1,0 +1,171 @@
+# Benchmark, catégorie web. Format et contrôles : scripts/benchmark.py.
+
+- id: web-01
+  difficulty: simple
+  status: ok
+  description: >-
+    CSS hex color, case-insensitive: a hash followed by 3, 4, 6 or 8 hexadecimal digits (the 4 and 8 forms include
+    alpha).
+  regex: '/^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i'
+  match: ['#fff', '#FFFA', '#1a2b3c', '#1A2B3C80', '#000', '#abcd']
+  no_match: ['#ff', '#fffff', '#1234567', '#ggg', 'fff', '#123456789', ' #fff']
+  pitfall: Writing #[0-9a-f]{3,8}, which also accepts 5 and 7 digits.
+
+- id: web-02
+  difficulty: simple
+  status: ok
+  description: >-
+    Website field: an http or https URL, scheme case-insensitive, then ://, a domain made of labels (letters, digits,
+    hyphens) separated by dots and ending with a top-level domain of at least two letters, an optional port of one to
+    five digits, and an optional path starting with a slash that contains no whitespace.
+  regex: '/^https?:\/\/(?:[a-z0-9-]+\.)+[a-z]{2,}(?::\d{1,5})?(?:\/\S*)?$/i'
+  match:
+    - 'http://example.com'
+    - 'https://sub.example.co.uk/path?q=1'
+    - 'https://localhost.dev:8080'
+    - 'HTTPS://EXAMPLE.COM'
+    - 'http://a-b.io/'
+    - 'https://example.com/a/b#frag'
+  no_match:
+    - 'ftp://example.com'
+    - 'http//example.com'
+    - 'https://example'
+    - 'https://exa mple.com'
+    - 'https://example.com/pa th'
+    - 'example.com'
+    - 'https://example.com:123456'
+    - 'https://example.c'
+  pitfall: Allowing whitespace in the path with a dot-star, or a domain without any dot.
+
+- id: web-03
+  difficulty: simple
+  status: ok
+  description: >-
+    Route path for our router: either just a single slash, or a slash followed by segments of lowercase letters, digits
+    and hyphens separated by single slashes, with no trailing slash and no query string.
+  regex: '/^\/(?:[a-z0-9-]+(?:\/[a-z0-9-]+)*)?$/'
+  match: ['/', '/about', '/blog/2024/my-post', '/a/b/c', '/user-42', '/docs/api-v2']
+  no_match: ['//', '/about/', 'about', '/About', '/a//b', '/a b', '/blog?x=1']
+  pitfall: Accepting a trailing slash or empty segments.
+
+- id: web-04
+  difficulty: medium
+  status: ok
+  description: >-
+    CSS length value: either the number 0 alone, or a number followed immediately by one of the units px, em, rem, %,
+    vh or vw in lowercase. The number has an optional minus sign and is an integer or a decimal; a decimal may omit the
+    leading zero but must have digits after the dot.
+  regex: '/^(?:0|-?(?:\d+|\d*\.\d+)(?:px|em|rem|%|vh|vw))$/'
+  match: ['0', '12px', '-1.5em', '.5rem', '100%', '50vh', '0px']
+  no_match: ['12', '12 px', '12PX', '1.px', '--1px', '12pt', 'px', '0.5']
+  pitfall: Accepting a unitless number other than 0.
+
+- id: web-05
+  difficulty: medium
+  status: ok
+  description: >-
+    An HTML heading element from h1 to h6, written in lowercase, with plain text content that contains no angle
+    brackets; the closing tag must be the same level as the opening tag. No attributes and no spaces inside the tags.
+  regex: '/^<h([1-6])>[^<>]*<\/h\1>$/'
+  match: ['<h1>Title</h1>', '<h3></h3>', '<h6>a b c</h6>', '<h2>Price: 5$</h2>', '<h4>x</h4>', '<h5>Hello, world!</h5>']
+  no_match: ['<h1>Title</h2>', '<h7>x</h7>', '<H1>x</H1>', '<h1>a<b>b</b></h1>', '<h1>x</h1> ', 'h1>x</h1>', '<h1 >x</h1>']
+  pitfall: Not linking the closing level to the opening one with a backreference.
+
+- id: web-06
+  difficulty: medium
+  status: ok
+  description: >-
+    Inline image as a data URI: data:image/ followed by png, jpeg, gif or webp in lowercase, then ;base64, then one or
+    more base64 characters (letters, digits, plus, slash) with at most two equals signs of padding at the end.
+  regex: '/^data:image\/(?:png|jpeg|gif|webp);base64,[A-Za-z0-9+\/]+={0,2}$/'
+  match:
+    - 'data:image/png;base64,iVBORw0KGgo='
+    - 'data:image/jpeg;base64,/9j/4AAQ'
+    - 'data:image/gif;base64,R0lGODlh=='
+    - 'data:image/webp;base64,UklGRg'
+    - 'data:image/png;base64,abc+/def'
+    - 'data:image/gif;base64,AAAA'
+  no_match:
+    - 'data:image/svg+xml;base64,PHN2Zz4='
+    - 'data:image/png;base64,'
+    - 'data:image/png,iVBOR'
+    - 'data:image/png;base64,abc==='
+    - 'data:text/plain;base64,abc'
+    - 'data:image/PNG;base64,abc'
+    - 'data:image/png;base64,ab c'
+  pitfall: Accepting more than two padding characters or an empty payload.
+
+- id: web-07
+  difficulty: medium
+  status: ok
+  description: >-
+    Hashed asset filename from our bundler: a name in lowercase kebab-case (letters and digits, words separated by
+    single hyphens), a dot, a content hash of exactly 8 lowercase hex characters, a dot, and the extension js or css.
+  regex: '/^[a-z0-9]+(?:-[a-z0-9]+)*\.[0-9a-f]{8}\.(?:js|css)$/'
+  match: ['main.1a2b3c4d.js', 'vendor-react.deadbeef.css', 'app.00000000.js', 'chunk-42.abcdef01.js', 'styles.12345678.css', 'a.ffffffff.css']
+  no_match: ['main.1a2b3c4.js', 'main.1a2b3c4d5.js', 'main.1A2B3C4D.js', 'main.js', 'Main.1a2b3c4d.js', 'main.1a2b3c4d.jsx', 'main--x.1a2b3c4d.js']
+  pitfall: Writing js|css without grouping, or not anchoring, so that .jsx passes.
+
+- id: web-08
+  difficulty: hard
+  status: ok
+  description: >-
+    Mixed-content audit: the HTML contains an opening a tag (tag name case-insensitive) with an href attribute in
+    double quotes whose value starts with http:// (not https). The href attribute must be its own attribute, preceded
+    by whitespace inside that same tag, and the tag must be closed with a greater-than sign.
+  regex: '/<a\s(?:[^>]*\s)?href="http:\/\/[^"]*"[^>]*>/i'
+  match:
+    - '<p>See <a href="http://x.com">x</a></p>'
+    - '<a class="l" href="http://example.org/page">'
+    - '<A HREF="HTTP://EX.COM">'
+    - 'text <a target="_blank" href="http://a.b/c?d=1" rel="x"> more'
+    - '<a href="http://">'
+    - "<a\nhref=\"http://x.com\">"
+  no_match:
+    - '<a href="https://x.com">'
+    - '<a href=http://x.com>'
+    - '<abbr href="http://x.com">'
+    - '<a href="ftp://x.com">'
+    - 'href="http://x.com"'
+    - '<a data-href="http://x.com">'
+    - '<a href="https://x.com"> and later href="http://y.com">'
+    - '<a href="http://x.com"'
+  pitfall: A dot-star between the tag and href crosses tag boundaries or matches data-href.
+
+- id: web-09
+  difficulty: hard
+  status: ok
+  description: >-
+    Analytics check: the URL contains a utm_source query parameter, meaning utm_source= right after a question mark or
+    an ampersand, with a non-empty value. The value is the run of characters up to the next ampersand, hash or
+    whitespace. Parameter names are case-sensitive.
+  regex: '/(?<=[?&])utm_source=[^&#\s]+/'
+  match:
+    - 'https://x.com/?utm_source=newsletter'
+    - 'https://x.com/p?a=1&utm_source=twitter&b=2'
+    - '/landing?utm_source=fb#top'
+    - '?utm_source=x'
+    - 'https://x.com/?ref=a&utm_source=google'
+    - 'https://x.com/?utm_source=a%20b'
+  no_match:
+    - 'https://x.com/?utm_source='
+    - 'https://x.com/?utm_source=&a=1'
+    - 'https://x.com/?xutm_source=a'
+    - 'https://x.com/utm_source=a'
+    - 'https://x.com/?utm_medium=email'
+    - 'https://x.com/?UTM_SOURCE=a'
+    - 'https://x.com/#utm_source=a'
+  pitfall: Matching utm_source inside another parameter name, or accepting an empty value.
+
+- id: web-10
+  difficulty: hard
+  status: ok
+  description: >-
+    CSS color function in lowercase: rgb with exactly three integer components from 0 to 255, or rgba with the same
+    three components plus an alpha. Integers have no leading zeros. The alpha is 0, 1, 1.0 or a decimal starting with
+    0. such as 0.5. Components are separated by a comma optionally followed by one space; no other spaces. rgb must not
+    have an alpha and rgba must have one.
+  regex: '/^(?:rgb\((?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d), ?(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d), ?(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\)|rgba\((?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d), ?(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d), ?(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d), ?(?:0|1|1\.0|0\.\d+)\))$/'
+  match: ['rgb(0,0,0)', 'rgb(255, 255, 255)', 'rgba(12, 34, 56, 0.5)', 'rgba(0,0,0,1)', 'rgba(255,128,0,0)', 'rgb(9, 99, 199)', 'rgba(1, 2, 3, 1.0)']
+  no_match: ['rgb(256,0,0)', 'rgb(0,0,0,0.5)', 'rgba(0,0,0)', 'rgba(0,0,0,1.5)', 'RGB(0,0,0)', 'rgb(0 ,0,0)', 'rgb(01,0,0)', 'rgba(0,0,0,.5)', 'rgb(0,0,0);']
+  pitfall: Using \d{1,3} for components (accepts 256 to 999) or making the alpha optional for both functions.

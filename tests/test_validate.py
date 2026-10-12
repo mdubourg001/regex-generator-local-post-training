@@ -3,7 +3,7 @@ import yaml
 
 from common import RegexRunner
 from generate import CONFIG, TAXONOMY, build_descriptions_messages, build_tests_messages, parse_items, plan
-from validate import add_examples, check, features, is_anchored, mutants, scan, split_of, unanchored
+from validate import add_examples, check, decontaminate, features, is_anchored, mutants, scan, split_of, unanchored
 
 CFG = yaml.safe_load(CONFIG.read_text())
 TAX = yaml.safe_load(TAXONOMY.read_text())
@@ -150,3 +150,14 @@ def test_split_is_by_batch_and_roughly_proportional():
     splits = [split_of(f"b{i:05d}", CFG["split"]) for i in range(4000)]
     assert splits[:50] == [split_of(f"b{i:05d}", CFG["split"]) for i in range(50)]
     assert 0.87 < splits.count("train") / len(splits) < 0.93
+
+
+def test_decontaminate_drops_same_regex_or_close_description():
+    benchmark = [{"description": "IPv4 address in dotted decimal notation", "regex": "/^ip$/"}]
+    examples = [
+        {"description": "anything else", "regex": "/^ip$/"},  # même regex
+        {"description": "An IPv4 address in dotted decimal notation.", "regex": "/^x$/"},  # même besoin
+        {"description": "French postal code", "regex": "/^\\d{5}$/"},
+    ]
+    kept, n = decontaminate(examples, benchmark)
+    assert n == 2 and [e["description"] for e in kept] == ["French postal code"]

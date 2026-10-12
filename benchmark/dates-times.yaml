@@ -1,0 +1,144 @@
+# Benchmark, catégorie dates-times. Format et contrôles : scripts/benchmark.py.
+
+- id: dates-times-01
+  difficulty: simple
+  status: ok
+  description: >-
+    24-hour time HH:MM, both parts on two digits, hours 00 to 23 and minutes 00 to 59.
+  regex: '/^(?:[01]\d|2[0-3]):[0-5]\d$/'
+  match: ['00:00', '09:05', '12:30', '19:59', '23:59', '20:00']
+  no_match: ['24:00', '9:05', '12:60', '12:5', '12:30 ', '1230', '12.30']
+  pitfall: Accepting hours 24 to 29 with a naive [0-2]\d.
+
+- id: dates-times-02
+  difficulty: simple
+  status: ok
+  description: >-
+    Date in ISO format: four-digit year, dash, two-digit month 01 to 12, dash, two-digit day 01 to 31. Do not check the
+    number of days in each month.
+  regex: '/^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/'
+  match: ['2024-01-01', '1999-12-31', '2024-02-30', '0001-06-15', '2030-10-10', '2024-11-30']
+  no_match: ['2024-13-01', '2024-00-10', '2024-01-32', '2024-1-01', '24-01-01', '2024/01/01', '2024-01-01T00:00']
+  pitfall: Accepting month 00 or day 00.
+
+- id: dates-times-03
+  difficulty: simple
+  status: ok
+  description: >-
+    12-hour clock time: the hour from 1 to 12 without a leading zero, a colon, two minute digits 00 to 59, one space,
+    then AM or PM in uppercase.
+  regex: '/^(?:[1-9]|1[0-2]):[0-5]\d (?:AM|PM)$/'
+  match: ['1:00 AM', '12:59 PM', '9:30 AM', '10:05 PM', '11:11 AM', '12:00 AM']
+  no_match: ['0:30 AM', '13:00 PM', '09:30 AM', '9:30 am', '9:30AM', '9:60 PM', '9:30 PM ']
+  pitfall: Allowing hour 0 or 13 and above.
+
+- id: dates-times-04
+  difficulty: medium
+  status: ok
+  description: >-
+    European date day/month/year: two-digit day 01 to 31, two-digit month 01 to 12, four-digit year from 1900 to 2099.
+    The separator is either a slash or a dot, and the same separator must be used in both places.
+  regex: '/^(?:0[1-9]|[12]\d|3[01])([\/.])(?:0[1-9]|1[0-2])\1(?:19|20)\d{2}$/'
+  match: ['01/01/2000', '31.12.1999', '15/06/2024', '09.09.1900', '28/02/2099', '10.10.2010']
+  no_match: ['01/01.2000', '01-01-2000', '32/01/2000', '01/13/2000', '1/01/2000', '01/01/1899', '01/01/2100', '01/01/20001']
+  pitfall: Allowing mixed separators by using a separate character class for each position.
+
+- id: dates-times-05
+  difficulty: medium
+  status: ok
+  description: >-
+    Full ISO 8601 timestamp coming from our API: date YYYY-MM-DD (month 01-12, day 01-31), an uppercase T, time
+    HH:MM:SS (hours 00-23, minutes and seconds 00-59), optional fractional seconds with a dot and one to nine digits,
+    and a mandatory timezone that is either an uppercase Z or a sign followed by HH:MM with hours 00-23.
+  regex: '/^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,9})?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/'
+  match:
+    - '2024-06-15T12:30:00Z'
+    - '2024-06-15T23:59:59.123+02:00'
+    - '1999-12-31T00:00:00-05:00'
+    - '2024-01-01T08:00:00.5Z'
+    - '2024-02-29T10:10:10.123456789Z'
+    - '2030-10-10T10:10:10+00:00'
+  no_match:
+    - '2024-06-15T12:30Z'
+    - '2024-06-15 12:30:00Z'
+    - '2024-06-15T12:30:00'
+    - '2024-06-15T24:00:00Z'
+    - '2024-06-15T12:30:00+0200'
+    - '2024-06-15T12:30:00.Z'
+    - '2024-06-15T12:30:00z'
+    - '2024-06-15T12:30:00.1234567890Z'
+    - '2024-06-15T12:30:00Z '
+  pitfall: Making the timezone optional or accepting an empty fractional part.
+
+- id: dates-times-06
+  difficulty: medium
+  status: ok
+  description: >-
+    ISO 8601 duration without weeks or decimals: an uppercase P, then optional years (Y), months (M) and days (D) in
+    that order, each an integer followed by its letter, then optionally an uppercase T followed by optional hours (H),
+    minutes (M) and seconds (S) in that order. At least one component must be present, and a T must be followed by at
+    least one time component.
+  regex: '/^P(?!$)(?:\d+Y)?(?:\d+M)?(?:\d+D)?(?:T(?=\d)(?:\d+H)?(?:\d+M)?(?:\d+S)?)?$/'
+  match: ['P1Y', 'P3DT4H', 'PT30M', 'P1Y2M3DT4H5M6S', 'PT0S', 'P10D']
+  no_match: ['P', 'PT', 'P1DT', 'P1H', 'P2D1Y', 'p1y', 'P1.5Y', 'PT1H ']
+  pitfall: Accepting a bare P or a dangling T because every component is optional.
+
+- id: dates-times-07
+  difficulty: hard
+  status: ok
+  description: >-
+    A booking range within a single month: two ISO dates (YYYY-MM-DD, month 01-12, day 01-31) separated by the word
+    "to" with exactly one space on each side. Both dates must have the same year and month; only the day may differ,
+    and the order of the days is not checked.
+  regex: '/^(?<ym>\d{4}-(?:0[1-9]|1[0-2]))-(?:0[1-9]|[12]\d|3[01]) to \k<ym>-(?:0[1-9]|[12]\d|3[01])$/'
+  match:
+    - '2024-06-01 to 2024-06-30'
+    - '1999-12-24 to 1999-12-26'
+    - '2024-01-15 to 2024-01-15'
+    - '2030-10-01 to 2030-10-31'
+    - '2000-02-10 to 2000-02-11'
+    - '2024-11-30 to 2024-11-01'
+  no_match:
+    - '2024-06-01 to 2024-07-01'
+    - '2024-06-01 to 2025-06-01'
+    - '2024-06-01 - 2024-06-30'
+    - '2024-06-01 to 2024-06-32'
+    - '2024-6-01 to 2024-6-30'
+    - '2024-06-01 to 2024-06-30 '
+    - '2024-13-01 to 2024-13-02'
+    - '20240-06-01 to 20240-06-02'
+  pitfall: Without a backreference, any two valid dates are accepted.
+
+- id: dates-times-08
+  difficulty: medium
+  status: ok
+  description: >-
+    English month name, case-insensitive: either the full name or its standard three-letter abbreviation (Jan, Feb,
+    Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec). Sept is also accepted. No trailing dot.
+  regex: '/^(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)$/i'
+  match: ['Jan', 'january', 'SEPT', 'September', 'may', 'Jun', 'JULY', 'dec']
+  no_match: ['Janu', 'Sep.', 'Septe', 'Juli', 'Mai', 'Ma', 'Decemberr', 'Jan ']
+  pitfall: Writing jan.*, which accepts any word that starts like a month.
+
+- id: dates-times-09
+  difficulty: hard
+  status: ok
+  description: >-
+    Video duration as shown in a player. Either minutes and seconds (m:ss), where minutes go from 0 to 59 without a
+    leading zero; or hours, minutes and seconds (h:mm:ss), where hours go from 1 to 99 without a leading zero and
+    minutes are two digits from 00 to 59. Seconds are always two digits from 00 to 59.
+  regex: '/^(?:[1-9]\d?:[0-5]\d|[1-5]?\d):[0-5]\d$/'
+  match: ['0:00', '0:05', '3:07', '59:59', '1:00:00', '12:34:56', '99:59:59']
+  no_match: ['60:00', '01:00', '1:5:00', '1:60:00', '100:00:00', '0:60', '1:00:00 ', '00:00']
+  pitfall: Allowing leading zeros on the first field or 60 minutes.
+
+- id: dates-times-10
+  difficulty: hard
+  status: ok
+  description: >-
+    Opening days setting: a comma-separated list of weekday abbreviations Mon, Tue, Wed, Thu, Fri, Sat, Sun (capitalized
+    exactly like this), no spaces, in any order, but no day may appear more than once.
+  regex: '/^(?!.*\b(\w+)\b.*\b\1\b)(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)(?:,(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun))*$/'
+  match: ['Mon', 'Mon,Wed,Fri', 'Sat,Sun', 'Sun,Mon', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 'Fri,Mon']
+  no_match: ['Mon,Mon', 'Mon,Wed,Mon', 'mon', 'Mon, Tue', 'Mon,', 'Monday', 'Mon,Tue,Tue']
+  pitfall: Detecting duplicates requires a negative lookahead with a backreference.

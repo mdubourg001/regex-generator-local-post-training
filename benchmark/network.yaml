@@ -1,0 +1,148 @@
+# Benchmark, catégorie network. Format et contrôles : scripts/benchmark.py.
+
+- id: network-01
+  difficulty: simple
+  status: ok
+  description: >-
+    IPv4 address in dotted-decimal form: four numbers from 0 to 255 separated by dots, without leading zeros.
+  regex: '/^(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$/'
+  match: ['0.0.0.0', '255.255.255.255', '192.168.1.1', '10.0.0.254', '8.8.8.8', '172.16.254.3']
+  no_match: ['256.1.1.1', '192.168.1', '192.168.1.1.1', '192.168.01.1', '192.168.1.1 ', '1.2.3.-4', '192.168.1.300']
+  pitfall: Using \d{1,3} for each octet, which accepts 999.
+
+- id: network-02
+  difficulty: simple
+  status: ok
+  description: >-
+    TCP port number from 1 to 65535, digits only, without leading zeros.
+  regex: '/^(?:[1-9]\d{0,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/'
+  match: ['1', '80', '443', '8080', '65535', '10000', '59999']
+  no_match: ['0', '65536', '08080', '70000', '-1', '80 ', '100000']
+  pitfall: Writing \d{1,5}, which accepts 0 and values up to 99999.
+
+- id: network-03
+  difficulty: simple
+  status: ok
+  description: >-
+    MAC address: six pairs of hexadecimal digits separated by colons, letters in any case.
+  regex: '/^[0-9a-f]{2}(?::[0-9a-f]{2}){5}$/i'
+  match: ['00:1A:2B:3C:4D:5E', 'ff:ff:ff:ff:ff:ff', '01:23:45:67:89:ab', 'AA:BB:CC:DD:EE:FF', 'a1:b2:c3:d4:e5:f6', '00:00:00:00:00:00']
+  no_match: ['00:1A:2B:3C:4D', '00:1A:2B:3C:4D:5E:6F', '00-1A-2B-3C-4D-5E', '001A2B3C4D5E', '00:1A:2B:3C:4D:5G', '0:1A:2B:3C:4D:5E', '00:1A:2B:3C:4D:5E ']
+  pitfall: Repeating the group a wrong number of times.
+
+- id: network-04
+  difficulty: medium
+  status: ok
+  description: >-
+    MAC address where the separator can be a colon or a hyphen, but the same separator must be used between all six
+    pairs. Hex digits in any case.
+  regex: '/^[0-9A-Fa-f]{2}([:-])[0-9A-Fa-f]{2}(?:\1[0-9A-Fa-f]{2}){4}$/'
+  match: ['00:1A:2B:3C:4D:5E', '00-1A-2B-3C-4D-5E', 'ff-ff-ff-ff-ff-ff', 'aa:bb:cc:dd:ee:ff', '01-23-45-67-89-AB', '9f:8e:7d:6c:5b:4a']
+  no_match: ['00:1A-2B:3C:4D:5E', '00-1A-2B-3C-4D:5E', '00.1A.2B.3C.4D.5E', '00:1A:2B:3C:4D', '001A2B3C4D5E', '00:1A:2B:3C:4D:5E:', '00:1A:2B:3C:4D:5EF']
+  pitfall: Using [:-] at every position, which accepts mixed separators.
+
+- id: network-05
+  difficulty: medium
+  status: ok
+  description: >-
+    IPv4 CIDR block for a firewall rule: an IPv4 address (four numbers 0 to 255 without leading zeros, separated by
+    dots), a slash, and a prefix length from 0 to 32 without leading zeros.
+  regex: '/^(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\/(?:3[0-2]|[12]?\d)$/'
+  match: ['10.0.0.0/8', '192.168.1.0/24', '0.0.0.0/0', '255.255.255.255/32', '172.16.0.0/12', '1.2.3.4/9']
+  no_match: ['10.0.0.0/33', '10.0.0.0', '10.0.0.0/', '10.0.0.256/8', '10.0.0.0/08', '10.0.0.0 /8', '10.0.0/8']
+  pitfall: Accepting prefixes above 32 with \d{1,2}.
+
+- id: network-06
+  difficulty: hard
+  status: ok
+  description: >-
+    Hostname following RFC 1123, case-insensitive: one or more labels separated by single dots, no leading or trailing
+    dot. Each label is 1 to 63 characters of letters, digits and hyphens, and cannot start or end with a hyphen. The
+    whole hostname is at most 253 characters.
+  regex: '/^(?=.{1,253}$)[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$/i'
+  match:
+    - 'localhost'
+    - 'example.com'
+    - 'my-host.internal'
+    - 'A1.B2.C3'
+    - 'x'
+    - 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.com'
+  no_match:
+    - '-host.com'
+    - 'host-.com'
+    - 'ho_st.com'
+    - 'host..com'
+    - '.host.com'
+    - 'host.com.'
+    - 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com'
+  pitfall: Forgetting the 63-character label limit or allowing hyphens at label edges.
+
+- id: network-07
+  difficulty: hard
+  status: ok
+  description: >-
+    Private IPv4 address: in 10.0.0.0/8, 172.16.0.0/12 (second number 16 to 31) or 192.168.0.0/16. Each number is 0 to
+    255 without leading zeros.
+  regex: '/^(?:10(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}|172\.(?:1[6-9]|2\d|3[01])(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){2}|192\.168(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){2})$/'
+  match: ['10.0.0.1', '10.255.255.255', '172.16.0.1', '172.31.255.254', '192.168.0.1', '192.168.100.200']
+  no_match: ['172.32.0.1', '172.15.0.1', '192.169.0.1', '11.0.0.1', '10.0.0', '10.0.0.256', '8.8.8.8', ' 10.0.0.1']
+  pitfall: Writing 172\.(1[6-9]|2\d|3[01]) without anchoring alternatives together, so the anchors apply to one branch only.
+
+- id: network-08
+  difficulty: medium
+  status: ok
+  description: >-
+    IPv6 address in full form, without :: compression: exactly eight groups of one to four hexadecimal digits separated
+    by colons, letters in any case.
+  regex: '/^[0-9a-f]{1,4}(?::[0-9a-f]{1,4}){7}$/i'
+  match:
+    - '2001:0db8:85a3:0000:0000:8a2e:0370:7334'
+    - '2001:db8:85a3:0:0:8a2e:370:7334'
+    - '0:0:0:0:0:0:0:1'
+    - 'FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF'
+    - 'fe80:0:0:0:202:b3ff:fe1e:8329'
+    - '1:2:3:4:5:6:7:8'
+  no_match:
+    - '2001:db8::1'
+    - '1:2:3:4:5:6:7'
+    - '1:2:3:4:5:6:7:8:9'
+    - '12345:2:3:4:5:6:7:8'
+    - '1:2:3:4:5:6:7:g'
+    - '1-2-3-4-5-6-7-8'
+    - '1:2:3:4:5:6:7:8 '
+  pitfall: Allowing more than four digits per group.
+
+- id: network-09
+  difficulty: medium
+  status: ok
+  description: >-
+    Dev server address: either localhost in lowercase or an IPv4 address (four numbers 0 to 255 without leading
+    zeros), then a colon and a port from 1 to 65535 without leading zeros. Other hostnames are not accepted.
+  regex: '/^(?:localhost|(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)):(?:[1-9]\d{0,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/'
+  match: ['localhost:3000', '127.0.0.1:8080', '0.0.0.0:1', '192.168.1.10:65535', 'localhost:80', '10.0.0.1:443']
+  no_match: ['localhost:0', 'localhost:65536', 'localhost', '127.0.0.1:08080', 'LOCALHOST:3000', '127.0.0.1 :80', '127.0.0.256:80', 'example.com:80']
+  pitfall: Validating the host but using \d+ for the port.
+
+- id: network-10
+  difficulty: hard
+  status: ok
+  description: >-
+    Log filter: the line contains an IPv4 address (four numbers 0 to 255 without leading zeros, separated by dots) that
+    is not preceded by a digit or a dot and not followed by a digit or a dot.
+  regex: '/(?<![\d.])(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?![\d.])/'
+  match:
+    - 'Connection from 192.168.1.10 accepted'
+    - 'ip=10.0.0.1'
+    - '8.8.8.8'
+    - 'client [172.16.0.5]:443'
+    - 'src=1.2.3.4,dst=5.6.7.8'
+    - 'failed login from 255.255.255.255'
+  no_match:
+    - 'version 1.2.3 installed'
+    - 'ip=256.1.1.1'
+    - 'ip=1.2.3.4.5'
+    - 'ip=01.2.3.4'
+    - 'addr 12.34.56.789'
+    - 'no address here'
+    - 'ip=1.2.3.4.'
+  pitfall: Without lookarounds, a valid address is found inside 256.1.1.1 or 1.2.3.4.5.

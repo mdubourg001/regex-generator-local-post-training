@@ -1,0 +1,120 @@
+# Benchmark, catégorie code-syntax. Format et contrôles : scripts/benchmark.py.
+
+- id: code-syntax-01
+  difficulty: simple
+  status: ok
+  description: >-
+    lint rule for variable names: camelCase, meaning a lowercase ASCII letter first, then only ASCII letters and digits
+  regex: '/^[a-z][a-zA-Z0-9]*$/'
+  match: ['x', 'userId', 'parseHTML', 'item2', 'getURLForUser', 'a1b2']
+  no_match: ['UserId', 'user_id', 'user-id', '2fast', '', 'userId ', '$user']
+  pitfall: Forgetting that the first character must be lowercase.
+
+- id: code-syntax-02
+  difficulty: simple
+  status: ok
+  description: >-
+    Environment variable names in our deployment config must be SCREAMING_SNAKE_CASE: uppercase ASCII letters and
+    digits in words separated by single underscores, starting with a letter. No leading, trailing or doubled
+    underscores.
+  regex: '/^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$/'
+  match: ['PATH', 'NODE_ENV', 'API_KEY_2', 'X', 'AWS_S3_BUCKET', 'HTTP2_PORT']
+  no_match: ['node_env', '_PATH', 'PATH_', 'API__KEY', '2FA_CODE', 'NODE-ENV', 'NODE ENV']
+  pitfall: Using [A-Z0-9_]+ and letting doubled or trailing underscores through.
+
+- id: code-syntax-03
+  difficulty: medium
+  status: ok
+  description: >-
+    File names of our Vue single-file components must be kebab-case: at least two words of lowercase ASCII letters and
+    digits, separated by single hyphens, followed by the .vue extension.
+  regex: '/^[a-z0-9]+(?:-[a-z0-9]+)+\.vue$/'
+  match: ['user-card.vue', 'base-button.vue', 'app-header-2.vue', 'the-nav-bar.vue', 'x-y.vue', 'todo-list-item.vue']
+  no_match: ['card.vue', 'UserCard.vue', 'user--card.vue', 'user-card.js', '-user-card.vue', 'user-card-.vue', 'user_card.vue']
+  pitfall: Accepting single-word names, which Vue style guides forbid.
+
+- id: code-syntax-04
+  difficulty: hard
+  status: ok
+  description: >-
+    An identifier for our code generator: it starts with a letter from any language, a dollar sign or an underscore,
+    and continues with letters from any language, ASCII digits, dollar signs or underscores. It must not be exactly one
+    of the reserved words if, for, while, class, return, function, var, let or const (identifiers that merely contain
+    them are fine).
+  regex: '/^(?!(?:if|for|while|class|return|function|var|let|const)$)[\p{L}$_][\p{L}\d$_]*$/u'
+  match: ['café', '_private', '$el', 'élève2', 'данные', 'iffy', 'classList', 'x']
+  no_match: ['if', 'class', 'return', '2fast', 'my-var', 'my var', 'a.b', '']
+  pitfall: Excluding identifiers that only start with a reserved word, like iffy, or forgetting non-ASCII letters.
+
+- id: code-syntax-05
+  difficulty: medium
+  status: ok
+  description: >-
+    Match a line comment flagging pending work: optional leading spaces, then two slashes, an optional single space,
+    then TODO or FIXME in uppercase, optionally followed by an owner in parentheses (one or more ASCII letters, digits
+    or hyphens), then a colon, a single space and a non-empty message.
+  regex: '/^ *\/\/ ?(?:TODO|FIXME)(?:\([A-Za-z0-9-]+\))?: .+$/'
+  match: ['// TODO: refactor', '    //FIXME: leak', '// TODO(jdoe): remove', '// FIXME(team-a): flaky test', '//TODO: x', '  // TODO(a1): handle null']
+  no_match: ['// todo: refactor', '// TODO refactor', '// TODO:', '/* TODO: x */', '// TODO(): x', '# TODO: x', '// TODO:refactor', 'x // TODO: y', '// TODO(j_doe): remove']
+  pitfall: Accepting empty parentheses or a missing message after the colon.
+
+- id: code-syntax-06
+  difficulty: hard
+  status: ok
+  description: >-
+    Detect an ES module import of the lodash-es package written on one line: the word import, a space, then either a
+    default import name or a braced list of one or more names separated by commas (one optional space after each comma
+    and inside each brace), then a space, from, a space, and lodash-es in single or double quotes (the same kind of
+    quote on both sides), with an optional final semicolon. Names are JavaScript identifiers made of ASCII letters,
+    digits, underscores and dollar signs, not starting with a digit.
+  regex: '/^import (?:[A-Za-z_$][\w$]*|\{ ?[A-Za-z_$][\w$]*(?:, ?[A-Za-z_$][\w$]*)* ?\}) from ([''"])lodash-es\1;?$/'
+  match: ['import debounce from ''lodash-es'';', 'import { map } from "lodash-es"', 'import {map, filter} from ''lodash-es''', 'import { a, b, c } from ''lodash-es'';', 'import _ from ''lodash-es''', 'import {get,set} from "lodash-es";']
+  no_match: ['import debounce from ''lodash-es";', 'import debounce from ''lodash'';', 'import {} from ''lodash-es''', 'import { map, } from ''lodash-es''', 'import debounce from lodash-es', 'import  debounce from ''lodash-es''', 'import { map } from ''lodash-es'';;']
+  pitfall: Matching mismatched quotes, which needs a backreference to the opening quote.
+
+- id: code-syntax-07
+  difficulty: hard
+  status: ok
+  description: >-
+    CSS class names following BEM: a block, then optionally one element introduced by two underscores, then optionally
+    one modifier introduced by two hyphens, in that order. Each name starts with a lowercase ASCII letter and continues
+    with lowercase letters and digits, possibly split by single hyphens.
+  regex: '/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:__[a-z][a-z0-9]*(?:-[a-z0-9]+)*)?(?:--[a-z][a-z0-9]*(?:-[a-z0-9]+)*)?$/'
+  match: ['card', 'card__title', 'card--active', 'card__title--large', 'search-form__input-field--is-disabled', 'nav2__item']
+  no_match: ['Card', 'card___title', 'card__title__text', 'card--active--big', 'card---active', 'card__', 'card--', '2card', 'card__title--']
+  pitfall: Allowing several elements or modifiers, or a triple underscore or hyphen.
+
+- id: code-syntax-08
+  difficulty: simple
+  status: ok
+  description: >-
+    A CSS custom property name: two hyphens, then a lowercase ASCII letter, then lowercase letters, digits or hyphens.
+  regex: '/^--[a-z][a-z0-9-]*$/'
+  match: ['--color', '--main-bg', '--space-2', '--x', '--font-size-lg', '--z-index']
+  no_match: ['-color', '---color', '--Color', '--2x', 'color', '--main_bg', '--main bg']
+  pitfall: Accepting a third hyphen or a digit right after the two leading hyphens.
+
+- id: code-syntax-09
+  difficulty: medium
+  status: ok
+  description: >-
+    A Python decorator line: optional indentation made of spaces only, an at sign, a dotted name (identifiers of ASCII
+    letters, digits and underscores, not starting with a digit, joined by single dots), and optionally an argument
+    list in parentheses that contains no closing parenthesis. Nothing may follow the closing parenthesis.
+  regex: '/^ *@[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*(?:\([^)]*\))?$/'
+  match: ['@property', '    @app.route("/home")', '@pytest.mark.parametrize("x", [1, 2])', '@staticmethod', '@functools.lru_cache()', '  @a.b.c']
+  no_match: ['@ property', '@2fa', '@app..route', '@app.route(', 'property', '@app.route("/")x', "\t@property"]
+  pitfall: Allowing an unclosed argument list or tabs for indentation.
+
+- id: code-syntax-10
+  difficulty: hard
+  status: ok
+  description: >-
+    A JSX element without attributes or nested elements: either a self-closing tag (an opening angle bracket, the
+    component name, a space and a slash followed by a closing angle bracket), or an opening tag, some text without any
+    opening angle bracket, and a closing tag with exactly the same name. Component names are PascalCase: an uppercase
+    ASCII letter followed by ASCII letters and digits.
+  regex: '/^<(?<tag>[A-Z][A-Za-z0-9]*)(?: \/>|>[^<]*<\/\k<tag>>)$/'
+  match: ['<Button>Save</Button>', '<Spinner />', '<Title></Title>', '<Card2>Hello world</Card2>', '<MyComponent>a > b</MyComponent>', '<X />']
+  no_match: ['<Button>Save</button>', '<button>Save</button>', '<Button>Save</Buttons>', '<Spinner/>', '<Card><Title /></Card>', '<Button>Save</Button> ', '<Button >Save</Button>']
+  pitfall: The closing tag must repeat the opening name, which needs a (named) backreference.

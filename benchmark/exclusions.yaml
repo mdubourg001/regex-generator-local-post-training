@@ -1,0 +1,109 @@
+# Benchmark, catégorie exclusions. Format et contrôles : scripts/benchmark.py.
+
+- id: exclusions-01
+  difficulty: simple
+  status: ok
+  description: >-
+    Accept any text, on one or several lines, as long as it does not contain the uppercase substring TODO anywhere.
+    Other casings like todo or ToDo are fine, and so is the empty string.
+  regex: '/^(?![\s\S]*TODO)[\s\S]*$/'
+  match: ["", "all done", "todo later", "ToDo", "TO DO", "line1\nline2", "TOD O"]
+  no_match: ["TODO", "fix TODO", "TODO: x", "a\nTODO", "XTODOX", "TODOS"]
+  pitfall: Writing (?!.*TODO) without handling newlines, so a TODO on a later line slips through.
+
+- id: exclusions-02
+  difficulty: simple
+  status: ok
+  description: >-
+    A JavaScript file name that ends in .js but not in .min.js. There must be at least one character before .js.
+  regex: '/^.+(?<!\.min)\.js$/'
+  match: ['app.js', 'vendor.bundle.js', 'min.js', 'jquery.minified.js', 'my-min.js', 'a.min.ts.js']
+  no_match: ['app.min.js', 'vendor.min.js', 'app.js.map', 'app.ts', 'app.js ', 'app.jsx']
+  pitfall: Excluding any name containing min, which rejects min.js and my-min.js.
+
+- id: exclusions-03
+  difficulty: medium
+  status: ok
+  description: >-
+    A column name: one or more ASCII letters or underscores, in any case, but it must not be exactly one of the
+    reserved words select, from, where, insert, update or delete, compared case-insensitively.
+  regex: '/^(?!(?:select|from|where|insert|update|delete)$)[a-z_]+$/i'
+  match: ['users', 'selected', 'from_date', 'wherever', 'Update_at', '_']
+  no_match: ['select', 'FROM', 'Where', 'delete', 'user name', 'col1', '']
+  pitfall: Forgetting the end anchor inside the lookahead, which also rejects selected or wherever.
+
+- id: exclusions-04
+  difficulty: medium
+  status: ok
+  description: >-
+    A positive integer without leading zeros whose last digit is neither 0 nor 5.
+  regex: '/^(?:[1-9]\d*)?[1-46-9]$/'
+  match: ['1', '7', '12', '99', '1001', '346']
+  no_match: ['5', '10', '25', '0', '105', '012', '7 ', '-3']
+  pitfall: Writing \d*[1-46-9], which lets leading zeros through.
+
+- id: exclusions-05
+  difficulty: medium
+  status: ok
+  description: >-
+    Username that is not all uppercase: 3 to 16 ASCII letters or digits, containing at least one lowercase letter.
+  regex: '/^(?=[A-Za-z0-9]*[a-z])[A-Za-z0-9]{3,16}$/'
+  match: ['abc', 'John', 'userA1', 'x99', 'aBCDEFGHIJKLMNOP', 'MiXeD']
+  no_match: ['ABC', 'JOHN99', '123', 'ab', 'abcdefghijklmnopq', 'john_doe', 'Jo hn']
+  pitfall: Using a lookahead with .* that looks past the allowed characters.
+
+- id: exclusions-06
+  difficulty: hard
+  status: ok
+  description: >-
+    A domain name that is not example.com and not any of its subdomains, compared case-insensitively. A domain has at
+    least two dot-separated labels; each label is ASCII letters, digits and hyphens, and does not start or end with a
+    hyphen. Names that merely contain the word example, like myexample.com, are fine.
+  regex: '/^(?!(?:.*\.)?example\.com$)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$/i'
+  match: ['google.com', 'myexample.com', 'example.org', 'example.com.evil.net', 'a.b', 'sub.my-site.io']
+  no_match: ['example.com', 'www.example.com', 'EXAMPLE.COM', 'a.b.example.com', 'localhost', '-bad.com', 'bad-.com', 'two..dots.com']
+  pitfall: Excluding anything containing example.com, which also rejects myexample.com or example.com.evil.net.
+
+- id: exclusions-07
+  difficulty: hard
+  status: ok
+  description: >-
+    An API token of 8 to 32 printable ASCII characters other than space, in which no character ever appears three
+    times in a row.
+  regex: '/^(?!.*(.)\1\1)[!-~]{8,32}$/'
+  match: ['aabbccdd', 'Passw0rd!', 'abcdefgh', 'a1a1a1a1', '!!@@##$$', 'abababababababababababababababab']
+  no_match: ['aaabbbcc', 'passsword', 'abc 1234', 'short', 'abababababababababababababababab1', 'helloooo', '1112abcd', 'Pässword']
+  pitfall: Forbidding any repeated character instead of only three in a row.
+
+- id: exclusions-08
+  difficulty: simple
+  status: ok
+  description: >-
+    A cache key made of lowercase letters, digits and underscores, at least one character, that must not start with
+    tmp_ (keys starting with tmp_ are reserved).
+  regex: '/^(?!tmp_)[a-z0-9_]+$/'
+  match: ['cache', 'tmpfile', 'tmp', 'my_tmp_dir', 'temp_1', '_tmp_']
+  no_match: ['tmp_', 'tmp_file', 'tmp_1', '', 'my tmp', 'Cache', 'tmp-file']
+  pitfall: Rejecting every key that contains tmp, instead of only the tmp_ prefix.
+
+- id: exclusions-09
+  difficulty: hard
+  status: ok
+  description: >-
+    A single log line (no newline) that contains the whole word error, in any case, and does not contain the whole
+    word ignored, in any case. Words are delimited by non-word characters.
+  regex: '/^(?!.*\bignored\b).*\berror\b.*$/i'
+  match: ['error', 'Fatal ERROR in module', 'an error occurred', 'error: ignore this', 'Error-handling failed', 'x error y']
+  no_match: ['errors found', 'error ignored', 'IGNORED: error', 'terror alert', 'all good', "error\nsecond line", '']
+  pitfall: Matching error inside other words (errors, terror) for lack of word boundaries.
+
+- id: exclusions-10
+  difficulty: medium
+  status: ok
+  description: >-
+    A relative Unix file path outside node_modules: segments made of letters, digits, dots, hyphens and underscores,
+    separated by single slashes, with no leading slash. Reject the path if any segment is exactly node_modules.
+  regex: '/^(?!(?:.*\/)?node_modules(?:\/|$))[\w.-]+(?:\/[\w.-]+)*$/'
+  match: ['src/index.js', 'lib/node_modules_backup/a.js', 'my_node_modules/x', 'README.md', 'a/b/c', 'docs/node_modules.md']
+  no_match: ['node_modules/react/index.js', 'src/node_modules/x', 'node_modules', 'a/node_modules', '/src/index.js', 'src//index.js', 'src/my file.js']
+  pitfall: Rejecting any path containing node_modules as a substring, including node_modules_backup.

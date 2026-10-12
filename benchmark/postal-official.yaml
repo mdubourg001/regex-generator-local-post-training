@@ -1,0 +1,116 @@
+# Benchmark, catégorie postal-official. Format et contrôles : scripts/benchmark.py.
+
+- id: postal-official-01
+  difficulty: simple
+  status: ok
+  description: >-
+    Postal code for deliveries to the French overseas departments only: five digits starting with 971, 972, 973, 974
+    or 976 (975 is not a department code).
+  regex: '/^97[1-46]\d{2}$/'
+  match: ['97100', '97200', '97354', '97400', '97615', '97490']
+  no_match: ['97500', '97700', '9710', '971000', '98000', '97 100', '97100 ']
+  pitfall: Writing 97[1-6] and accepting 975.
+
+- id: postal-official-02
+  difficulty: simple
+  status: ok
+  description: >-
+    ZIP code field of our US shipping form: five digits, or the extended layout with four more digits. Our legacy
+    export writes the extension after a space instead of a hyphen, so accept either one hyphen or one space before the
+    four extra digits, but not both and not nothing.
+  regex: '/^\d{5}(?:[- ]\d{4})?$/'
+  match: ['12345', '12345-6789', '12345 6789', '00501', '90210-1234', '10001']
+  no_match: ['123456789', '12345 -6789', '12345--6789', '12345  6789', '12345.6789', '1234', '12345-678', '12345-', 'ABCDE']
+  pitfall: Making the separator optional, which accepts nine contiguous digits.
+
+- id: postal-official-03
+  difficulty: hard
+  status: ok
+  description: >-
+    Canadian postal code in uppercase: letter, digit, letter, an optional single space, then digit, letter, digit.
+    The letters D, F, I, O, Q and U are never used, and W and Z are never used as the first letter.
+  regex: '/^[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z] ?\d[ABCEGHJ-NPRSTV-Z]\d$/'
+  match: ['K1A 0B1', 'H0H0H0', 'M5V 3L9', 'V6B 4Y8', 'T2X 1V4', 'A1A 1A1']
+  no_match: ['W1A 0B1', 'Z1A 0B1', 'K1A 0B', 'K1A  0B1', 'k1a 0b1', 'D1A 0B1', 'K1O 0B1', 'K1A-0B1', 'XK1A 0B1', 'K1A 0B12']
+  pitfall: Using [A-Z] everywhere and accepting the excluded letters.
+
+- id: postal-official-04
+  difficulty: medium
+  status: ok
+  description: >-
+    UK postcode, uppercase only. The outward code is one or two letters, a digit, then optionally one more letter or
+    digit. Then exactly one space. Then the inward code: a digit followed by two letters.
+  regex: '/^[A-Z]{1,2}\d[A-Z\d]? \d[A-Z]{2}$/'
+  match: ['SW1A 1AA', 'M1 1AE', 'B33 8TH', 'CR2 6XH', 'DN55 1PT', 'W1A 0AX']
+  no_match: ['SW1A1AA', 'sw1a 1aa', 'SW1A 1A', 'SWA1 1AA', 'SW1AA 1AA', '123 1AA', 'SW1A  1AA', 'SW1A 1AA ']
+  pitfall: Making the space optional or allowing more than two letters at the start.
+
+- id: postal-official-05
+  difficulty: medium
+  status: ok
+  description: >-
+    French IBAN as typed in a payment form, format only (the check digits are not verified): FR, two digits, then 23
+    characters that are digits or uppercase letters. It is written either without any space, or in groups of four
+    characters separated by single spaces, the last group having three characters.
+  regex: '/^FR\d{2}(?:[0-9A-Z]{23}| (?:[0-9A-Z]{4} ){5}[0-9A-Z]{3})$/'
+  match: ['FR7630006000011234567890189', 'FR76 3000 6000 0112 3456 7890 189', 'FR1420041010050500013M02606', 'FR14 2004 1010 0505 0001 3M02 606', 'FR0000000000000000000000000', 'FR76 ABCD 1234 EFGH 5678 IJKL 901']
+  no_match: ['FR763000600001123456789018', 'FR76300060000112345678901890', 'fr7630006000011234567890189', 'DE7630006000011234567890189', 'FR76 3000 6000 0112 3456 7890 18', 'FR76 30006000 0112 3456 7890 189', 'FR7A30006000011234567890189', 'FR76-3000-6000-0112-3456-7890-189', 'FR76300060000112345678901a9']
+  pitfall: Allowing spaces anywhere, which breaks the length check.
+
+- id: postal-official-06
+  difficulty: medium
+  status: ok
+  description: >-
+    French SIRET number as displayed in our back office, format only (no checksum): 14 digits, either contiguous or
+    grouped as 3, 3, 3 and 5 digits separated by single spaces.
+  regex: '/^(?:\d{14}|\d{3} \d{3} \d{3} \d{5})$/'
+  match: ['73282932000074', '732 829 320 00074', '00000000000000', '123 456 789 12345', '55210055400013', '552 100 554 00013']
+  no_match: ['7328293200007', '732829320000745', '732 829 320 0007', '732 829 32000074', '732829320 00074', '732-829-320-00074', '732 829 320 00074 ']
+  pitfall: Making every space optional independently, which accepts partial groupings.
+
+- id: postal-official-07
+  difficulty: hard
+  status: ok
+  description: >-
+    EU VAT number for Germany, France or Italy, uppercase and without spaces, format only. Germany: DE then 9 digits.
+    France: FR, then 2 characters that are digits or uppercase letters other than O and I, then 9 digits. Italy: IT
+    then 11 digits.
+  regex: '/^(?:DE\d{9}|FR[0-9A-HJ-NP-Z]{2}\d{9}|IT\d{11})$/'
+  match: ['DE123456789', 'FR12345678901', 'FRXX123456789', 'FRA1123456789', 'IT12345678901', 'DE000000000']
+  no_match: ['DE12345678', 'DE1234567890', 'FRO1123456789', 'FR1I123456789', 'IT1234567890', 'de123456789', 'ES12345678Z', 'FR 12345678901']
+  pitfall: Forgetting to exclude O and I in the French key.
+
+- id: postal-official-08
+  difficulty: hard
+  status: ok
+  description: >-
+    US Social Security number format: three digits, a hyphen, two digits, a hyphen, four digits. The first group
+    cannot be 000, 666 or anything from 900 to 999; the middle group cannot be 00; the last group cannot be 0000.
+  regex: '/^(?!000|666|9\d\d)\d{3}-(?!00)\d{2}-(?!0000)\d{4}$/'
+  match: ['123-45-6789', '001-01-0001', '665-99-9999', '899-12-3456', '667-10-0010', '078-05-1120']
+  no_match: ['000-12-3456', '666-12-3456', '900-12-3456', '123-00-6789', '123-45-0000', '123456789', '123-45-678', '123 45 6789', 'X123-45-6789', '123-45-67890']
+  pitfall: Only checking the shape and forgetting the forbidden values.
+
+- id: postal-official-09
+  difficulty: medium
+  status: ok
+  description: >-
+    Dutch postcode: four digits, the first one not zero, an optional single space, then two uppercase letters. The
+    letter combinations SA, SD and SS are not used.
+  regex: '/^[1-9]\d{3} ?(?!SA|SD|SS)[A-Z]{2}$/'
+  match: ['1234 AB', '1234AB', '9999 ZZ', '1000 AA', '3511 SB', '1011SC']
+  no_match: ['0123 AB', '1234 ab', '1234 SS', '1234 SA', '1234  AB', '12345 AB', '1234 A', '1234-AB']
+  pitfall: Forgetting the excluded letter pairs or allowing a leading zero.
+
+- id: postal-official-10
+  difficulty: hard
+  status: ok
+  description: >-
+    French social security number (NIR) without its key, format only, written as 13 contiguous characters: sex digit
+    1 or 2, two digits for the birth year, two digits for the month from 01 to 12, two characters for the department
+    (two digits, or 2A or 2B for Corsica, uppercase), three digits for the commune and three digits for the order
+    number.
+  regex: '/^[12]\d{2}(?:0[1-9]|1[0-2])(?:\d{2}|2[AB])\d{6}$/'
+  match: ['1850578006084', '299122A004123', '1000101001001', '1990775001001', '200112B123456', '1700697123123']
+  no_match: ['3850578006084', '1851378006084', '1850078006084', '185057800608', '18505780060843', '299122C004123', '299122a004123', '1 85 05 78 006 084']
+  pitfall: Treating the department as two digits only, which rejects Corsica, or not bounding the month.

@@ -1,0 +1,125 @@
+# Benchmark, catégorie dev-tooling. Format et contrôles : scripts/benchmark.py.
+
+- id: dev-tooling-01
+  difficulty: simple
+  status: ok
+  description: >-
+    commit title check for our CI: type, optional scope in parentheses, colon, one space, subject. Allowed types are
+    feat, fix, docs, chore, refactor, test and ci. The scope is lowercase ASCII letters, digits and hyphens. The
+    subject is non-empty and does not start with a space.
+  regex: '/^(?:feat|fix|docs|chore|refactor|test|ci)(?:\([a-z0-9-]+\))?: \S.*$/'
+  match: ['feat: add login', 'fix(api): handle null', 'docs(readme): typo', 'ci: cache deps', 'refactor(user-service): split module', 'test: x']
+  no_match: ['feature: add login', 'Feat: add login', 'fix(api):handle null', 'fix(): x', 'fix(API): x', 'fix: ', 'fix:  double space', 'wip feat: add login']
+  pitfall: Accepting an empty scope or a subject that starts with a second space.
+
+- id: dev-tooling-02
+  difficulty: hard
+  status: ok
+  description: >-
+    Branch names in our repository. Feature, bugfix and hotfix branches are feature/, bugfix/ or hotfix/, then a Jira
+    key (2 to 10 uppercase ASCII letters, a hyphen and a number without leading zeros), a hyphen and a summary made of
+    lowercase ASCII letters and digits in words separated by single hyphens. Release branches are release/ followed by
+    a version MAJOR.MINOR.PATCH made of digits.
+  regex: '/^(?:(?:feature|bugfix|hotfix)\/[A-Z]{2,10}-[1-9]\d*-[a-z0-9]+(?:-[a-z0-9]+)*|release\/\d+\.\d+\.\d+)$/'
+  match: ['feature/PROJ-123-add-login', 'bugfix/AB-7-fix-npe', 'hotfix/WEB-1001-null-check', 'release/1.4.0', 'release/10.0.12', 'feature/ABCDEFGHIJ-1-x']
+  no_match: ['feature/proj-123-add-login', 'feature/PROJ-123', 'feature/PROJ-0123-x', 'release/1.4', 'release/PROJ-1-x', 'feat/PROJ-1-x', 'feature/PROJ-123-Add-login', 'feature/A-1-x', 'feature/ABCDEFGHIJK-1-x', 'origin/feature/PROJ-1-x']
+  pitfall: Letting release branches carry a ticket, or feature branches skip the summary.
+
+- id: dev-tooling-03
+  difficulty: simple
+  status: ok
+  description: >-
+    A Docker image tag: 1 to 128 characters among ASCII letters, digits, underscores, periods and hyphens, and it must
+    not start with a period or a hyphen.
+  regex: '/^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$/'
+  match: ['latest', 'v1.2.3', '1.0', 'sha-abc123', '_internal', '3.12-slim-bookworm', 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefgh']
+  no_match: ['.hidden', '-rc', 'v1 2', 'v1/2', 'tag:latest', 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghi', '']
+  pitfall: Forgetting the 128-character limit or allowing a leading period or hyphen.
+
+- id: dev-tooling-04
+  difficulty: hard
+  status: ok
+  description: >-
+    A five-field cron expression in our simplified syntax. Fields are separated by single spaces and are, in order:
+    minute (0-59), hour (0-23), day of month (1-31), month (1-12) and day of week (0-6). Each field is either an
+    asterisk, an asterisk followed by a slash and a positive step without leading zeros, or a single number in the
+    field's range written without leading zeros. Lists and ranges are not supported.
+  regex: '/^(?:\*(?:\/[1-9]\d*)?|[1-5]?\d) (?:\*(?:\/[1-9]\d*)?|1?\d|2[0-3]) (?:\*(?:\/[1-9]\d*)?|[1-9]|[12]\d|3[01]) (?:\*(?:\/[1-9]\d*)?|[1-9]|1[0-2]) (?:\*(?:\/[1-9]\d*)?|[0-6])$/'
+  match: ['* * * * *', '0 0 1 1 0', '*/15 * * * *', '30 23 31 12 6', '5 */2 * * 1', '59 0 15 6 *']
+  no_match: ['60 * * * *', '* 24 * * *', '* * 0 * *', '* * * 13 *', '* * * * 7', '*/0 * * * *', '* * * *', '*  * * * *', '05 * * * *']
+  pitfall: Using \d+ for every field and accepting out-of-range values such as minute 60 or month 13.
+
+- id: dev-tooling-05
+  difficulty: hard
+  status: ok
+  description: >-
+    Our pull request titles must start with a Jira key in square brackets (2 to 6 uppercase ASCII letters, a hyphen
+    and a number without leading zeros), then one space, then a summary of at least 10 characters that starts with an
+    uppercase ASCII letter and does not end with a period.
+  regex: '/^\[[A-Z]{2,6}-[1-9]\d*\] [A-Z].{9,}(?<!\.)$/'
+  match: ['[WEB-12] Add login page', '[AB-1] Fix crash on startup', '[CORE-999] Refactor the cache layer', '[ABCDEF-7] Bump dependencies', '[OPS-3] Rotate secrets v2', '[QA-10] Update e2e fixtures']
+  no_match: ['WEB-12 Add login page', '[web-12] Add login page', '[WEB-012] Add login page', '[WEB-12] add login page', '[WEB-12] Add login page.', '[WEB-12] Fix bug', '[WEB-12]Add login page', '[ABCDEFG-1] Add login page']
+  pitfall: The minimum length applies to the summary only, and the final period check is easiest with a lookbehind.
+
+- id: dev-tooling-06
+  difficulty: simple
+  status: ok
+  description: >-
+    An npm package name: an optional scope (an at sign, a scope name and a slash) followed by the package name. Scope
+    and package names start with a lowercase ASCII letter or digit and continue with lowercase letters, digits, dots,
+    hyphens or underscores.
+  regex: '/^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/'
+  match: ['react', '@types/node', 'lodash.debounce', '@babel/preset-env', '7zip', 'my_pkg']
+  no_match: ['React', '_private', '.hidden', '@types/', '@/node', 'my pkg', '@types/node/extra', '@Types/node']
+  pitfall: Allowing names that start with a dot or underscore, or uppercase letters.
+
+- id: dev-tooling-07
+  difficulty: medium
+  status: ok
+  description: >-
+    A Kubernetes ConfigMap name: one or more labels separated by single dots, where each label is made of lowercase
+    ASCII letters, digits and hyphens, and starts and ends with a letter or digit. Total length is not checked.
+  regex: '/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)*$/'
+  match: ['app-config', 'my.app.config', 'a', 'nginx-1-23', 'config.v2', 'x.y.z']
+  no_match: ['App-config', '-config', 'config-', 'config..v2', '.config', 'config.', 'app_config', 'app config']
+  pitfall: Letting a label end with a hyphen or allowing empty labels between dots.
+
+- id: dev-tooling-08
+  difficulty: medium
+  status: ok
+  description: >-
+    Find workflow lines that contain a secrets reference: a dollar sign, two opening braces, exactly one space,
+    secrets, a dot, a secret name, exactly one space and two closing braces. Secret names start with an uppercase
+    ASCII letter and continue with uppercase letters, digits and underscores. The reference can be anywhere in the
+    line.
+  regex: '/\$\{\{ secrets\.[A-Z][A-Z0-9_]* \}\}/'
+  match: ['${{ secrets.NPM_TOKEN }}', 'token: ${{ secrets.GH_PAT }}', 'run: echo ${{ secrets.A1 }} > f', '  key: ${{ secrets.AWS_KEY_ID }}  ', 'x${{ secrets.X }}y', '${{ secrets.A }}${{ secrets.B }}']
+  no_match: ['${{ secrets.npm_token }}', '${{secrets.NPM_TOKEN}}', '${{ env.NPM_TOKEN }}', '${ secrets.NPM_TOKEN }', '${{ secrets.1TOKEN }}', '${{  secrets.NPM_TOKEN }}', '{{ secrets.NPM_TOKEN }}', '${{ secrets.NPM-TOKEN }}']
+  pitfall: Forgetting to escape the dollar sign and the braces.
+
+- id: dev-tooling-09
+  difficulty: hard
+  status: ok
+  description: >-
+    A Docker image reference. It starts with an optional registry: a hostname containing at least one dot (labels of
+    lowercase ASCII letters, digits and hyphens), an optional colon and port number, and a slash. Then a repository
+    path of one or more segments separated by slashes, each segment being lowercase letters and digits, possibly split
+    by single hyphens. Finally an optional tag: a colon and 1 to 128 characters among ASCII letters, digits,
+    underscores, periods and hyphens, not starting with a period or hyphen.
+  regex: '/^(?:[a-z0-9-]+(?:\.[a-z0-9-]+)+(?::\d+)?\/)?[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*(?::[A-Za-z0-9_][A-Za-z0-9_.-]{0,127})?$/'
+  match: ['nginx', 'nginx:1.25-alpine', 'library/redis:7', 'ghcr.io/acme/web-app:v2.1.0', 'registry.example.com:5000/team/api', 'node:20']
+  no_match: ['Nginx', 'nginx:', 'nginx:-rc', 'ghcr.io//acme', 'nginx:1.25 alpine', 'my_app', 'web-app-', 'localhost:5000/app', '/nginx', 'nginx:abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghi']
+  pitfall: Treating any first segment as a registry, or forgetting that the tag cannot start with a hyphen.
+
+- id: dev-tooling-10
+  difficulty: hard
+  status: ok
+  description: >-
+    A line of a .env file: a key, an equals sign and a value, with no spaces around the equals sign. Keys start with an
+    uppercase ASCII letter and continue with uppercase letters, digits and underscores. The value is either unquoted
+    (possibly empty, with no whitespace, no quotes and no hash sign) or wrapped in single or double quotes, with the
+    same quote on both sides and no quote of that same kind inside.
+  regex: '/^[A-Z][A-Z0-9_]*=(?:[^\s''"#]*|([''"])(?:(?!\1).)*\1)$/'
+  match: ['NODE_ENV=production', 'EMPTY=', 'GREETING="hello world"', 'QUOTE=''say "hi"''', 'URL=https://x.io/a?b=c', 'PORT=8080']
+  no_match: ['node_env=production', 'GREETING=hello world', 'GREETING="hello', 'MIXED="hello''', 'A=b#comment', ' PORT=8080', 'PORT = 8080', 'Q="a"b"']
+  pitfall: Matching a quoted value with mismatched quotes, which needs a backreference to the opening quote.

@@ -1,0 +1,112 @@
+# Benchmark, catégorie text. Format et contrôles : scripts/benchmark.py.
+
+- id: text-01
+  difficulty: simple
+  status: ok
+  description: >-
+    does the text contain the word deprecated, in any letter case, as a whole word (not as part of a longer word)
+  regex: '/\bdeprecated\b/i'
+  match: ['This API is deprecated.', 'DEPRECATED', 'Deprecated since v2', 'note: deprecated, use bar', '(deprecated)', 'x deprecated y']
+  no_match: ['undeprecated', 'deprecatedFoo', 'deprecate this', 'deprecation notice', 'de-precated', 'nothing here']
+  pitfall: Without word boundaries, undeprecated and deprecatedFoo match too.
+
+- id: text-02
+  difficulty: simple
+  status: ok
+  description: >-
+    A single sentence on one line: it starts with an uppercase ASCII letter, ends with exactly one period, exclamation
+    mark or question mark, and contains no other period, exclamation mark, question mark or line break.
+  regex: '/^[A-Z][^.!?\n]*[.!?]$/'
+  match: ['Hello world.', 'Is it done?', 'Wow!', 'A.', 'It costs 5 dollars, right?', 'Ship it now!']
+  no_match: ['hello world.', 'Hello world', 'Hello. World.', 'Hello world..', ' Hello world.', 'Hello world?!', "Hello\nworld."]
+  pitfall: Using .* in the middle lets several sentences through.
+
+- id: text-03
+  difficulty: medium
+  status: ok
+  description: >-
+    Catch the classic doubled-word typo: the text contains the same word twice in a row, ignoring letter case, as
+    whole words separated by one or more spaces. Words are runs of ASCII letters, digits and underscores.
+  regex: '/\b(\w+) +\1\b/i'
+  match: ['the the cat', 'This is is wrong', 'The the', 'it was very  very good', 'go GO now', 'a 42 42 b']
+  no_match: ['the theory', 'the cat the', 'is this', 'then the', "the\tthe", 'abc ab', 'thethe']
+  pitfall: Without word boundaries, the theory or then the are reported as doubled words.
+
+- id: text-04
+  difficulty: hard
+  status: ok
+  description: >-
+    Book titles in title case: words separated by single spaces, with no leading or trailing space. Every word is an
+    uppercase ASCII letter followed by lowercase letters, except that the small words a, an, the, of, and, or, in, on
+    and to may be written entirely in lowercase when they are not the first word.
+  regex: '/^[A-Z][a-z]*(?: (?:[A-Z][a-z]*|a|an|the|of|and|or|in|on|to))*$/'
+  match: ['The Lord of the Rings', 'War and Peace', 'Harry', 'A Tale of Two Cities', 'Of Mice and Men', 'The Old Man and the Sea']
+  no_match: ['the Lord of the Rings', 'The lord of the Rings', 'The Lord Of the rings', 'War  and Peace', 'War and Peace ', 'McDonald Farm', 'War into Peace', 'War and peace']
+  pitfall: Allowing any lowercase word, or allowing a small word in lowercase at the start.
+
+- id: text-05
+  difficulty: simple
+  status: ok
+  description: >-
+    A short label of at most five words, where words are runs of non-whitespace characters separated by single spaces,
+    with no leading or trailing space and at least one word.
+  regex: '/^\S+(?: \S+){0,4}$/'
+  match: ['one', 'one two', 'a b c d e', 'hello, world!', 'x-y z', '1 2 3 4']
+  no_match: ['a b c d e f', '', ' one', 'one ', 'one  two', "one\ttwo", 'a b c d e  ']
+  pitfall: Counting spaces rather than words, or letting double spaces through.
+
+- id: text-06
+  difficulty: medium
+  status: ok
+  description: >-
+    Reject text with a doubled punctuation mark: the text (possibly empty, on a single line) is valid unless the same
+    character among period, comma, exclamation mark, question mark, semicolon and colon appears twice in a row.
+    Different marks next to each other are fine.
+  regex: '/^(?!.*([.,!?;:])\1).*$/'
+  match: ['Hello, world!', 'Really?!', 'a.b.c', '', 'Yes; no: maybe.', 'Hi!?!']
+  no_match: ['Hello,, world', 'What??', 'Stop!!', 'end..', 'a;;b', 'x::y', 'Wait... no']
+  pitfall: Detecting a repetition of the same mark needs a backreference inside a negative lookahead.
+
+- id: text-07
+  difficulty: hard
+  status: ok
+  description: >-
+    A hashtag: a hash sign followed by one or more characters that are letters or digits from any script, or
+    underscores, and containing at least one letter. Nothing else is allowed.
+  regex: '/^#(?=[\p{L}\p{N}_]*\p{L})[\p{L}\p{N}_]+$/u'
+  match: ['#hello', '#café', '#東京', '#web3', '#_private_', '#2024olympics']
+  no_match: ['#2024', '#', 'hello', '#hello world', '#hello-world', '##hello', '#___']
+  pitfall: Forgetting the at-least-one-letter rule, or restricting letters to ASCII.
+
+- id: text-08
+  difficulty: medium
+  status: ok
+  description: >-
+    A five-letter palindrome written in lowercase ASCII letters, such as a word that reads the same backwards.
+  regex: '/^([a-z])([a-z])[a-z]\2\1$/'
+  match: ['level', 'radar', 'refer', 'kayak', 'civic', 'aaaaa']
+  no_match: ['Level', 'hello', 'abcde', 'radars', 'rada', 'level ', 'lev el', 'a1b1a', 'RADAR']
+  pitfall: A palindrome of fixed length needs two backreferences.
+
+- id: text-09
+  difficulty: hard
+  status: ok
+  description: >-
+    Flag text that contains a run of 21 or more consecutive letters, counting letters from any script, which usually
+    means a missing space or a pasted token.
+  regex: '/\p{L}{21,}/u'
+  match: ['pneumonoultramicroscopicsilicovolcanoconiosis', 'the word supercalifragilisticexpialidocious', 'abcdefghijklmnopqrstu', 'x aaaaaaaaaaaaaaaaaaaaaaaaa x', 'éééééééééééééééééééééé', 'Donaudampfschiffahrtsgesellschaft!']
+  no_match: ['abcdefghijklmnopqrst', 'abcdefghij klmnopqrstu', 'abcdefghij1klmnopqrstu', 'short words only', '123456789012345678901234', 'abcdefghij-klmnopqrstuvw']
+  pitfall: Using [a-zA-Z] misses accented runs, and \w counts digits and underscores as letters.
+
+- id: text-10
+  difficulty: hard
+  status: ok
+  description: >-
+    The whole string is a single Markdown link: a non-empty link text without square brackets inside square brackets,
+    immediately followed by a URL in parentheses. The URL starts with http:// or https:// and contains no whitespace
+    and no parentheses.
+  regex: '/^\[[^\[\]]+\]\(https?:\/\/[^\s()]+\)$/'
+  match: ['[Docs](https://example.com)', '[a](http://x.io/path?q=1#h)', '[Read more here](https://blog.example.org/2024/01/post)', '[1](https://a.b)', '[x y](https://x.y/z)', '[GitHub](https://github.com/acme/repo)']
+  no_match: ['[](https://example.com)', '[Docs](ftp://example.com)', '[Docs] (https://example.com)', '[Docs](https://exa mple.com)', '[Do[cs]](https://example.com)', '[Docs](https://example.com) ', '[Docs](https://example.com/a(b))', 'Docs(https://example.com)', '[Docs](https://)']
+  pitfall: Letting the link text contain brackets or the URL contain spaces.

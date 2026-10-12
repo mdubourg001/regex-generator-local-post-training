@@ -1,0 +1,116 @@
+# Benchmark, catégorie structured-data. Format et contrôles : scripts/benchmark.py.
+
+- id: structured-data-01
+  difficulty: simple
+  status: ok
+  description: >-
+    Query param with a list of ids: one or more non-negative integers made of digits only, separated by single commas.
+    No spaces, no empty items, no trailing comma.
+  regex: '/^\d+(?:,\d+)*$/'
+  match: ['1', '1,2,3', '10,200,3000', '0,0', '42,7', '007,1']
+  no_match: ['', '1,', ',1', '1,,2', '1, 2', '1;2', '-1,2', '1.5']
+  pitfall: Writing (\d+,?)+, which accepts a trailing comma.
+
+- id: structured-data-02
+  difficulty: medium
+  status: ok
+  description: >-
+    Validate a standard Base64 string (alphabet A-Z, a-z, 0-9, plus and slash). It must not be empty, its length must
+    be a multiple of 4, and it may end with one or two equals signs of padding, which can only appear at the very end.
+  regex: '/^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4})$/'
+  match: ['TWFu', 'TWE=', 'TQ==', 'aGVsbG8gd29ybGQ=', 'YWJjZA==', '+/+/']
+  no_match: ['', 'TWF', 'TQ=', 'TQ===', 'TW=u', 'TWFu ', 'TW-u', 'TWFuTQ']
+  pitfall: Checking only the alphabet and not the length or the position of the padding.
+
+- id: structured-data-03
+  difficulty: medium
+  status: ok
+  description: >-
+    A URL query string: one or more key=value pairs joined by ampersands. Keys are one or more letters, digits,
+    underscores or hyphens. Values may be empty, and otherwise contain letters, digits, underscores, hyphens, dots,
+    tildes, or percent-encoded bytes (a percent sign followed by exactly two hex digits). No other characters.
+  regex: '/^[\w-]+=(?:[\w.~-]|%[0-9A-Fa-f]{2})*(?:&[\w-]+=(?:[\w.~-]|%[0-9A-Fa-f]{2})*)*$/'
+  match: ['a=1', 'q=hello%20world&page=2', 'empty=&x=y', 'user-id=42&sort=name.asc', 'k=%C3%A9', 'a_b=c~d']
+  no_match: ['', 'a=1&', '=1', 'a=1&&b=2', 'q=hello world', 'k=%G1', 'k=%2', 'a', 'a=b=c']
+  pitfall: Accepting a lone percent sign or a dangling ampersand.
+
+- id: structured-data-04
+  difficulty: simple
+  status: ok
+  description: >-
+    Quick JWT shape check before decoding: exactly three non-empty base64url segments (letters, digits, hyphens and
+    underscores, no padding) separated by dots.
+  regex: '/^[\w-]+\.[\w-]+\.[\w-]+$/'
+  match: ['eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.abc-DEF_123', 'a.b.c', 'A-_.0.Z', 'x1.y2.z3', 'eyJ.e30.sig', 'header.payload.signature']
+  no_match: ['a.b', 'a.b.c.d', 'a..c', 'a.b.', 'a.b.c=', 'a.b.c ', 'a+b.c.d', '.b.c']
+  pitfall: Using .+ for the segments, which lets dots in and accepts four segments.
+
+- id: structured-data-05
+  difficulty: hard
+  status: ok
+  description: >-
+    A CSV row with exactly 3 comma-separated fields. A field is either unquoted, possibly empty, and contains no
+    comma, double quote or newline; or it is wrapped in double quotes, may contain commas, and any double quote inside
+    it is escaped by doubling it. Nothing may follow a closing quote except the next comma or the end of the row.
+  regex: '/^(?:"(?:[^"]|"")*"|[^",\n]*),(?:"(?:[^"]|"")*"|[^",\n]*),(?:"(?:[^"]|"")*"|[^",\n]*)$/'
+  match: ['a,b,c', ',,', '"x,y",2,3', '"He said ""hi""",b,c', 'id,"",3', 'one,two,"three, four"']
+  no_match: ['a,b', 'a,b,c,d', '"x,y,2,3', 'a"b,c,d', '"a"b,c,d', '"He said "hi"",b,c', "a,b\n,c"]
+  pitfall: Splitting on every comma, which breaks quoted fields, or allowing a bare quote inside a field.
+
+- id: structured-data-06
+  difficulty: hard
+  status: ok
+  description: >-
+    A simple HTML-like element without attributes: an opening tag, some text, and a closing tag with exactly the same
+    name. Tag names are lowercase letters and digits starting with a letter. The text cannot contain angle brackets,
+    so no nested elements.
+  regex: '/^<(?<tag>[a-z][a-z0-9]*)>[^<>]*<\/\k<tag>>$/'
+  match: ['<b>bold</b>', '<p></p>', '<h1>Title</h1>', '<span>a & b</span>', '<em> x </em>', '<div>42</div>']
+  no_match: ['<b>bold</i>', '<b>bold</B>', '<B>x</B>', '<b>a<i>b</i></b>', '<b>bold</b> ', '<1>x</1>', '<b>x</bb>', '<bb>x</b>']
+  pitfall: Not tying the closing tag to the opening one, so mismatched tags pass.
+
+- id: structured-data-07
+  difficulty: medium
+  status: ok
+  description: >-
+    A palette setting in our theme config: one to five CSS hex colors, each a hash sign followed by 3 or 6 hex digits
+    in any case, separated by a comma and exactly one space.
+  regex: '/^#(?:[0-9a-fA-F]{3}){1,2}(?:, #(?:[0-9a-fA-F]{3}){1,2}){0,4}$/'
+  match: ['#fff', '#FFFFFF, #000', '#abc, #123456, #DEF', '#111, #222, #333, #444, #555', '#a1b2c3', '#000000, #fff']
+  no_match: ['#fff,#000', '#ffff', '#fff, ', '#111, #222, #333, #444, #555, #666', '#ggg', 'fff, #000', '#fff , #000']
+  pitfall: Forgetting the maximum of five colors, or accepting 4 or 5 hex digits.
+
+- id: structured-data-08
+  difficulty: simple
+  status: ok
+  description: >-
+    Config key path: one or more segments separated by single dots. Each segment starts with a lowercase letter and
+    continues with lowercase letters, digits or underscores.
+  regex: '/^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)*$/'
+  match: ['server', 'server.port', 'db.pool.max_size', 'a.b.c.d', 'log_level', 'x1.y2']
+  no_match: ['.server', 'server.', 'server..port', 'Server.port', 'server.1port', 'server port', 'server-port']
+  pitfall: Allowing empty segments with leading, trailing or doubled dots.
+
+- id: structured-data-09
+  difficulty: hard
+  status: ok
+  description: >-
+    A one-line JSON array of integers: an opening bracket, zero or more integers, and a closing bracket. Integers have
+    an optional minus sign and no leading zeros (except 0 itself). They are separated by a comma, optionally followed
+    by one space. No other whitespace and no trailing comma.
+  regex: '/^\[(?:-?(?:0|[1-9]\d*)(?:, ?-?(?:0|[1-9]\d*))*)?\]$/'
+  match: ['[]', '[1]', '[1,2,3]', '[1, -2, 30]', '[0]', '[-15,0, 7]']
+  no_match: ['[', '[1,]', '[01]', '[1,,2]', '[1,  2]', '[ 1]', '[1.5]', '1,2', '[1 ,2]', '[1] ', 'x[1]', '[1][2]']
+  pitfall: Forgetting the empty array, or accepting a trailing comma.
+
+- id: structured-data-10
+  difficulty: medium
+  status: ok
+  description: >-
+    An HTTP header line: a name made of ASCII letters, digits and hyphens, a colon, any number of spaces, then a
+    non-empty value of printable ASCII characters (space to tilde) that does not end with a space. No tabs or other
+    control characters.
+  regex: '/^[A-Za-z0-9-]+: *[\x21-\x7E](?:[\x20-\x7E]*[\x21-\x7E])?$/'
+  match: ['Content-Type: application/json', 'X-Request-Id:abc123', 'Accept:   */*', 'Host: example.com', 'Cache-Control: no-cache, no-store', 'X-A: 1']
+  no_match: ['Content-Type application/json', ': value', 'Content Type: x', 'Host: ', 'Host: example.com ', 'Host: exämple.com', "Host: a\tb", 'Host:']
+  pitfall: Accepting an empty value or a trailing space with a naive .+ after the colon.

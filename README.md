@@ -97,11 +97,12 @@ partagé par toutes les étapes.
 | ------------------ | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
 | Train / valid      | Synthétiques : taxonomie → professeur **DeepSeek V4.1 Flash** (OpenRouter)          | ~10 000 exemples validés après filtrage                          |
 | Held-out (dev)     | Split des données synthétiques                                                      | Pour itérer vite. Même distribution que le train                 |
-| Benchmark          | ~150 à 300 cas, brouillon par **Qwen3-235B**, **relus et enrichis à la main**       | Fait foi. Figé une fois constitué, décontaminé contre le train   |
+| Benchmark          | ~210 cas **écrits à la main par Claude**, versionnés dans `benchmark/`               | Fait foi. Figé une fois constitué, décontaminé contre le train   |
 | DPO                | **Généré par nous** à partir du modèle SFT                                          | Données _on-policy_                                              |
 
-Le benchmark est rédigé par un autre modèle que le professeur : sinon, il aurait la même distribution et le même style
-que le train, et favoriserait artificiellement le modèle entraîné.
+Le benchmark n'est pas produit par le professeur : sinon, il aurait la même distribution et le même style que le
+train, et favoriserait artificiellement le modèle entraîné. Il est écrit par Claude, qui ne sert à rien d'autre dans le
+projet. La comparaison avec les modèles frontier n'étant pas un objectif, ce n'est pas un biais gênant.
 
 ### Garde-fous sur les tests
 
@@ -114,7 +115,9 @@ positifs). Chaque exemple généré doit passer, dans Node :
 3. **La regex de référence passe tous les tests**, et la regex est valide en ES2018.
 4. **Discrimination** : des regex triviales ou mutées (`.*`, la référence sans ancres, quantificateurs relâchés, classes
    élargies) doivent échouer à au moins un test. Sinon, l'exemple est rejeté.
-5. **Second avis (sur un échantillon)** : Qwen3-235B écrit sa propre regex à partir de la description. Le taux de
+5. **Décontamination** : on retire tout exemple qui recoupe le benchmark (même regex de référence, ou description
+   proche au sens de la similarité de Jaccard sur mots et bigrammes ≥ 0,5).
+6. **Second avis (sur un échantillon)** : Qwen3-235B écrit sa propre regex à partir de la description. Le taux de
    désaccord mesure le bruit du dataset.
 
 ### Composition
@@ -253,10 +256,26 @@ uv run scripts/generate.py --batches 700 --prefix t --categories logs,exclusions
 
 ### Étape 4 : benchmark
 
-- **Faire** : faire rédiger un brouillon par Qwen3-235B, le relire et le corriger à la main, ajouter des pièges, puis le
-  décontaminer contre le train et le figer.
-- **Apprendre** : pourquoi le jeu d'éval est le seul morceau qu'on ne délègue pas.
-- **Livrable** : `data/eval/benchmark.jsonl`.
+- **Faire** : écrire ~10 cas par catégorie dans `benchmark/<catégorie>.yaml` (description réaliste, regex de
+  référence, tests avec des pièges, et le piège principal dans `pitfall`), les contrôler mécaniquement, puis les figer.
+  Le benchmark sollicite volontairement des fonctionnalités rares dans le train (groupes nommés, lookbehind, flags `m`
+  et `s`, recherches non ancrées).
+- **Apprendre** : pourquoi le jeu d'éval ne doit pas sortir du même moule que le train.
+- **Livrable** : `benchmark/*.yaml` (source de vérité, versionnée) et `data/eval/benchmark.jsonl`.
+
+```sh
+uv run scripts/benchmark.py check    # référence vs tests dans Node, discrimination des tests, proximité avec le train
+uv run scripts/benchmark.py build    # cas `status: ok` → data/eval/benchmark.jsonl (avec les exemples montrés)
+```
+
+**Résultat** : 210 cas (10 par catégorie ; 60 simples, 79 intermédiaires, 71 difficiles), 0 erreur aux contrôles.
+Par rapport au train, le benchmark sollicite davantage les fonctionnalités rares : lookahead 20 % des regex,
+non-ancré 10 %, backreferences 9 %, lookbehind 5 %, `\p{…}` 5 %, groupes nommés 3 %.
+
+38 cas (18 %) ont une regex de référence identique à une regex du train : des besoins standard (IPv4, semver, date
+ISO…) dont l'écriture canonique est unique. Plutôt que de retirer ces besoins fréquents du benchmark, on décontamine le
+train (garde-fou 5) : 489 exemples de train, 33 de valid et 29 de held-out sont retirés. Il reste **9 268 exemples**
+(8 321 / 505 / 442).
 
 ### Étape 5 : baselines
 
@@ -337,6 +356,7 @@ uv run scripts/generate.py --batches 700 --prefix t --categories logs,exclusions
 │   ├── validate.py        # garde-fous → data/sft/
 │   ├── generate_pairs.py  # échantillonnage + paires chosen/rejected
 │   └── reward.py          # fonction de récompense GRPO
+├── benchmark/        # benchmark écrit à la main, un YAML par catégorie
 ├── tests/            # tests du harnais (pytest) et cas écrits à la main (fixtures/)
 ├── adapters/         # adapters LoRA entraînés (sft/, dpo/, grpo/)
 └── results/          # scores et bilan

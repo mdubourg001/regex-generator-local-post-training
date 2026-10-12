@@ -1,0 +1,114 @@
+# Benchmark, catégorie unicode. Format et contrôles : scripts/benchmark.py.
+
+- id: unicode-01
+  difficulty: simple
+  status: ok
+  description: >-
+    Display name field: one or more letters from any alphabet (accented and non-Latin letters included) and nothing
+    else, so no spaces, digits, hyphens or punctuation.
+  regex: '/^\p{L}+$/u'
+  match: ['Zoë', 'Łukasz', 'Αλέξης', '李明', 'Müller', 'José']
+  no_match: ['Jean Luc', 'J0hn', 'O''Brien', '', 'Zoë ', 'Anne-Marie']
+  pitfall: Using [A-Za-z] or \w, which reject accented and non-Latin letters.
+
+- id: unicode-02
+  difficulty: simple
+  status: ok
+  description: >-
+    Check that a word is written only with letters of the Greek script, upper or lower case. No spaces, digits,
+    punctuation or Latin letters.
+  regex: '/^\p{Script=Greek}+$/u'
+  match: ['αβγ', 'Αθήνα', 'λόγος', 'ΩΜΕΓΑ', 'ψ', 'Ελλάδα']
+  no_match: ['alpha', 'αβγ1', 'αβγ ', 'Αθήνα!', 'abγ', '']
+  pitfall: Writing a range like [α-ω], which misses accented and uppercase Greek letters.
+
+- id: unicode-03
+  difficulty: medium
+  status: ok
+  description: >-
+    Usernames for an international forum: 3 to 20 characters in total. The first character is a letter from any
+    language; the rest are letters from any language, ASCII digits 0-9 or underscores.
+  regex: '/^\p{L}[\p{L}0-9_]{2,19}$/u'
+  match: ['Zoë_42', 'Ålesund', 'user_1', 'Ψηφ9', '李明明', 'abc', 'abcdefghijklmnopqrst']
+  no_match: ['1user', '_zoe', 'ab', 'abcdefghijklmnopqrstu', 'zoë 42', 'zoë-42', 'user٣']
+  pitfall: Using \d without thinking (fine here without u semantics) or \w, which drops non-Latin letters.
+
+- id: unicode-04
+  difficulty: medium
+  status: ok
+  description: >-
+    Reject any text containing a control character (Unicode general category Cc, which includes tabs, newlines,
+    carriage returns, NUL and DEL). Anything else is accepted, including the empty string.
+  regex: '/^\P{Cc}*$/u'
+  match: ['', 'hello world', 'Zoë 😀', 'a;b,c', '   ', 'x']
+  no_match: ["a\tb", "line\nbreak", "\u0000", "end\r", "\u007f", "\u0085x"]
+  pitfall: Only excluding \n and \t, and forgetting NUL, DEL and the C1 controls.
+
+- id: unicode-05
+  difficulty: simple
+  status: ok
+  description: >-
+    Flag chat messages that contain at least one emoji pictograph, meaning any character with the Unicode
+    Extended_Pictographic property, anywhere in the message.
+  regex: '/\p{Extended_Pictographic}/u'
+  match: ['great job 🎉', '🔥', 'ok 👍 thanks', '❤️ love', '🚀launch', 'a😀b']
+  no_match: ['great job', ':-)', '<3', '', '123', '中文']
+  pitfall: Using a range of surrogate pairs without the u flag, which misses most emoji.
+
+- id: unicode-06
+  difficulty: hard
+  status: ok
+  description: >-
+    A person's full name in any language, at most 50 characters. Each letter may be followed by combining marks.
+    Letters may be separated by a single space, a hyphen, an ASCII apostrophe or a typographic apostrophe (U+2019).
+    The name must start and end with a letter (or its combining marks), and two separators can never follow each
+    other. Digits and other punctuation are not allowed.
+  regex: '/^(?=.{1,50}$)\p{L}\p{M}*(?:[ ''’-]?\p{L}\p{M}*)*$/u'
+  match: ['Jean-Luc', 'O''Brien', 'O’Neil', 'Mary Ann', 'José María', 'Nguyễn Văn An', "émile", 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa']
+  no_match: ['Jean--Luc', ' Anne', 'Anne ', 'O''''Brien', 'J0hn', 'Anne-', 'Mary  Ann', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa']
+  pitfall: Forgetting combining marks, the typographic apostrophe, or the overall length limit.
+
+- id: unicode-07
+  difficulty: hard
+  status: ok
+  description: >-
+    Japanese postal codes as typed by users: three digits, a hyphen, then four digits. Digits are either all ASCII or
+    all full-width (U+FF10 to U+FF19), never mixed within one code. The hyphen may be an ASCII hyphen-minus or a
+    full-width hyphen-minus (U+FF0D), whatever the digits.
+  regex: '/^(?:\d{3}[-－]\d{4}|[０-９]{3}[-－][０-９]{4})$/u'
+  match: ['123-4567', '１２３－４５６７', '１２３-４５６７', '123－4567', '000-0000', '９９９－９９９９']
+  no_match: ['１２3-4567', '1234567', '123-456', '１２３ー４５６７', '123-45678', ' 123-4567', 'abc-defg']
+  pitfall: Allowing mixed ASCII and full-width digits, or confusing the full-width hyphen with the katakana long mark.
+
+- id: unicode-08
+  difficulty: medium
+  status: ok
+  description: >-
+    Our legacy SMS gateway only accepts printable ASCII: 1 to 72 characters, each between space and tilde inclusive.
+    No accents, emoji, tabs or other control characters.
+  regex: '/^[\x20-\x7E]{1,72}$/'
+  match: ['Hello world!', '~', ' ', 'Price: $5 (approx.)', '{json}', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa']
+  no_match: ['', 'Zoë', "tab\there", 'café', 'emoji 😀', "\u007f", 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa']
+  pitfall: Using \w or . which accept accents, or forgetting the length limit.
+
+- id: unicode-09
+  difficulty: medium
+  status: ok
+  description: >-
+    Validate a hashtag: a hash sign followed by 1 to 30 characters that are letters from any language, ASCII digits or
+    underscores. The tag must contain at least one letter.
+  regex: '/^#(?=[\p{L}0-9_]*\p{L})[\p{L}0-9_]{1,30}$/u'
+  match: ['#café', '#2024年', '#hello_world', '#ÉTÉ', '#a', '#Москва']
+  no_match: ['#123', '#', 'café', '#hello world', '#hello-world', '#abcdefghijklmnopqrstuvwxyzabcde', ' #tag', '#___']
+  pitfall: Accepting digit-only tags or using \w, which ignores non-Latin letters.
+
+- id: unicode-10
+  difficulty: hard
+  status: ok
+  description: >-
+    A country flag emoji, checked by format only: exactly two Unicode regional indicator symbols (U+1F1E6 to U+1F1FF)
+    and nothing else. We don't check that the pair is a real country code.
+  regex: '/^[\u{1F1E6}-\u{1F1FF}]{2}$/u'
+  match: ['🇫🇷', '🇺🇸', '🇯🇵', '🇩🇪', '🇧🇷', '🇨🇦']
+  no_match: ['🇫', '🇫🇷🇺', 'FR', '🇫🇷 ', '🏳️', '🇫R', '🏴']
+  pitfall: Without the u flag, each regional indicator is two surrogates and the length check counts code units.

@@ -1,0 +1,115 @@
+# Benchmark, catégorie files-paths. Format et contrôles : scripts/benchmark.py.
+
+- id: files-paths-01
+  difficulty: simple
+  status: ok
+  description: >-
+    Image upload: a file name made of one or more characters other than forward slashes and backslashes, followed by
+    a .png, .jpg, .jpeg, .gif or .webp extension, case-insensitive.
+  regex: '/^[^\/\\]+\.(?:png|jpe?g|gif|webp)$/i'
+  match: ['photo.jpg', 'IMG_0001.JPEG', 'my picture.png', 'a.b.gif', 'logo.WebP', 'x.jpeg']
+  no_match: ['photo.jpg.txt', 'photo.svg', 'photo', '.png', 'dir/photo.jpg', 'photo.jpgx', 'photo. jpg', 'photo.jp']
+  pitfall: Not anchoring the extension at the end, so photo.jpg.txt passes.
+
+- id: files-paths-02
+  difficulty: simple
+  status: ok
+  description: >-
+    Unix absolute path: it starts with a slash, followed by zero or more segments of letters, digits, dots, hyphens or
+    underscores separated by single slashes, with an optional trailing slash. The root path on its own is valid.
+  regex: '/^\/(?:[\w.-]+(?:\/[\w.-]+)*\/?)?$/'
+  match: ['/', '/usr', '/usr/local/bin', '/var/log/', '/home/user/.config', '/opt/my-app_v1.2']
+  no_match: ['usr/local', '/usr//local', '//', '/usr/local bin', '/usr/loc@l', 'C:\Windows', '~/docs']
+  pitfall: Writing (segment/?)* which accepts double slashes or backtracks badly on long invalid input.
+
+- id: files-paths-03
+  difficulty: medium
+  status: ok
+  description: >-
+    Windows absolute path: a drive letter, a colon and a backslash, then optionally segments separated by single
+    backslashes. Segments cannot contain any of < > : " / \ | ? * or line breaks. There is no trailing backslash,
+    except for the drive root itself.
+  regex: '/^[A-Za-z]:\\(?:[^<>:"\/\\|?*\r\n]+(?:\\[^<>:"\/\\|?*\r\n]+)*)?$/'
+  match: ['C:\', 'C:\Windows', 'd:\Program Files\App', 'C:\Users\me\file.txt', 'Z:\a\b\c', 'E:\données\été']
+  no_match: ['C:', 'C:\Windows\', 'C:\\Windows', '\Windows', 'CC:\Windows', 'C:/Windows', 'C:\Win|dows', 'C:\file?.txt']
+  pitfall: Escaping the backslash wrongly, or allowing empty segments.
+
+- id: files-paths-04
+  difficulty: medium
+  status: ok
+  description: >-
+    Dotfile name: a dot followed by one or more letters, digits, dots, hyphens or underscores, but the name cannot be
+    exactly . or .. (the current and parent directory entries).
+  regex: '/^\.(?!\.?$)[\w.-]+$/'
+  match: ['.env', '.gitignore', '.eslintrc.json', '.config', '.my_file-2', '..hidden']
+  no_match: ['.', '..', 'env', '.env/', '.my file', '.env~', ' .env']
+  pitfall: Accepting .. as a dotfile.
+
+- id: files-paths-05
+  difficulty: medium
+  status: ok
+  description: >-
+    Test file in our JS/TS repo: a base name of letters, digits, dashes, underscores and dots, then .test or .spec,
+    then one of the lowercase extensions .js, .jsx, .ts or .tsx.
+  regex: '/^[\w.-]+\.(?:test|spec)\.[jt]sx?$/'
+  match: ['app.test.js', 'Button.spec.tsx', 'utils.helpers.test.ts', 'my-component.spec.jsx', 'a_b.test.tsx', 'index.spec.ts']
+  no_match: ['app.js', 'app.tests.js', 'app.test.mjs', 'app.test.JS', '.test.js', 'app.test.js.snap', 'app test.js', 'app.spec.tsxx', 'my app.test.js', 'app.test.cs']
+  pitfall: Forgetting the end anchor, so snapshot files like .test.js.snap pass.
+
+- id: files-paths-06
+  difficulty: hard
+  status: ok
+  description: >-
+    JavaScript file that is not minified: a non-empty name of letters, digits, dots, hyphens and underscores, ending
+    with .js, but not ending with .min.js (case-sensitive).
+  regex: '/^[\w.-]+(?<!\.min)\.js$/'
+  match: ['app.js', 'vendor.bundle.js', 'min.js', 'admin.js', 'jquery.minified.js', 'a.min2.js']
+  no_match: ['app.min.js', 'jquery-3.6.min.js', 'app.js.map', 'app.ts', '.js', 'app min.js', 'x.min.js']
+  pitfall: Excluding any name containing min, which rejects admin.js.
+
+- id: files-paths-07
+  difficulty: medium
+  status: ok
+  description: >-
+    Relative path to a Markdown page in our docs: it starts with docs/, may go through any number of subfolders, and
+    ends with a file with the .md or .mdx extension. Folder names and the file name (before the extension) are made of
+    lowercase letters, digits and dashes only.
+  regex: '/^docs\/(?:[a-z0-9-]+\/)*[a-z0-9-]+\.mdx?$/'
+  match: ['docs/index.md', 'docs/guide/setup.mdx', 'docs/a/b/c/d.md', 'docs/api-v2/auth.md', 'docs/2024/release-notes.md', 'docs/x.mdx']
+  no_match: ['docs/../secret.md', 'docs/Guide.md', 'docs/guide/.md', 'src/docs/index.md', 'docs/index.markdown', 'docs//index.md', 'docs/index.md.bak', 'docs/my guide.md']
+  pitfall: Allowing dots in folder names, which lets ../ through.
+
+- id: files-paths-08
+  difficulty: medium
+  status: ok
+  description: >-
+    Log file name with a date prefix: a date written as four digits, a hyphen, a month from 01 to 12, a hyphen and a
+    day from 01 to 31 (no calendar check), then an underscore, a name of ASCII letters, digits and dashes, and the .log
+    extension.
+  regex: '/^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])_[A-Za-z0-9-]+\.log$/'
+  match: ['2024-01-31_app.log', '2023-12-01_api-server.log', '1999-06-15_X.log', '2024-02-30_backup.log', '2000-10-10_a-b-c.log', '2024-09-09_job42.log']
+  no_match: ['2024-13-01_app.log', '2024-00-10_app.log', '2024-01-32_app.log', '24-01-31_app.log', '2024-01-31-app.log', '2024-01-31_app.txt', '2024-01-31_.log', '2024-01-31_my app.log', 'x2024-01-31_app.log', '2024-01-31_app.logs']
+  pitfall: Using \d{2} for month and day, which accepts month 13 or day 32.
+
+- id: files-paths-09
+  difficulty: medium
+  status: ok
+  description: >-
+    Cross-platform file name check: one or more characters, none of them being / \ : * ? " < > | or an ASCII control
+    character, and the name must not end with a space or a dot.
+  regex: '/^[^\/\\:*?"<>|\x00-\x1f]*[^\/\\:*?"<>|\x00-\x1f .]$/'
+  match: ['report.pdf', 'my file (1).txt', 'résumé.docx', 'a', '.bashrc', 'data_2024-01.csv']
+  no_match: ['report.', 'report ', 'a/b', 'a\b', 'what?.txt', 'x:y', '"quoted"', 'pipe|name', "tab\there"]
+  pitfall: Forgetting the trailing space and dot rule.
+
+- id: files-paths-10
+  difficulty: hard
+  status: ok
+  description: >-
+    Relative import path in our TypeScript code: it starts with ./ or with one or more ../, followed by one or more
+    segments of letters, digits, dashes or underscores separated by single slashes. No file extension, no trailing
+    slash.
+  regex: '/^(?:\.\/|(?:\.\.\/)+)[\w-]+(?:\/[\w-]+)*$/'
+  match: ['./utils', '../lib/http-client', '../../shared/types', './components/Button', '../../../a_b/c', './index']
+  no_match: ['utils', './', '../', './utils/', './utils.ts', '.../utils', './../utils', '../utils//x', '/utils']
+  pitfall: Writing \.{1,2}\/ repeated, which accepts ./../ or .../ prefixes.

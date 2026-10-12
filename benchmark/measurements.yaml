@@ -1,0 +1,116 @@
+# Benchmark, catégorie measurements. Format et contrôles : scripts/benchmark.py.
+
+- id: measurements-01
+  difficulty: simple
+  status: ok
+  description: >-
+    Temperature readings in our sensor UI: an optional minus sign, 1 to 3 digits, an optional decimal part of exactly
+    one digit, then a degree sign and an uppercase C or F, with no space anywhere.
+  regex: '/^-?\d{1,3}(?:\.\d)?°[CF]$/'
+  match: ['21°C', '-4.5°F', '0°C', '100°F', '37.2°C', '-273.1°C']
+  no_match: ['21 °C', '21°c', '21C', '1000°C', '21.55°C', '+21°C', '21°K', '°C']
+  pitfall: Forgetting the degree sign, or accepting lowercase units.
+
+- id: measurements-02
+  difficulty: medium
+  status: ok
+  description: >-
+    Latitude in decimal degrees, from -90 to 90 inclusive: an optional plus or minus sign, an integer part without
+    leading zeros, and an optional fractional part of 1 to 6 digits. When the integer part is 90, the decimals can
+    only be zeros.
+  regex: '/^[+-]?(?:90(?:\.0{1,6})?|[1-8]?\d(?:\.\d{1,6})?)$/'
+  match: ['0', '45.123456', '-90', '+90.000000', '89.999999', '-12.5', '9']
+  no_match: ['90.1', '91', '-90.0000001', '45.1234567', '180', '45.', '.5', '045']
+  pitfall: Accepting 90.5 by treating the integer part as any two-digit number.
+
+- id: measurements-03
+  difficulty: medium
+  status: ok
+  description: >-
+    Image dimensions: a width and a height, each a positive integer of up to 5 digits without leading zeros, separated
+    by a lowercase letter x or a multiplication sign, with no spaces.
+  regex: '/^[1-9]\d{0,4}[x×][1-9]\d{0,4}$/'
+  match: ['1920x1080', '800×600', '1x1', '99999x1', '3840×2160', '640x480']
+  no_match: ['1920X1080', '1920 x 1080', '0x100', '100000x1', '1920x', '1920*1080', '01920x1080']
+  pitfall: Forgetting the multiplication sign, or accepting zero dimensions.
+
+- id: measurements-04
+  difficulty: hard
+  status: ok
+  description: >-
+    Latitude in degrees, minutes and seconds: degrees from 0 to 90 without leading zeros, a degree sign, minutes as
+    two digits from 00 to 59, an apostrophe, seconds as two digits from 00 to 59 with an optional fractional part of 1
+    or 2 digits, a double quote, a single space, then N or S. When degrees are 90, minutes and seconds must be zero.
+  regex: '/^(?:90°00''00(?:\.0{1,2})?"|[1-8]?\d°[0-5]\d''[0-5]\d(?:\.\d{1,2})?") [NS]$/'
+  match: ['48°51''24" N', '0°00''00" S', '90°00''00" N', '33°52''07.25" S', '9°05''59.9" N', '89°59''59.99" S']
+  no_match: ['90°00''01" N', '91°00''00" N', '48°60''00" N', '48°51''24" E', '48°51''24"N', '48°5''24" N', '48°51''24.123" N', '048°51''24" N']
+  pitfall: Allowing 90 degrees with non-zero minutes, or minutes and seconds up to 99.
+
+- id: measurements-05
+  difficulty: simple
+  status: ok
+  description: >-
+    File size label: a number (an integer, or with one or two decimals after a dot), a single space, then one of the
+    uppercase units B, KB, MB, GB or TB.
+  regex: '/^\d+(?:\.\d{1,2})? (?:B|KB|MB|GB|TB)$/'
+  match: ['512 B', '1.5 KB', '20 MB', '3.75 GB', '1 TB', '0 B']
+  no_match: ['1.5KB', '1.5 kb', '1.5 PB', '1.555 GB', '1. MB', 'MB', '20 MiB']
+  pitfall: Making the space optional, or accepting the binary units such as MiB.
+
+- id: measurements-06
+  difficulty: simple
+  status: ok
+  description: >-
+    Weight in a European recipe app: digits, an optional decimal part written with a comma and 1 to 3 digits, an
+    optional single space, then the unit kg or g in lowercase.
+  regex: '/^\d+(?:,\d{1,3})? ?(?:kg|g)$/'
+  match: ['5kg', '2,5 kg', '750 g', '0,125kg', '12g', '1000 g']
+  no_match: ['2.5 kg', '5 KG', '5  kg', '5 mg', '2,5555 kg', 'kg', '5 kgs', ',5 kg']
+  pitfall: Accepting a dot as the decimal separator, or units like mg because g is a suffix.
+
+- id: measurements-07
+  difficulty: hard
+  status: ok
+  description: >-
+    A duration like the ones in our timesheet tool: an optional hours part (1 to 3 digits followed by a lowercase h),
+    then an optional minutes part (a number from 0 to 59 without leading zero, followed by a lowercase m). At least
+    one part must be present, hours always come first, and there are no spaces.
+  regex: '/^(?=\d)(?:\d{1,3}h)?(?:[1-5]?\dm)?$/'
+  match: ['1h30m', '2h', '45m', '0m', '100h5m', '999h59m']
+  no_match: ['', '1h60m', '30m1h', '1h 30m', '1000h', '05m', '1H30M', 'h30m']
+  pitfall: Making both parts optional without requiring at least one, so the empty string matches.
+
+- id: measurements-08
+  difficulty: medium
+  status: ok
+  description: >-
+    Speed limit value for a road sign editor: a multiple of 5 from 5 to 130 inclusive, without leading zeros, followed
+    by a space and km/h in lowercase.
+  regex: '/^(?:5|[1-9][05]|1[0-2][05]|130) km\/h$/'
+  match: ['5 km/h', '30 km/h', '50 km/h', '95 km/h', '110 km/h', '130 km/h']
+  no_match: ['135 km/h', '0 km/h', '33 km/h', '50km/h', '50 kmh', '50 KM/H', '140 km/h', '05 km/h']
+  pitfall: Accepting any number ending in 0 or 5, including 135 or 0.
+
+- id: measurements-09
+  difficulty: hard
+  status: ok
+  description: >-
+    A CSS length: either the number zero on its own without unit, or an optional minus sign, a number (digits with an
+    optional dot and more digits, or a dot followed by digits), and one of the units px, em, rem, %, vh or vw in
+    lowercase, with no space before the unit.
+  regex: '/^(?:0|-?(?:\d+(?:\.\d+)?|\.\d+)(?:px|em|rem|%|vh|vw))$/'
+  match: ['0', '12px', '-1.5em', '.5rem', '100%', '50vh', '0px']
+  no_match: ['12', '12 px', '12PX', '1.px', '12pt', '--1px', '-0', 'px']
+  pitfall: Allowing unitless numbers other than zero, or a trailing dot before the unit.
+
+- id: measurements-10
+  difficulty: medium
+  status: ok
+  description: >-
+    Longitude stored with fixed precision: from -180 to 180 inclusive, an optional minus sign (never a plus), an
+    integer part without leading zeros, then a dot and 4 to 6 decimal digits. When the integer part is 180, the
+    decimals can only be zeros.
+  regex: '/^-?(?:180\.0{4,6}|(?:1[0-7]\d|[1-9]?\d)\.\d{4,6})$/'
+  match: ['2.3522', '-73.935242', '180.0000', '-180.000000', '179.9999', '0.0000']
+  no_match: ['2.352', '2.3522123', '180.0001', '181.0000', '+2.3522', '02.3522', '-1800.0000', '2,3522']
+  pitfall: Treating the integer part as any 1 to 3 digits, which accepts 181 or 999.

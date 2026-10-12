@@ -7,7 +7,8 @@ Garde-fous (README, section 5), dans l'ordre :
   3. la regex de référence passe tous les tests (exécutés dans Node) ;
   4. discrimination : la référence sans ancres doit rater au moins un test, de même que la référence aux
      quantificateurs relâchés et celle aux classes élargies ;
-  5. pas de doublon de description.
+  5. pas de doublon de description ;
+  6. décontamination : rien qui recoupe le benchmark (même regex, ou description proche).
 
 Ensuite : tirage des exemples montrés dans le prompt (retirés des tests cachés), split par lot, format SFT.
 
@@ -31,6 +32,9 @@ from common import RegexRunner, build_messages, parse_literal
 from generate import CONFIG, RAW_DIR, TAXONOMY, log_paths, read_log
 
 PREPARED_DIR = Path("data/prepared")
+BENCHMARK_DIR = Path("benchmark")
+# Au-delà, deux descriptions sont considérées comme le même besoin (similarité de Jaccard sur mots et bigrammes).
+SIMILARITY_THRESHOLD = 0.5
 SURROGATE = re.compile("[\ud800-\udfff]")
 SFT_DIR = Path("data/sft")
 
@@ -126,6 +130,39 @@ def features(pattern: str, flags: str) -> set[str]:
     found |= {"anchors"} if is_anchored(pattern) else {"unanchored"}
     found |= {f"flag_{f}" for f in flags if f in "ims"}
     return found
+
+
+# --- Décontamination ------------------------------------------------------------------------------------------------
+
+
+def load_benchmark() -> list[dict]:
+    """Tous les cas du benchmark, la catégorie venant du nom du fichier."""
+    cases = []
+    for path in sorted(BENCHMARK_DIR.glob("*.yaml")):
+        cases += [{"category": path.stem, **c} for c in yaml.safe_load(path.read_text()) or []]
+    return cases
+
+
+def words(text: str) -> set[str]:
+    tokens = re.findall(r"[a-z0-9]+", text.lower())
+    return set(tokens) | {f"{a} {b}" for a, b in zip(tokens, tokens[1:])}
+
+
+def similarity(a: set[str], b: set[str]) -> float:
+    return len(a & b) / len(a | b) if a | b else 0.0
+
+
+def decontaminate(examples: list[dict], benchmark: list[dict]) -> tuple[list[dict], int]:
+    """Retire les exemples qui recoupent le benchmark : même regex de référence, ou description proche."""
+    regexes = {c["regex"] for c in benchmark}
+    benchmark_words = [words(c["description"]) for c in benchmark]
+    kept = [
+        e
+        for e in examples
+        if e["regex"] not in regexes
+        and not any(similarity(words(e["description"]), w) >= SIMILARITY_THRESHOLD for w in benchmark_words)
+    ]
+    return kept, len(examples) - len(kept)
 
 
 # --- Validation -------------------------------------------------------------------------------------------------------
@@ -272,6 +309,10 @@ def main() -> None:
     with RegexRunner() as runner:
         kept, more = check(examples, cfg, runner)
     rejected += more
+    # Le benchmark est la référence figée : c'est le train qui s'écarte de lui, pas l'inverse.
+    kept, n_contaminated = decontaminate(kept, load_benchmark())
+    if n_contaminated:
+        rejected["recoupe le benchmark"] += n_contaminated
     kept = [add_examples(e, cfg, taxonomy["examples_share"]) for e in kept]
 
     splits = defaultdict(list)
