@@ -84,8 +84,8 @@ part tirée dans `examples` (et alors retirée des tests cachés).
 ```
 
 **Sémantique des tests** : une chaîne de `match` doit donner `regex.test(s) === true`, une chaîne de `no_match`
-`false`. Les tâches d'extraction (trouver toutes les occurrences, groupes nommés) ajoutent des cas
-`{"input": …, "matches": [...]}` comparés au résultat de `matchAll`.
+`false`. Pour commencer, on ne fait que de la **validation** : les tâches d'extraction (trouver toutes les
+occurrences, groupes nommés), qui demanderaient des tests comparés au résultat de `matchAll`, viendront plus tard.
 
 **Prompt** : un message système fixe (« écris une regex JS ES2018, réponds uniquement par un littéral `/…/flags` »),
 puis la description et, si présents, les exemples. Le format est défini une seule fois dans `scripts/common.py` et
@@ -120,7 +120,7 @@ positifs). Chaque exemple généré doit passer, dans Node :
 ### Composition
 
 - **Taxonomie** (`configs/taxonomy.yaml`) : ~15 à 25 catégories (identifiants et formats, dates et heures, réseau,
-  nombres et monnaies, chemins, logs, code, texte, Unicode, extraction, mots de passe…). Chacune liste des intentions
+  nombres et monnaies, chemins, logs, code, texte, Unicode, mots de passe…). Chacune liste des intentions
   types et les fonctionnalités de regex qu'elle sollicite, pour couvrir toute la flavor.
 - **Difficulté** : 30 % simple, 50 % intermédiaire, 20 % piège.
 - **Registres de description** : laconique façon dev (« match french phone numbers »), phrase complète, spécification
@@ -251,6 +251,7 @@ export OPENROUTER_API_KEY=…
 ### Plus tard (hors de ce repo pour l'instant)
 
 - Comparaison avec des modèles frontier (qualité, latence, coût par requête).
+- Tâches d'extraction (`matchAll`, groupes nommés), en plus de la validation.
 - Fusion de l'adapter, export (ONNX ou MLC) et démo dans le navigateur (WebGPU).
 - Publication du modèle, du dataset et du benchmark sur Hugging Face.
 
