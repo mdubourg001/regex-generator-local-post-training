@@ -9,3 +9,4 @@ adapters/*
 !adapters/.gitkeep
 models/
 wandb/
+logs/
