@@ -7,7 +7,7 @@ réponse », et on l'entraîne à reproduire ces réponses. C'est de l'apprentis
 
 Comment ça marche :
 
-1. Chaque exemple est une conversation : prompt (MR + labels disponibles) → réponse attendue (les labels posés par l'équipe).
+1. Chaque exemple est une conversation : prompt (description en langage naturel, éventuellement des exemples) → réponse attendue (la regex de référence).
 2. Le modèle prédit la réponse token par token. À chaque position, on mesure la probabilité qu'il attribuait au bon token : c'est la loss, l'entropie
    croisée.
 3. On ajuste les poids pour augmenter cette probabilité. La loss n'est calculée que sur la réponse : on n'apprend pas au modèle à réécrire le prompt.
@@ -16,16 +16,17 @@ C'est exactement l'objectif du pré-entraînement (prédire le token suivant), m
 
 Dans ce projet :
 
-- Données : les MR extraites de GitLab (titre, description, fichiers modifiés, labels), mises au format de prompt commun à toutes les étapes.
-- LoRA : on ne modifie pas les 1,7 milliard de poids. On ajoute de petites matrices entraînables (environ 1 % des paramètres), ce qui tient en
+- Données : les exemples synthétiques générés par le modèle professeur et validés par exécution, mis au format de prompt commun à toutes les étapes.
+- LoRA : on ne modifie pas les centaines de millions (ou milliards) de poids. On ajoute de petites matrices entraînables (environ 1 % des paramètres), ce qui tient en
   mémoire et donne un « adapter » de quelques dizaines de Mo.
-- Ce qu'on en attend : que le modèle respecte le format de sortie, n'invente plus de labels hors liste et apprenne les conventions de l'équipe.
+- Ce qu'on en attend : que le modèle respecte le format de sortie (`/…/flags`, sans explication) et apprenne à écrire des regex justes,
+  ancrées, sans sur-généraliser.
 
 Sa limite, et la raison des étapes suivantes : le SFT n'apprend qu'à imiter. Le modèle ne voit jamais ses propres erreurs, et il ne sait pas qu'une
 réponse est « presque juste » ou « complètement fausse ». Il reproduit aussi les défauts du dataset.
 
 - DPO : on lui montre ses propres réponses, une bonne et une mauvaise, et il apprend à préférer la bonne.
-- GRPO : il essaie, on compare ses labels à ceux attendus, et il est récompensé en proportion (F1).
+- GRPO : il essaie, on exécute sa regex sur les tests cachés, et il est récompensé en proportion des tests réussis.
 
 En pratique, on commence presque toujours par le SFT : il met le modèle dans le bon format et le bon domaine, et donne une base solide au DPO et au
 RL.
@@ -81,7 +82,7 @@ Les hyperparamètres qu'on réglera :
 - le learning rate : plus élevé qu'en fine-tuning complet, typiquement de 1e-5 à 1e-4.
 
 La variante QLoRA fait la même chose sur un modèle de base quantizé en 4-bit, pour économiser encore de la mémoire. MLX la supporte, mais avec 24 Go
-on n'en a pas besoin, même pour le 4B.
+on n'en a pas besoin pour les tailles visées ici (0.6B et 1.7B).
 
 # L'overfitting
 

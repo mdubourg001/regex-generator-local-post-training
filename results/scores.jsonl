@@ -1,3 +1,0 @@
-{"name": "rules-test", "n": 477, "f1_micro": 0.664364640883978, "f1_macro": 0.5221130634020057, "exact_match": 0.38784067085953877, "invalid_label_rate": 0.0, "malformed_rate": 0.0}
-{"name": "baseline-1.7b", "model": "Qwen/Qwen3-1.7B", "adapter": null, "split": "test", "n": 477, "f1_micro": 0.5029, "f1_macro": 0.4979, "exact_match": 0.1174, "invalid_label_rate": 0.0034, "malformed_rate": 0.0, "generation_seconds": 289.6}
-{"name": "baseline-4b", "model": "Qwen/Qwen3-4B-Instruct-2507", "adapter": null, "split": "test", "n": 477, "f1_micro": 0.6224, "f1_macro": 0.5262, "exact_match": 0.2159, "invalid_label_rate": 0.0085, "malformed_rate": 0.0, "generation_seconds": 711.2}

@@ -1,268 +1,286 @@
-# Post-training d'un petit LLM en local : labellisation automatique des MR GitLab
+# Post-training d'un petit LLM en local : générer des regex JavaScript à partir du langage naturel
 
-Projet d'apprentissage : prendre un petit modèle open-weight et l'entraîner à labelliser les merge requests GitLab
-comme le ferait l'équipe, en passant par les trois grandes étapes du post-training moderne : **SFT → DPO → GRPO**.
-Tout tourne en local sur un Mac.
+Projet d'apprentissage : prendre un petit modèle open-weight et l'entraîner à écrire des expressions régulières
+JavaScript à partir d'une description en anglais, en passant par les trois grandes étapes du post-training moderne :
+**SFT → DPO → GRPO**. Tout l'entraînement tourne en local sur un Mac.
+
+Ce repo ne couvre que le post-training (données, entraînement, évaluation). La comparaison avec les modèles frontier,
+l'export vers le navigateur, la démo et la publication sur Hugging Face viendront plus tard.
 
 ## 1. Objectif
 
-**Tâche** : à partir d'une MR (titre, description, fichiers modifiés, extrait du diff) et de la liste des labels du
-projet, choisir les labels qui s'appliquent. Si aucun label ne convient, ou si un label manque, en suggérer un à créer.
+**Tâche** : à partir d'une description en anglais, et éventuellement de quelques exemples de chaînes qui doivent (ou ne
+doivent pas) matcher, produire une regex JavaScript sous forme de littéral `/…/flags`, sans explication.
 
 ```
-Labels   : bug, feature, refactoring, documentation, ci, dependencies, frontend, backend, …
-MR       : « Fix NPE when the cart is empty » — 2 fichiers modifiés dans src/main/java/…/cart/
-Réponse  : {"labels": ["bug", "backend"], "suggested": []}
+Description : match a French mobile phone number, with or without spaces between pairs of digits
+Exemples    : should match "06 12 34 56 78", should not match "01 12 34 56 78"
+Réponse     : /^0[67](?: ?\d{2}){4}$/
 ```
 
 **Pourquoi cette tâche** :
 
-- **Un vrai cas d'usage** : les labels servent au tri, aux changelogs et aux métriques, mais sont posés de manière
-  inégale. Un modèle généraliste ne connaît pas les conventions implicites d'une équipe ; un petit modèle fine-tuné
-  peut les apprendre. C'est la vraie raison d'être du fine-tuning.
-- **Récompense vérifiable** : choisir dans une liste fermée se note par comparaison d'ensembles (précision, rappel,
-  F1), sans juge. La récompense est **graduée** entre 0 et 1, ce qui convient bien à GRPO.
-- **Un vrai sujet de golden dataset** : les labels réels sont bruités (un label absent veut souvent dire « personne
-  n'y a pensé », pas « faux »). Construire un jeu d'évaluation fiable est une partie centrale du projet.
+- **Un vrai besoin de dev**, que tout le monde comprend, et un cas où un petit modèle spécialisé a une chance d'être
+  compétitif : la tâche est étroite, la sortie est courte.
+- **Récompense vérifiable par exécution** : la regex produite est exécutée par un vrai moteur JS sur des tests cachés.
+  Pas de juge, une récompense **graduée** entre 0 et 1, idéale pour GRPO.
+- **Des données publiables** : tout est synthétique ou public, contrairement au premier cas étudié (labellisation de
+  merge requests sur des projets client, abandonné).
+
+**Thèse** : un modèle de 0,6 à 1,7 milliard de paramètres, post-entraîné en local, approche la qualité d'un gros modèle
+pour un coût, une latence et une dépendance au cloud quasi nuls.
+
+### Flavor ciblée
+
+ECMAScript **2018**, exécutée par **Node 22** (version figée dans `.node-version`) : classes de caractères, quantificateurs,
+groupes capturants et nommés, backreferences, lookahead **et lookbehind**, `\p{…}` (avec `u`), flags `g i m s u y`.
+Hors périmètre : le flag `v` (ES2024), le flag `d` et les modifiers inline (ES2025).
 
 ## 2. Matériel et modèles
 
-|                    |                                                                                                                        |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| Machine            | Apple M4 Pro, 24 Go de RAM unifiée                                                                                     |
-| Framework          | MLX, car pas de GPU NVIDIA (donc pas de CUDA)                                                                          |
-| Modèle d'itération | [`Qwen/Qwen3-1.7B`](https://huggingface.co/Qwen/Qwen3-1.7B) : runs rapides pour expérimenter                           |
-| Modèle final       | [`Qwen/Qwen3-4B-Instruct-2507`](https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507) : on y rejoue le meilleur pipeline |
-| Méthode            | **LoRA** uniquement. Un full fine-tune d'un 4B ne tient pas en 24 Go.                                                  |
+|                    |                                                                                                    |
+| ------------------ | -------------------------------------------------------------------------------------------------- |
+| Machine            | Apple M4 Pro, 24 Go de RAM unifiée                                                                 |
+| Framework          | MLX, car pas de GPU NVIDIA (donc pas de CUDA)                                                      |
+| Modèle d'itération | [`Qwen/Qwen3-0.6B`](https://huggingface.co/Qwen/Qwen3-0.6B) : runs rapides pour expérimenter       |
+| Modèle final       | [`Qwen/Qwen3-1.7B`](https://huggingface.co/Qwen/Qwen3-1.7B) : on y rejoue le meilleur pipeline    |
+| Méthode            | **LoRA** uniquement                                                                                |
+| Raisonnement       | Mode _thinking_ de Qwen3 **désactivé** (`enable_thinking=False`) : la latence prime                |
 
-Les mécanismes sont identiques entre 1.7B et 4B. On apprend sur le petit modèle, puis on confirme sur le gros.
+Les petites tailles sont un choix : à terme, le modèle doit pouvoir tourner dans un navigateur.
 
 ## 3. Tooling
 
-| Outil                                            | Rôle                                                                                                                                                                                                                                          |
-| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **uv**                                           | Gère la version de Python, l'environnement virtuel et les dépendances (`uv init`, `uv add`, `uv run`).                                                                                                                                        |
-| **Python 3.12**                                  | Langage des scripts d'extraction, de préparation, d'évaluation et de reward.                                                                                                                                                                  |
-| **glab**                                         | CLI GitLab. `glab api` sert à extraire les MR, leurs diffs et l'historique des labels, avec l'authentification déjà configurée.                                                                                                              |
-| **mlx**                                          | Framework de calcul d'Apple (équivalent de PyTorch), optimisé pour la mémoire unifiée des puces Apple Silicon.                                                                                                                                |
-| **mlx-lm**                                       | Charge et fait générer les LLM sous MLX. Fournit l'entraînement LoRA SFT (`mlx_lm.lora`), la fusion des adapters (`mlx_lm.fuse`), la conversion et la quantization (`mlx_lm.convert`) et un serveur HTTP compatible OpenAI (`mlx_lm.server`). |
-| **mlx-lm-lora**                                  | Étend mlx-lm avec les entraînements par préférences et par RL : DPO, ORPO et **GRPO**.                                                                                                                                                        |
-| **huggingface_hub** (CLI `hf`)                   | Télécharge les poids des modèles.                                                                                                                                                                                                             |
-| **pandas**                                       | Analyse des données extraites et des résultats d'évaluation.                                                                                                                                                                                  |
-| **Weights & Biases / TensorBoard** _(optionnel)_ | Suivi des courbes d'entraînement (loss, reward, KL).                                                                                                                                                                                          |
-| **LM Studio / Ollama** _(optionnel)_             | Servent le modèle final pour le tester en conversation.                                                                                                                                                                                       |
+| Outil                            | Rôle                                                                                                                                                 |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **uv**                           | Gère la version de Python, l'environnement virtuel et les dépendances (`uv sync`, `uv add`, `uv run`).                                               |
+| **Python 3.12**                  | Langage des scripts de génération, de préparation, d'évaluation et de reward.                                                                       |
+| **Node 22** (via fnm)            | Exécute les regex : c'est la seule façon d'avoir la vraie sémantique JS (le module `re` de Python n'a pas la même flavor).                           |
+| **OpenRouter**                   | API des modèles open-weight qui génèrent les données (clé dans `OPENROUTER_API_KEY`).                                                               |
+| **mlx / mlx-lm**                 | Chargement, génération, entraînement LoRA SFT (`mlx_lm.lora`), fusion des adapters (`mlx_lm.fuse`).                                                  |
+| **mlx-lm-lora**                  | Étend mlx-lm avec les entraînements par préférences et par RL : DPO et **GRPO**.                                                                     |
+| **huggingface_hub** (CLI `hf`)   | Télécharge les poids des modèles.                                                                                                                    |
+| **pandas**                       | Analyse des données générées et des résultats d'évaluation.                                                                                          |
 
-## 4. Données
+## 4. Format d'un exemple
 
-Les MR viennent de projets clients sur `gitlab.ekino.com`. Les titres, descriptions et labels peuvent apparaître tels
-quels dans l'article, mais **jamais le nom du client ni celui du projet**. Les projets sont désignés par un alias
-(« projet A », « projet B »…) dans tout ce qui sort de ce repo. Les données brutes restent dans `data/`, ignoré par git.
+Chaque exemple est une ligne JSONL. Les tests sont la vérité terrain : ils ne sont jamais montrés au modèle, sauf la
+part tirée dans `examples` (et alors retirée des tests cachés).
 
-| Usage            | Source                                                     | Remarque                                                                      |
-| ---------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Train (SFT)      | MR extraites, filtrées                                     | Labels réels, donc bruités : on le documente et on le mesure                  |
-| Éval (golden)    | ~200 à 300 MR **relabellisées à la main**                  | Figé une fois constitué. Idéalement deux annotateurs pour mesurer leur accord |
-| DPO              | **Généré par nous** à partir du modèle SFT (voir étape 6)  | Données _on-policy_                                                           |
-| Suggestions      | Éval par **masquage** d'un label attendu (voir étape 9)    | Vérité terrain générée automatiquement                                        |
+```json
+{
+  "id": "dates-0042",
+  "category": "dates-times",
+  "difficulty": "medium",
+  "register": "terse",
+  "description": "ISO 8601 date, year between 1900 and 2099",
+  "examples": { "match": ["2024-02-29"], "no_match": [] },
+  "regex": "/^(?:19|20)\\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\\d|3[01])$/",
+  "tests": {
+    "match": ["1900-01-01", "2099-12-31", "2024-06-15", "1987-10-03", "2000-01-31"],
+    "no_match": ["1899-12-31", "2100-01-01", "2024-13-01", "2024-6-15", "x2024-06-15", "2024-06-15 "]
+  }
+}
+```
 
-> ⚠️ On ne mélange jamais les données d'entraînement et d'évaluation. Le split se fait **par date** (ou par projet),
-> jamais au hasard : une MR et son backport ne doivent pas se retrouver de part et d'autre.
+**Sémantique des tests** : une chaîne de `match` doit donner `regex.test(s) === true`, une chaîne de `no_match`
+`false`. Les tâches d'extraction (trouver toutes les occurrences, groupes nommés) ajoutent des cas
+`{"input": …, "matches": [...]}` comparés au résultat de `matchAll`.
 
-## 5. Étapes
+**Prompt** : un message système fixe (« écris une regex JS ES2018, réponds uniquement par un littéral `/…/flags` »),
+puis la description et, si présents, les exemples. Le format est défini une seule fois dans `scripts/common.py` et
+partagé par toutes les étapes.
+
+## 5. Données
+
+| Usage              | Source                                                                              | Remarque                                                         |
+| ------------------ | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Train / valid      | Synthétiques : taxonomie → professeur **DeepSeek V3.x** (OpenRouter)                | ~10 000 exemples validés après filtrage                          |
+| Held-out (dev)     | Split des données synthétiques                                                      | Pour itérer vite. Même distribution que le train                 |
+| Benchmark          | ~150 à 300 cas, brouillon par **Qwen3-235B**, **relus et enrichis à la main**       | Fait foi. Figé une fois constitué, décontaminé contre le train   |
+| DPO                | **Généré par nous** à partir du modèle SFT                                          | Données _on-policy_                                              |
+
+Le benchmark est rédigé par un autre modèle que le professeur : sinon, il aurait la même distribution et le même style
+que le train, et favoriserait artificiellement le modèle entraîné.
+
+### Garde-fous sur les tests
+
+Une regex de référence qui passe ses propres tests ne prouve rien si les tests sont faibles (`.*` passe tous les
+positifs). Chaque exemple généré doit passer, dans Node :
+
+1. **Tests dérivés de la description**, générés dans un appel séparé, sans voir la regex (sinon ils héritent de ses bugs).
+2. **Minimum de tests** : au moins 5 positifs et 5 négatifs, dont au moins 3 négatifs « presque bons » (un caractère de
+   trop, mauvais ancrage, mauvaise casse, valeur hors bornes…).
+3. **La regex de référence passe tous les tests**, et la regex est valide en ES2018.
+4. **Discrimination** : des regex triviales ou mutées (`.*`, la référence sans ancres, quantificateurs relâchés, classes
+   élargies) doivent échouer à au moins un test. Sinon, l'exemple est rejeté.
+5. **Second avis (sur un échantillon)** : Qwen3-235B écrit sa propre regex à partir de la description. Le taux de
+   désaccord mesure le bruit du dataset.
+
+### Composition
+
+- **Taxonomie** (`configs/taxonomy.yaml`) : ~15 à 25 catégories (identifiants et formats, dates et heures, réseau,
+  nombres et monnaies, chemins, logs, code, texte, Unicode, extraction, mots de passe…). Chacune liste des intentions
+  types et les fonctionnalités de regex qu'elle sollicite, pour couvrir toute la flavor.
+- **Difficulté** : 30 % simple, 50 % intermédiaire, 20 % piège.
+- **Registres de description** : laconique façon dev (« match french phone numbers »), phrase complète, spécification
+  détaillée, besoin métier indirect. Le registre est tiré au hasard, pour que le modèle n'apprenne pas le style du professeur.
+- **Exemples dans l'entrée** : ~30 % des entrées contiennent 1 à 3 exemples.
+- **Plus tard** : enrichir la distribution avec des intentions tirées de regex réelles (code GitHub). On n'en réutilise
+  que l'intention, pas la regex.
+
+### Coût et reproductibilité
+
+Toutes les réponses brutes du professeur sont stockées dans `data/raw/` (prompt, modèle, tokens, coût). La génération
+est **reprenable** : une relance ne refait pas les appels déjà payés. Un plafond configurable (8 $ par défaut, le compte
+OpenRouter est plafonné à 10 $) arrête le script. Le coût réel est loggé.
+
+> ⚠️ On ne mélange jamais train et évaluation. Le benchmark est décontaminé contre le train par similarité des
+> descriptions.
+
+## 6. Évaluation
+
+Pour chaque cas : prompt → génération greedy → parsing du littéral `/…/flags` → exécution dans Node sur les tests cachés.
+
+- **Succès complet** (métrique principale) : part des cas où **tous** les tests passent. En usage réel, une regex juste
+  à 90 % est fausse.
+- **Taux moyen de tests réussis** : pour diagnostiquer.
+- **Sorties mal formées** : pas de littéral, ou `new RegExp(pattern, flags)` qui lève une erreur.
+- **Timeouts** : chaque regex est exécutée avec une limite de temps, pour attraper le ReDoS (backtracking catastrophique).
+
+Exécution : un **worker Node persistant** reçoit les regex par lots depuis Python. Un `RegExp` JS est synchrone et ne
+s'interrompt pas, donc chaque évaluation tourne dans un `worker_thread` qu'on peut tuer au bout du délai.
+
+## 7. Étapes
 
 ### Étape 0 : setup
 
-- **Faire** : initialiser le projet avec uv, installer les dépendances, télécharger les modèles, s'authentifier sur GitLab.
-- **Livrable** : un environnement qui charge Qwen3-1.7B et lui fait générer du texte, et un `glab` connecté.
+- **Faire** : installer les dépendances, télécharger les modèles, vérifier Node et la clé OpenRouter.
+- **Livrable** : un environnement qui charge Qwen3-0.6B et lui fait générer du texte.
 
 ```sh
-uv sync                                         # crée .venv et installe les dépendances
-uv run hf download Qwen/Qwen3-1.7B              # modèle d'itération (~4 Go)
-uv run hf download Qwen/Qwen3-4B-Instruct-2507  # modèle final (~8 Go)
-glab auth login --hostname gitlab.ekino.com
+uv sync                                 # crée .venv et installe les dépendances
+uv run hf download Qwen/Qwen3-0.6B      # modèle d'itération
+uv run hf download Qwen/Qwen3-1.7B      # modèle final
+node --version                          # doit correspondre à .node-version
+export OPENROUTER_API_KEY=…
 ```
 
-### Étape 1 : extraction des MR
+### Étape 1 : harnais d'exécution et évaluation
 
-- **Faire** : extraire les MR des projets retenus avec `scripts/extract_mrs.py`, puis analyser les labels avec
-  `scripts/label_stats.py` pour choisir les projets et les labels exploitables.
-- **Apprendre** : ce qu'on peut (ou non) déduire du contenu d'une MR, et la provenance des labels.
-- **Livrable** : `data/raw/gitlab/<projet>/` et une liste de projets et de labels retenus.
+- **Faire** : le worker Node (`scripts/regex_runner.mjs`), le format commun (`scripts/common.py` : prompt, parsing du
+  littéral, métriques) et `scripts/eval.py`. On les valide sur une poignée de cas écrits à la main, dont des cas
+  piégeux : littéral invalide, flag inconnu, regex ReDoS, sortie bavarde autour du littéral.
+- **Apprendre** : ce qu'on mesure exactement, et pourquoi on exécute en JS plutôt qu'en Python.
+- **Livrable** : une éval fiable, testée, qui tourne sur n'importe quel JSONL au format de la section 4.
 
-```sh
-uv run scripts/extract_mrs.py groupe/projet-a groupe/projet-b   # MR mergées, avec diffs, commits et historique des labels
-uv run scripts/extract_mrs.py groupe/projet-a --limit 50        # test rapide
-uv run scripts/label_stats.py                                   # couverture, fréquence, provenance de chaque label
-```
+### Étape 2 : taxonomie
 
-Pour chaque MR, on garde l'objet brut de l'API, ses diffs (tronqués à 300 fichiers et 20 000 caractères par fichier),
-ses commits et ses `resource_label_events`. Ces événements disent **qui** a posé chaque label et **quand** :
+- **Faire** : écrire `configs/taxonomy.yaml` (brouillon proposé, puis relu).
+- **Livrable** : la taxonomie, avec la couverture de la flavor par catégorie.
 
-- un label posé par un bot (`project_…_bot_…`) vient d'une règle automatique. Soit on l'exclut, soit on le
-  garde en sachant qu'on apprend une règle ;
-- un label posé après le merge relève souvent du process (`workflow::`, `deployed`…) et ne se déduit pas du contenu.
+### Étape 3 : génération des données synthétiques
 
-### Étape 2 : construction du golden dataset
+- **Faire** : `scripts/generate.py`, qui fait générer descriptions, regex et tests au professeur, puis
+  `scripts/validate.py`, qui applique les garde-fous. Commencer par un petit lot pour mesurer le taux de rejet et le
+  coût, puis générer le volume.
+- **Apprendre** : la distillation par un modèle professeur, le filtrage par exécution, le bruit d'un dataset synthétique.
+- **Livrable** : `data/sft/{train,valid}.jsonl`, un held-out, et les statistiques de rejet par garde-fou.
 
-- **Faire** :
-  1. **Filtrer les labels** : ne garder que ceux qui se déduisent du contenu de la MR, et qui sont assez fréquents.
-  2. **Filtrer les MR** : projets disciplinés (bonne couverture de labels), MR non vides, pas de MR de bots
-     (Renovate, Dependabot) en surnombre.
-  3. **Choisir la représentation** : titre, description, chemins des fichiers, `diff --stat`, extrait du diff, messages
-     de commits. Le format est défini une fois dans un module commun et partagé par toutes les étapes.
-  4. **Splitter par date** : les MR les plus récentes servent à l'éval.
-  5. **Relabelliser l'éval à la main** : 200 à 300 MR, sans voir les labels d'origine. Mesurer l'accord avec les labels
-     d'origine (et entre deux annotateurs si possible) : c'est le plafond réaliste du modèle.
-- **Apprendre** : le bruit d'étiquetage, l'accord inter-annotateurs, la décontamination, et pourquoi le jeu d'éval est
-  le seul morceau qu'on ne délègue pas.
-- **Livrable** : `data/sft/{train,valid}.jsonl` et `data/eval/golden.jsonl`.
+### Étape 4 : benchmark
 
-```sh
-uv run scripts/prepare_sft.py     # filtres + split → data/prepared/{train,valid,test}.jsonl et data/sft/{train,valid}.jsonl
-uv run scripts/baseline_rules.py  # baseline à base de règles sur le test
-```
+- **Faire** : faire rédiger un brouillon par Qwen3-235B, le relire et le corriger à la main, ajouter des pièges, puis le
+  décontaminer contre le train et le figer.
+- **Apprendre** : pourquoi le jeu d'éval est le seul morceau qu'on ne délègue pas.
+- **Livrable** : `data/eval/benchmark.jsonl`.
 
-Le référentiel `configs/labels.yaml` liste, par projet, les labels retenus et leur définition (GitLab n'en fournit
-pas). Le prompt et la logique partagée (filtres, parsing, métriques) sont dans `scripts/common.py`.
+### Étape 5 : baselines
 
-Filtres appliqués :
+- **Faire** : évaluer Qwen3-0.6B et Qwen3-1.7B bruts, en zero-shot (même prompt que l'entraînement) et en few-shot,
+  sur le held-out et sur le benchmark.
+- **Livrable** : le point de référence de tout le projet.
 
-| Filtre                                     | projet-a | projet-b | Pourquoi                                                                                   |
-| ------------------------------------------ | -------- | -------- | ------------------------------------------------------------------------------------------ |
-| MR non mergée                              | 271      | 735      | Souvent abandonnée ou remplacée                                                            |
-| Avant le début de la labellisation         | 3 671    | –        | Avant 2023, moins de 12 % des MR de projet-a sont labellisées                              |
-| MR automatique (dependabot, renovate)      | 57       | 325      | Labellisée par une règle du bot, pas par l'équipe. Reconnue à sa branche, car l'ancien compte du bot est devenu `ghost` |
-| Aucun label du référentiel                 | 347      | 210      | Sans label, on ne distingue pas « aucun ne s'applique » de « personne n'a labellisé »     |
-| **Gardées**                                | **1 525** | **1 658** | Split temporel 80 / 5 / 15 par projet → 2 546 train, 159 valid, 478 test               |
+### Étape 6 : SFT avec LoRA
 
-Les prompts font ~1 200 tokens en médiane, ~2 200 au p95 et ~2 900 au max (tokenizer Qwen3).
-
-Premier exemple de bruit d'étiquetage : une mise à jour de `drupal/token` (un seul fichier, `composer.lock`) est
-labellisée `chore` + `dependencies`, sans `php`, alors que d'autres MR identiques l'ont.
-
-### Étape 3 : évaluation baseline
-
-- **Faire** : écrire `scripts/eval.py`. Pour chaque MR du golden set, il construit le prompt, fait générer le modèle en
-  décodage greedy, parse la réponse et la compare aux labels attendus.
-- **Métriques** :
-  - **F1 micro** (global) et **F1 macro** (moyenne par label, pour ne pas laisser les labels fréquents tout masquer) ;
-  - **exact match** : part des MR dont l'ensemble de labels est exactement le bon ;
-  - **labels invalides** : part des labels hors liste, et réponses impossibles à parser.
-- **Comparaison** : faire passer le même golden set à un modèle frontier (même prompt). C'est le point de comparaison
-  de l'article.
-- **Baseline à base de règles** : préfixe conventional commits du titre, branches, fichiers touchés
-  (`scripts/baseline_rules.py`). Sur le test (labels d'origine) : **F1 micro 0,66, F1 macro 0,50, exact match 0,38**.
-  Elle est très bonne sur ce qui se lit dans le titre (`refactor` 0,90, `fix` 0,90, `release` 0,92) et nulle sur ce
-  qui demande de comprendre la MR : `bugfix`, `technical task`, `security`, `typeScript`. C'est là que le modèle
-  doit faire la différence.
-- **Livrable** : le score du modèle brut, point de référence de tout le projet.
-
-```sh
-uv run scripts/eval.py --name baseline-1.7b                                      # 477 MR, ~5 min
-uv run scripts/eval.py --name baseline-4b --model Qwen/Qwen3-4B-Instruct-2507    # ~12 min
-uv run scripts/eval.py --name debug --n 16                                       # test rapide
-```
-
-Résultats sur le test (labels d'origine, 477 MR) :
-
-| Run              | F1 micro  | F1 macro  | Exact match | Labels / MR (attendu : 1,56) | Hors liste |
-| ---------------- | --------- | --------- | ----------- | ---------------------------- | ---------- |
-| Règles           | **0,664** | **0,522** | **0,388**   | 1,48                         | 0 %        |
-| Qwen3-1.7B brut  | 0,503     | 0,498     | 0,117       | 2,49                         | 0,3 %      |
-| Qwen3-4B brut    | 0,622     | 0,526     | 0,216       | 1,74                         | 0,8 %      |
-
-- Aucun modèle brut ne bat les règles en F1 micro. Le 1.7B met trop de labels (rappel élevé, précision faible).
-- Le 4B applique ses propres conventions, pas celles de l'équipe : sur projet-a, il ne prédit jamais `featurefix`
-  (F1 0,00) ni `technical task` (0,03) et range tous les correctifs en `bugfix`, malgré les définitions du prompt.
-  C'est précisément ce que le fine-tuning doit corriger.
-- Il est en revanche bien meilleur que les règles là où il faut lire le contenu : `security` 0,83 (règles : 0).
-- Anecdote de format : avec un référentiel écrit `- feature: Nouvelle fonctionnalité.`, le 4B recopiait
-  « feature: Nouvelle fonctionnalité. » comme nom de label (8,3 % de labels hors liste, F1 micro 0,566). Mettre les
-  noms entre guillemets, comme dans le JSON attendu, a suffi (0,8 %, F1 micro 0,622).
-
-### Étape 4 : SFT avec LoRA
-
-- **Faire** : entraîner un adapter LoRA avec `mlx_lm.lora`, piloté par `configs/sft.yaml`. Ajuster `max_seq_length` à la
-  représentation choisie à l'étape 2 : c'est elle qui dicte la mémoire nécessaire.
+- **Faire** : entraîner un adapter avec `mlx_lm.lora`, piloté par `configs/sft.yaml`. Mesurer aussi l'effet du volume
+  (2 000 vs 10 000 exemples).
 - **Apprendre** : ce que fait LoRA, comment lire les courbes train/valid, comment repérer l'overfitting.
 - **Livrable** : `adapters/sft/` et le score SFT.
 
-### Étape 5 : génération des paires de préférences
+### Étape 7 : génération des paires de préférences
 
-- **Faire** : pour chaque MR d'entraînement, échantillonner N réponses (par exemple 8, avec une température > 0) avec le
-  modèle SFT, puis les noter (F1). La meilleure devient `chosen`, la pire `rejected`. On ne garde que les MR où l'écart
-  de score est significatif.
-- **Apprendre** : le sampling, la notion de données _on-policy_, et pourquoi les MR où toutes les réponses se valent
+- **Faire** : pour chaque exemple d'entraînement, échantillonner N réponses (par exemple 8, température > 0) avec le
+  modèle SFT, les noter par exécution. La meilleure devient `chosen`, la pire `rejected`. On ne garde que les exemples
+  où l'écart de score est significatif.
+- **Apprendre** : le sampling, les données _on-policy_, et pourquoi les exemples où toutes les réponses se valent
   n'apprennent rien.
 - **Livrable** : `data/dpo/{train,valid}.jsonl`.
 
-### Étape 6 : DPO
+### Étape 8 : DPO
 
 - **Faire** : entraîner avec mlx-lm-lora en mode DPO, en partant du modèle SFT, puis ré-évaluer.
 - **Apprendre** : le rôle du modèle de référence, le paramètre `beta`, en quoi DPO diffère du SFT.
 - **Livrable** : `adapters/dpo/` et le score DPO.
 
-### Étape 7 : GRPO (RL avec récompense vérifiable)
+### Étape 9 : GRPO (RL avec récompense vérifiable)
 
-- **Faire** : écrire `scripts/reward.py`, une récompense égale au F1 avec les labels attendus, une pénalité pour chaque
-  label hors liste et pour une réponse mal formée. Entraîner avec mlx-lm-lora en mode GRPO, puis ré-évaluer.
-- **Apprendre** : l'avantage relatif au groupe, le rôle du terme KL, et le _reward hacking_. Exemples à montrer : une
-  reward fondée sur le rappel seul pousse le modèle à mettre tous les labels ; une pénalité trop forte le pousse à
-  n'en mettre aucun.
-- **Livrable** : `adapters/grpo/` et le score GRPO.
+- **Faire** : écrire `scripts/reward.py`, puis entraîner avec mlx-lm-lora en mode GRPO et ré-évaluer. Reward :
 
-### Étape 8 : suggestions de labels à créer
+  ```
+  reward = 0,5 × taux_positifs × taux_négatifs + 0,5 × succès_complet
+  reward = -1 si la sortie est mal formée ou part en timeout
+  ```
 
-- **Faire** : rendre la suggestion mesurable par **masquage**. À l'éval, on retire de la liste un label attendu : le
-  modèle doit alors suggérer un label équivalent (`perf` quand `performance` a été retiré). On note la suggestion par
-  similarité d'embeddings, ou par un juge LLM sur ce seul sous-ensemble. Le même masquage peut servir à générer des
-  exemples d'entraînement.
-- **Livrable** : un score de suggestion, et des exemples qualitatifs.
+  Le **produit** empêche de gagner sur un seul côté. Une petite pénalité de longueur pourra s'ajouter.
+- **Apprendre** : l'avantage relatif au groupe, le rôle du terme KL, et le _reward hacking_. On essaie aussi deux
+  variantes, pour montrer ce qui casse : le taux de tests réussis seul (qui pousse vers des regex trop permissives) et
+  la reward binaire (trop clairsemée sur les cas difficiles).
+- **Livrable** : `adapters/grpo/`, le score GRPO et l'étude des variantes de reward.
 
-### Étape 9 : passage au 4B et packaging
+### Étape 10 : passage au 1.7B et bilan
 
-- **Faire** : rejouer le meilleur pipeline sur Qwen3-4B-Instruct-2507, fusionner l'adapter dans le modèle (`mlx_lm.fuse`),
-  le quantizer en 4-bit, puis le brancher sur GitLab : un script qui labellise une MR via `mlx_lm.server` et `glab`.
-- **Livrable** : un modèle autonome, utilisable en local sur de vraies MR.
+- **Faire** : rejouer le meilleur pipeline sur Qwen3-1.7B.
+- **Livrable** : `results/summary.md`, avec un tableau comparatif (succès complet sur le benchmark) et des exemples
+  qualitatifs (les erreurs corrigées à chaque étape, et les nouvelles erreurs apparues).
 
-### Étape 10 : bilan
+| Modèle      | Brut (zero-shot) | Brut (few-shot) | SFT | DPO | GRPO |
+| ----------- | ---------------- | --------------- | --- | --- | ---- |
+| Qwen3-0.6B  |                  |                 |     |     |      |
+| Qwen3-1.7B  |                  |                 |     |     |      |
 
-- **Livrable** : `results/summary.md` avec un tableau comparatif (F1 micro sur le golden set) :
+### Plus tard (hors de ce repo pour l'instant)
 
-| Modèle         | Baseline | SFT | DPO | GRPO |
-| -------------- | -------- | --- | --- | ---- |
-| Qwen3-1.7B     |          |     |     |      |
-| Qwen3-4B       |          |     |     |      |
-| Modèle frontier |          |  –  |  –  |  –   |
+- Comparaison avec des modèles frontier (qualité, latence, coût par requête).
+- Fusion de l'adapter, export (ONNX ou MLC) et démo dans le navigateur (WebGPU).
+- Publication du modèle, du dataset et du benchmark sur Hugging Face.
 
-Ajouter quelques exemples qualitatifs : les erreurs corrigées à chaque étape, et les nouvelles erreurs apparues.
-
-## 6. Structure du repo
+## 8. Structure du repo
 
 ```
 .
 ├── README.md
+├── NOTES.md          # notes de cours (SFT, LoRA, overfitting…)
 ├── pyproject.toml
-├── configs/          # YAML d'entraînement (sft.yaml, dpo.yaml, grpo.yaml)
-├── data/             # données extraites et préparées (raw/gitlab/, sft/, eval/, dpo/), ignorées par git
+├── .node-version
+├── configs/          # taxonomy.yaml, sft.yaml, dpo.yaml, grpo.yaml
+├── data/             # raw/, sft/, eval/, dpo/ (ignoré par git)
 ├── scripts/
-│   ├── extract_mrs.py     # GitLab (glab) → data/raw/gitlab/
-│   ├── label_stats.py     # couverture, fréquence et provenance des labels
-│   ├── common.py          # filtres, prompt, parsing, métriques (partagé par toutes les étapes)
-│   ├── prepare_sft.py     # MR → JSONL messages + split temporel
-│   ├── baseline_rules.py  # baseline sans modèle (conventional commits, branches, fichiers)
-│   ├── eval.py            # F1 sur le golden set
+│   ├── common.py          # prompt, parsing du littéral, métriques (partagé par toutes les étapes)
+│   ├── regex_runner.mjs   # worker Node : exécute les regex sur les tests, avec timeout
+│   ├── eval.py            # succès complet / taux de tests réussis sur un JSONL
+│   ├── generate.py        # taxonomie → professeur (OpenRouter) → data/raw/
+│   ├── validate.py        # garde-fous → data/sft/
 │   ├── generate_pairs.py  # échantillonnage + paires chosen/rejected
 │   └── reward.py          # fonction de récompense GRPO
 ├── adapters/         # adapters LoRA entraînés (sft/, dpo/, grpo/)
 └── results/          # scores et bilan
 ```
 
-## 7. Ressources
+## 9. Ressources
 
-- [glab api](https://gitlab.com/gitlab-org/cli/-/blob/main/docs/source/api/index.md) et l'API REST GitLab :
-  [merge requests](https://docs.gitlab.com/api/merge_requests/), [labels](https://docs.gitlab.com/api/labels/),
-  [resource label events](https://docs.gitlab.com/api/resource_label_events/)
+- [Expressions régulières JavaScript (MDN)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions)
+  et la [spécification ECMAScript 2018](https://262.ecma-international.org/9.0/#sec-regexp-regular-expression-objects)
+- [OpenRouter : documentation de l'API](https://openrouter.ai/docs)
 - [mlx-lm : documentation LoRA](https://github.com/ml-explore/mlx-lm/blob/main/mlx_lm/LORA.md)
 - [mlx-lm-lora](https://github.com/Goekdeniz-Guelmez/mlx-lm-lora) : DPO, ORPO et GRPO sur MLX
 - Papiers :
