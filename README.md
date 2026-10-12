@@ -174,6 +174,15 @@ export OPENROUTER_API_KEY=…
 - **Apprendre** : ce qu'on mesure exactement, et pourquoi on exécute en JS plutôt qu'en Python.
 - **Livrable** : une éval fiable, testée, qui tourne sur n'importe quel JSONL au format de la section 4.
 
+```sh
+uv run pytest                                                                       # parsing, worker Node, métriques
+uv run scripts/eval.py --name reference --data tests/fixtures/cases.jsonl --reference  # les références passent leurs tests
+uv run scripts/eval.py --name smoke-0.6b --data tests/fixtures/cases.jsonl             # Qwen3-0.6B brut, bout en bout
+```
+
+Le parsing est strict : la réponse doit être exactement un littéral, éventuellement entouré d'un bloc de code, de
+backticks ou de guillemets. Une réponse bavarde (« Here is the regex: /a/ ») est mal formée, car elle n'est pas collable dans du code.
+
 ### Étape 2 : taxonomie
 
 - **Faire** : écrire `configs/taxonomy.yaml` (brouillon proposé, puis relu).
@@ -273,6 +282,7 @@ export OPENROUTER_API_KEY=…
 │   ├── validate.py        # garde-fous → data/sft/
 │   ├── generate_pairs.py  # échantillonnage + paires chosen/rejected
 │   └── reward.py          # fonction de récompense GRPO
+├── tests/            # tests du harnais (pytest) et cas écrits à la main (fixtures/)
 ├── adapters/         # adapters LoRA entraînés (sft/, dpo/, grpo/)
 └── results/          # scores et bilan
 ```
