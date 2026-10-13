@@ -46,5 +46,5 @@ lr_schedule:
 
 steps_per_report: 40
 steps_per_eval: 400
-val_batches: -1                # tout le valid (505 exemples)
+val_batches: -1                # tout le valid (504 exemples)
 save_every: 800

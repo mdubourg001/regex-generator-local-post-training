@@ -348,6 +348,27 @@ Pas de sur-apprentissage : la val loss baisse jusqu'au bout, en ralentissant ave
   - des sorties mal formées (7 %) : groupe non fermé, ou boucle répétitive jusqu'à la limite de tokens.
 - `logs` (0 %) et `multiline` (20 %), les catégories les moins représentées du train, sont aussi les plus faibles.
 
+**Effet du volume** : même recette (`configs/sft-2k.yaml`, 2 epochs, warmup à 5 % du run) sur 2 000 exemples tirés au
+hasard du train, avec le même valid.
+
+```sh
+mkdir -p data/sft-2k && cp data/sft/valid.jsonl data/sft-2k/
+uv run python -c "import random; r = open('data/sft/train.jsonl').readlines(); random.Random(0).shuffle(r); open('data/sft-2k/train.jsonl', 'w').writelines(r[:2000])"
+uv run mlx_lm.lora --config configs/sft-2k.yaml   # ~12 min
+```
+
+| Qwen3-0.6B SFT | Val loss | Held-out : succès | tests réussis | mal formées | Benchmark : succès | tests réussis | mal formées |
+| -------------- | -------- | ----------------- | ------------- | ----------- | ------------------ | ------------- | ----------- |
+| 2 000 exemples | 0,272    | 56,6 %            | 86,1 %        | 3,2 %       | 20,0 %             | 68,1 %        | 7,6 %       |
+| 8 302 exemples | 0,164    | 71,7 %            | 92,0 %        | 1,8 %       | 31,4 %             | 74,2 %        | 7,1 %       |
+
+- 2 000 exemples suffisent à apprendre le format : les sorties mal formées sont au même niveau. La justesse, elle,
+  progresse encore nettement avec le volume : +15 points sur le held-out, +11 sur le benchmark (simples 43 → 67 %,
+  intermédiaires 16 → 27 %, difficiles 4 → 7 %).
+- Sur 2 000 exemples, la val loss plafonne dès la 2ᵉ epoch (0,283 à l'iter 700, 0,272 à la fin) et l'écart avec la
+  train loss (~0,11 à 0,19) se creuse : le modèle commence à mémoriser plutôt qu'à généraliser.
+- La courbe n'est pas saturée à 8 300 exemples : davantage de données aiderait probablement encore.
+
 ### Étape 7 : génération des paires de préférences
 
 - **Faire** : pour chaque exemple d'entraînement, échantillonner N réponses (par exemple 8, température > 0) avec le
