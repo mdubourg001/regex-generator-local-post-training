@@ -36,6 +36,10 @@ BENCHMARK_DIR = Path("benchmark")
 # Au-delà, deux descriptions sont considérées comme le même besoin (similarité de Jaccard sur mots et bigrammes).
 SIMILARITY_THRESHOLD = 0.5
 SURROGATE = re.compile("[\ud800-\udfff]")
+# Au-delà, un exemple est écarté du SFT : la mémoire des logits (vocabulaire de 151k tokens) croît avec la longueur des
+# séquences, et le tronquer couperait la réponse. Doit rester ≤ max_seq_length de configs/sft.yaml.
+MAX_SFT_TOKENS = 512
+TOKENIZER = "Qwen/Qwen3-0.6B"  # même tokenizer pour toute la famille Qwen3
 SFT_DIR = Path("data/sft")
 
 
@@ -292,6 +296,15 @@ def add_examples(e: dict, cfg: dict, share: float) -> dict:
     return {**e, "examples": shown, "tests": {"match": match, "no_match": no_match}}
 
 
+def sft_lengths(conversations: list[list[dict]]) -> list[int]:
+    """Longueur en tokens de chaque conversation, telle que mlx_lm.lora la tokenise."""
+    from transformers import AutoTokenizer
+
+    tokenizer = AutoTokenizer.from_pretrained(TOKENIZER)
+    texts = [tokenizer.apply_chat_template(m, tokenize=False) for m in conversations]
+    return [len(ids) for ids in tokenizer(texts)["input_ids"]]
+
+
 def split_of(batch: str, split: dict) -> str:
     x = random.Random(f"split-{batch}").random()
     return "train" if x < split["train"] else "valid" if x < split["train"] + split["valid"] else "heldout"
@@ -320,19 +333,26 @@ def main() -> None:
         splits[split_of(e["batch"], cfg["split"])].append(e)
     PREPARED_DIR.mkdir(parents=True, exist_ok=True)
     SFT_DIR.mkdir(parents=True, exist_ok=True)
+    too_long = 0
     for name in () if args.stats_only else ("train", "valid", "heldout"):
         with (PREPARED_DIR / f"{name}.jsonl").open("w") as f:
             for e in splits[name]:
                 f.write(json.dumps(e, ensure_ascii=False) + "\n")
         if name != "heldout":
+            conversations = [build_messages(e, with_answer=True) for e in splits[name]]
+            lengths = sft_lengths(conversations)
+            too_long += sum(n > MAX_SFT_TOKENS for n in lengths)
             with (SFT_DIR / f"{name}.jsonl").open("w") as f:
-                for e in splits[name]:
-                    f.write(json.dumps({"messages": build_messages(e, with_answer=True)}, ensure_ascii=False) + "\n")
+                for messages, n in zip(conversations, lengths):
+                    if n <= MAX_SFT_TOKENS:
+                        f.write(json.dumps({"messages": messages}, ensure_ascii=False) + "\n")
 
     cost = sum(r["usage"].get("cost", 0) for log in log_paths(args.raw_dir) for r in read_log(log).values())
     print(f"{generated} besoins générés, {len(kept)} gardés ({len(kept) / max(generated, 1):.0%}), coût {cost:.3f} $")
     print(f"  soit {cost / max(len(kept), 1) * 1000:.3f} $ pour 1 000 exemples gardés")
     print("  " + ", ".join(f"{name} {len(splits[name])}" for name in ("train", "valid", "heldout")))
+    if too_long:
+        print(f"  dont {too_long} exemples de plus de {MAX_SFT_TOKENS} tokens, écartés du SFT")
     print("\nRejets :")
     for reason, n in rejected.most_common():
         print(f"  {reason:40} {n:>6} ({n / max(generated, 1):.1%})")

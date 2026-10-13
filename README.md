@@ -311,7 +311,42 @@ train.
 - **Faire** : entraîner un adapter avec `mlx_lm.lora`, piloté par `configs/sft.yaml`. Mesurer aussi l'effet du volume
   (2 000 vs 10 000 exemples).
 - **Apprendre** : ce que fait LoRA, comment lire les courbes train/valid, comment repérer l'overfitting.
-- **Livrable** : `adapters/sft/` et le score SFT.
+- **Livrable** : `adapters/sft-0.6b/` et le score SFT.
+
+```sh
+uv run mlx_lm.lora --config configs/sft.yaml      # ~1 h sur le 0.6B
+uv run scripts/eval.py --name sft-0.6b-benchmark --data data/eval/benchmark.jsonl --adapter adapters/sft-0.6b
+```
+
+**Recette** : LoRA de rang 16 (scale 2, dropout 0,05) sur l'attention et le MLP de toutes les couches, soit 1,7 % des
+paramètres. Loss sur la réponse seulement (`mask_prompt`), AdamW, LR 2e-4 avec warmup de 100 pas puis décroissance
+cosinus, batch effectif de 8, 2 epochs.
+
+**Incident mémoire** : `mlx_lm` autorise le GPU à verrouiller jusqu'à 19 Go sur les 24 Go du Mac. Avec des batchs de 16,
+puis de 8, le pic a atteint 18,3 Go : d'abord une erreur Metal, puis un redémarrage de la machine. L'essentiel vient des
+logits (batch × longueur × 151 936 tokens de vocabulaire). Correctif : micro-batchs de 4 avec accumulation de gradient
+sur 2 (même batch effectif) et gradient checkpointing, soit un pic à **4,6 Go**. Avant le run complet, une sonde sur les
+160 exemples les plus longs a vérifié le pire cas.
+
+**Courbe** : val loss 2,45 → 0,43 (100 mises à jour) → 0,20 (fin de la 1re epoch) → **0,164** (fin), train loss 0,10.
+Pas de sur-apprentissage : la val loss baisse jusqu'au bout, en ralentissant avec la LR.
+
+| Qwen3-0.6B               | Held-out : succès | tests réussis | mal formées | Benchmark : succès | tests réussis | mal formées |
+| ------------------------ | ----------------- | ------------- | ----------- | ------------------ | ------------- | ----------- |
+| Brut                     | 2,5 %             | 46,5 %        | 24,4 %      | 0,0 %              | 40,6 %        | 29,0 %      |
+| **SFT**                  | **71,7 %**        | **92,0 %**    | 1,8 %       | **31,4 %**         | **74,2 %**    | 7,1 %       |
+
+- Sur le held-out (même distribution que le train), le 0.6B passe de 2,5 % à 72 % de regex entièrement justes, au
+  niveau de Qwen3-235B brut (66,5 % sur le train, étape 3).
+- Le benchmark est plus dur et d'une autre distribution : 31 % de succès. Par difficulté : 67 % des cas simples, 27 %
+  des intermédiaires, 7 % des difficiles. 23 des 144 échecs sont « de peu » (≥ 85 % des tests réussis).
+- Erreurs typiques sur le benchmark :
+  - une contrainte sémantique ignorée : un palindrome de 5 lettres devient `^[a-z]{5}$` (les backreferences sont rares
+    dans le train), une ligne dupliquée devient « deux ou trois lignes quelconques » ;
+  - une couverture partielle : mois abrégés seulement, quand les noms complets étaient aussi demandés ;
+  - un détail du texte : `\s` au lieu d'une espace, encodage `%XX` non vérifié ;
+  - des sorties mal formées (7 %) : groupe non fermé, ou boucle répétitive jusqu'à la limite de tokens.
+- `logs` (0 %) et `multiline` (20 %), les catégories les moins représentées du train, sont aussi les plus faibles.
 
 ### Étape 7 : génération des paires de préférences
 

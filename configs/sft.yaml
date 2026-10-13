@@ -1,0 +1,50 @@
+# SFT avec LoRA (étape 6) : uv run mlx_lm.lora --config configs/sft.yaml
+# Pour le 1.7B ou un autre volume, surcharger en ligne de commande : --model, --adapter-path, --data, --iters.
+
+model: Qwen/Qwen3-0.6B
+train: true
+data: data/sft                 # train.jsonl et valid.jsonl, au format {"messages": [...]}
+adapter_path: adapters/sft-0.6b
+seed: 0
+
+fine_tune_type: lora
+num_layers: -1                 # toutes les couches
+lora_parameters:
+  rank: 16
+  scale: 2.0                   # facteur appliqué à B·A (l'alpha / rang de la littérature : 32 / 16)
+  dropout: 0.05
+  keys:                        # attention et MLP
+    - self_attn.q_proj
+    - self_attn.k_proj
+    - self_attn.v_proj
+    - self_attn.o_proj
+    - mlp.gate_proj
+    - mlp.up_proj
+    - mlp.down_proj
+
+# Loss sur la réponse seulement : on n'apprend pas au modèle à réécrire le prompt.
+mask_prompt: true
+max_seq_length: 512            # validate.py écarte les ~20 exemples plus longs
+
+# Mémoire : mlx_lm autorise le GPU à verrouiller jusqu'à 19 Go sur les 24 Go du Mac. Avec un batch de 8, le pic a
+# atteint 18,3 Go (surtout les logits : batch × longueur × 151k tokens de vocabulaire) et macOS a redémarré. D'où des
+# micro-batchs de 4 avec accumulation de gradient sur 2 (batch effectif de 8 inchangé) et le gradient checkpointing
+# (activations recalculées au backward, ~30 % plus lent).
+batch_size: 4
+grad_accumulation_steps: 2
+grad_checkpoint: true
+# ~8 300 exemples : ~2 080 micro-batchs par epoch, donc 2 epochs. Le schedule de LR avance à chaque mise à jour des
+# poids, soit tous les 2 micro-batchs : 2 080 mises à jour.
+iters: 4160
+optimizer: adamw
+learning_rate: 2.0e-4
+lr_schedule:
+  name: cosine_decay
+  warmup: 100
+  warmup_init: 1.0e-6
+  arguments: [2.0e-4, 2080, 1.0e-6]
+
+steps_per_report: 40
+steps_per_eval: 400
+val_batches: -1                # tout le valid (505 exemples)
+save_every: 800
