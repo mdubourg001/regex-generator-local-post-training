@@ -471,18 +471,98 @@ Runs courts de 500 micro-batchs, comparés au benchmark :
 
 ### Étape 9 : GRPO (RL avec récompense vérifiable)
 
-- **Faire** : écrire `scripts/reward.py`, puis entraîner avec mlx-lm-lora en mode GRPO et ré-évaluer. Reward :
+- **Faire** : entraîner par renforcement sur la reward d'exécution (`scripts/reward.py`), en partant du modèle SFT,
+  puis ré-évaluer. Reward :
 
   ```
   reward = 0,5 × taux_positifs × taux_négatifs + 0,5 × succès_complet
   reward = -1 si la sortie est mal formée ou part en timeout
   ```
 
-  Le **produit** empêche de gagner sur un seul côté. Une petite pénalité de longueur pourra s'ajouter.
-- **Apprendre** : l'avantage relatif au groupe, le rôle du terme KL, et le _reward hacking_. On essaie aussi deux
-  variantes, pour montrer ce qui casse : le taux de tests réussis seul (qui pousse vers des regex trop permissives) et
-  la reward binaire (trop clairsemée sur les cas difficiles).
-- **Livrable** : `adapters/grpo/`, le score GRPO et l'étude des variantes de reward.
+  Le **produit** empêche de gagner sur un seul côté.
+- **Apprendre** : l'avantage relatif au groupe, le rôle du terme KL, et le _reward hacking_.
+- **Livrable** : `adapters/grpo-0.6b-500/` et le score GRPO. L'étude des variantes de reward (taux de tests seul,
+  reward binaire) n'est pas faite.
+
+```sh
+uv run scripts/grpo.py --steps 900        # ~3 h sur le 0.6B, pic 4,8 Go, reprend là où il s'est arrêté
+uv run scripts/eval.py --name grpo-0.6b-500-benchmark --data data/eval/benchmark.jsonl --model models/sft-0.6b --adapter adapters/grpo-0.6b-500
+```
+
+**Pourquoi un script maison** : le GRPO de mlx-lm-lora 3.1.3 n'est pas utilisable ici :
+
+- sa loss calcule les log-probabilités des réponses **sans le prompt devant** ;
+- il clippe le ratio π / π_ref contre le modèle de référence (au lieu de la politique qui a échantillonné), avec
+  ε = 1e-4 par défaut : le gradient est coupé dès que le modèle s'écarte du SFT ;
+- il construit le prompt sans `enable_thinking=False`, donc différent de celui du SFT ;
+- il retire le token de fin des réponses : le modèle n'apprend pas à s'arrêter, alors que les boucles jusqu'à
+  128 tokens sont un de nos défauts ;
+- son pas compilé est retracé pour chaque forme de batch, comme au DPO.
+
+`scripts/grpo.py` (~250 lignes) fait le strict nécessaire. À chaque pas :
+
+1. 8 prompts du train, 8 réponses chacun, à température 1 et sans top-p : on échantillonne exactement la politique
+   qu'on entraîne ;
+2. chaque réponse est exécutée sur les tests cachés et notée par `reward.py` ;
+3. avantage = (reward − moyenne du groupe) / écart-type du groupe. Un groupe où toutes les réponses ont la même note
+   n'apprend rien : il est sauté (en moyenne 5 groupes sur 8 sont gardés) ;
+4. loss = −Σ avantage × log π(token) sur les tokens des réponses (token de fin compris), divisée par le nombre de
+   tokens, plus β × KL vers le SFT (β = 0,04, estimateur k3). Un seul pas de gradient par génération : le ratio
+   d'importance vaut 1, le clipping de PPO n'aurait aucun effet et n'est pas implémenté.
+
+**Recette** : LoRA neuf (rang 16, sans dropout, mêmes couches que le SFT) sur le modèle SFT fusionné, Adam, LR 1e-5
+constante après 10 pas de montée. Le modèle de référence est le même modèle, LoRA désactivé : pas de deuxième copie
+en mémoire. Exemples : ceux du train dont les 8 réponses de l'étape 7 n'ont pas toutes la même reward (5 921, 71 %),
+les autres n'apportent aucun gradient. 900 pas × 8 prompts = 7 200 tirages, soit ~1,2 passage.
+
+**Mémoire** (pic de 9 Go à 3,4–4,8 Go) :
+
+- la tête de vocabulaire (151 936 sorties) n'est appliquée qu'aux positions de la réponse, pas au prompt ;
+- gradient checkpointing, micro-batchs de 4 séquences ;
+- génération par paquets de 4 prompts × 8 réponses (cache KV de 64 séquences : ~3,5 Go). Au-dessus du plafond
+  mémoire, MLX ralentit au lieu d'échouer : la génération passait de 5 à 13 s.
+
+**Piège** : la référence doit être calculée dans le même graphe que la politique. Hors de `value_and_grad`, MLX
+prend d'autres noyaux, les log-probabilités diffèrent de ~0,002 par token en bf16, et la KL n'est pas nulle avant le
+premier pas.
+
+**Entraînement** (moyennes par tranche de 100 pas, réponses échantillonnées à température 1 sur les prompts du
+train) :
+
+| Pas     | Reward | Réponses justes | Mal formées | KL    |
+| ------- | ------ | --------------- | ----------- | ----- |
+| 1–100   | 0,635  | 58,9 %          | 4,5 %       | 0,017 |
+| 101–200 | 0,717  | 66,1 %          | 2,5 %       | 0,026 |
+| 201–300 | 0,719  | 67,0 %          | 2,9 %       | 0,030 |
+| 401–500 | 0,740  | 68,6 %          | 2,2 %       | 0,033 |
+| 601–700 | 0,744  | 68,9 %          | 2,2 %       | 0,033 |
+| 801–900 | 0,767  | 71,2 %          | 1,8 %       | 0,045 |
+
+**Évaluation** (décodage glouton, comme toutes les évaluations ; « gagnés / perdus » compare cas par cas au SFT,
+p du test de McNemar exact) :
+
+| Qwen3-0.6B     | Held-out : succès | tests réussis | mal formées | Benchmark : succès | tests réussis | mal formées | gagnés / perdus (p) |
+| -------------- | ----------------- | ------------- | ----------- | ------------------ | ------------- | ----------- | ------------------- |
+| SFT            | 71,7 %            | 92,0 %        | 1,8 %       | 31,4 %             | 74,2 %        | 7,1 %       |                     |
+| GRPO, pas 100  |                   |               |             | 30,5 %             | 75,4 %        | 5,2 %       |                     |
+| GRPO, pas 200  |                   |               |             | 31,4 %             | 76,4 %        | 4,8 %       |                     |
+| GRPO, pas 300  | 71,0 %            | 92,7 %        | 1,6 %       | 35,2 %             | 78,5 %        | 4,8 %       | 14 / 6 (0,12)       |
+| **GRPO, pas 500** | **71,5 %**     | **93,2 %**    | **0,9 %**   | **35,2 %**         | **77,4 %**    | **4,8 %**   | 14 / 6 (0,12)       |
+| GRPO, pas 700  |                   |               |             | 31,9 %             | 77,0 %        | 5,7 %       | 9 / 8 (1,0)         |
+| GRPO, pas 900  | 72,4 %            | 93,1 %        | 0,7 %       | 32,9 %             | 78,1 %        | 4,8 %       | 11 / 8 (0,65)       |
+
+- **Le GRPO améliore la fiabilité, pas encore la justesse.** Les sorties mal formées baissent (7,1 % → 4,8 % au
+  benchmark, 1,8 % → 0,9 % au held-out) et les tests réussis gagnent 3 à 4 points à tous les checkpoints : les
+  regex fausses sont plus souvent presque justes. Le succès complet gagne au mieux 3,8 points au benchmark, soit
+  8 cas sur 210 : une tendance (p = 0,12), pas une preuve. Le held-out ne bouge pas (19 gagnés, 20 perdus au pas 500).
+- **Le benchmark plafonne dès le pas 300**, puis redescend, alors que la reward d'entraînement monte encore un peu :
+  au-delà, le modèle se spécialise sur la distribution du train sans mieux transférer.
+- **Rien ne casse**, contrairement au DPO : la KL reste sous 0,05, aucune boucle, aucune dérive du format. C'est
+  le seul post-entraînement après le SFT qui ne dégrade rien.
+- **Checkpoint retenu : pas 500** (`adapters/grpo-0.6b-500`), à égalité avec le pas 300 au benchmark et meilleur au
+  held-out sur les sorties mal formées. Le choisir sur le benchmark le flatte un peu.
+- Le 0.6B a peu de marge : le GRPO renforce ce que le modèle réussit déjà parfois, et 10 % des exemples n'ont aucune
+  réponse juste sur 8. Le 1.7B, qui en réussit plus, devrait en tirer davantage.
 
 ### Étape 10 : passage au 1.7B et bilan
 
@@ -519,6 +599,7 @@ Runs courts de 500 micro-batchs, comparés au benchmark :
 │   ├── generate.py        # taxonomie → professeur (OpenRouter) → data/raw/
 │   ├── validate.py        # garde-fous → data/sft/
 │   ├── generate_pairs.py  # échantillonnage + paires chosen/rejected
+│   ├── grpo.py            # entraînement GRPO (étape 9)
 │   └── reward.py          # fonction de récompense GRPO
 ├── benchmark/        # benchmark écrit à la main, un YAML par catégorie
 ├── tests/            # tests du harnais (pytest) et cas écrits à la main (fixtures/)
