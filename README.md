@@ -564,16 +564,70 @@ p du test de McNemar exact) :
 - Le 0.6B a peu de marge : le GRPO renforce ce que le modèle réussit déjà parfois, et 10 % des exemples n'ont aucune
   réponse juste sur 8. Le 1.7B, qui en réussit plus, devrait en tirer davantage.
 
+### Étape 9 bis : rejection sampling fine-tuning (RFT)
+
+- **Faire** : garder les réponses entièrement justes parmi celles échantillonnées à l'étape 7, puis refaire un SFT
+  dessus, en partant du modèle SFT. C'est la méthode RFT, aussi appelée STaR ou ReST-EM (Zelikman et al. 2022,
+  Singh et al. 2023).
+- **Apprendre** : apprendre de ses propres sorties sans reward graduée ni RL. C'est la baseline que le GRPO doit
+  battre, sinon la complexité du RL ne se justifie pas.
+- **Livrable** : `adapters/rft-0.6b/` et le score RFT.
+
+```sh
+uv run scripts/rft.py                             # quelques secondes, réutilise data/dpo/samples-train.jsonl
+uv run mlx_lm.lora --config configs/rft.yaml      # ~35 min sur le 0.6B, pic 4,2 Go
+uv run scripts/eval.py --name rft-0.6b-benchmark --data data/eval/benchmark.jsonl --model models/sft-0.6b --adapter adapters/rft-0.6b
+```
+
+**Données** : jusqu'à 2 réponses justes **distinctes** par exemple, les plus fréquentes d'abord. Plusieurs
+formulations justes apportent de la diversité, alors que des doublons ne feraient que renforcer la réponse la plus
+probable. Un exemple sans réponse juste ne donne rien : il n'y a pas de repli sur la regex de référence, qui reviendrait
+à refaire le SFT. On obtient **13 067 réponses** sur 8 311 exemples : 67,5 % en donnent 2, 22,3 % une seule, et
+10,2 % aucune. Le valid est celui du SFT, pour garder une val loss comparable.
+
+**Recette** : LoRA neuf sur le modèle SFT fusionné, avec la même recette que le SFT, mais une LR de 5e-5 et une seule
+epoch, pour recentrer le modèle sans l'éloigner du point de départ commun au DPO et au GRPO.
+
+**Entraînement** : ~35 min, pic 4,2 Go. La val loss (sur les regex de référence) part de 0,164, la valeur de fin du
+SFT, monte à 0,179 dans les 400 premières itérations, puis redescend à 0,169. C'est attendu : le modèle se rapproche
+de ses propres formulations, qui ne sont pas toujours celles de la référence. Train loss finale : 0,061.
+
+**Évaluation** (mêmes conventions qu'à l'étape 9 : décodage glouton, cas gagnés / perdus face au SFT, p du test de
+McNemar exact) :
+
+| Qwen3-0.6B     | Held-out : succès | tests réussis | mal formées | Benchmark : succès | tests réussis | mal formées | gagnés / perdus (p), held-out | benchmark     |
+| -------------- | ----------------- | ------------- | ----------- | ------------------ | ------------- | ----------- | ----------------------------- | ------------- |
+| SFT            | 71,7 %            | 92,0 %        | 1,8 %       | 31,4 %             | 74,2 %        | 7,1 %       |                               |               |
+| GRPO, pas 500  | 71,5 %            | 93,2 %        | 0,9 %       | 35,2 %             | 77,4 %        | 4,8 %       | 19 / 20 (1,0)                 | 14 / 6 (0,12) |
+| **RFT**        | **74,9 %**        | **93,3 %**    | 1,6 %       | 33,8 %             | 77,4 %        | **3,8 %**   | **24 / 10 (0,02)**            | 6 / 1 (0,13)  |
+
+- **Le RFT fait au moins aussi bien que le GRPO, pour bien moins cher** : ~35 min d'un SFT standard, avec des
+  échantillons déjà disponibles, contre ~3 h et un script de RL maison.
+- **C'est le seul gain significatif depuis le SFT** : +3,2 points de succès au held-out (24 cas gagnés, 10 perdus,
+  p = 0,02). Face au GRPO pas 500 au held-out : 29 gagnés, 14 perdus (p = 0,03).
+- **Au benchmark, RFT et GRPO sont indiscernables** : 33,8 % contre 35,2 %, soit 8 cas gagnés et 11 perdus face au
+  GRPO (p = 0,65). Le RFT ne perd presque rien face au SFT (6 gagnés, 1 perdu), quand le GRPO bouge davantage dans les
+  deux sens. Par difficulté : 68 % des cas simples, 30 % des intermédiaires, 8 % des difficiles (SFT : 67, 27, 7).
+- **Les sorties mal formées baissent le plus** au benchmark (7,1 % → 3,8 %) : en ne gardant que des réponses justes,
+  le RFT n'apprend que des regex bien formées qui s'arrêtent.
+- Conclusion d'étape : sur ce 0.6B, la reward graduée du GRPO n'apporte rien de plus que le simple filtre « entièrement
+  juste ». Le GRPO reste à reprendre en partant du modèle RFT, ou sur le 1.7B.
+
+**Différences avec le DPO et le GRPO** : le RFT ne pénalise jamais une erreur, il renforce seulement les réussites.
+Il ne peut donc pas creuser l'écart en dégradant tout, comme le DPO simple. En revanche, il n'apprend rien des
+exemples où le modèle n'a jamais réussi (10 %), ni du « presque juste ». S'il fait jeu égal avec le GRPO, l'étape
+suivante est de l'itérer : rééchantillonner avec le modèle RFT, refiltrer, réentraîner.
+
 ### Étape 10 : passage au 1.7B et bilan
 
 - **Faire** : rejouer le meilleur pipeline sur Qwen3-1.7B.
 - **Livrable** : `results/summary.md`, avec un tableau comparatif (succès complet sur le benchmark) et des exemples
   qualitatifs (les erreurs corrigées à chaque étape, et les nouvelles erreurs apparues).
 
-| Modèle      | Brut (zero-shot) | Brut (few-shot) | SFT | DPO | GRPO |
-| ----------- | ---------------- | --------------- | --- | --- | ---- |
-| Qwen3-0.6B  |                  |                 |     |     |      |
-| Qwen3-1.7B  |                  |                 |     |     |      |
+| Modèle      | Brut (zero-shot) | Brut (few-shot) | SFT | DPO | RFT | GRPO |
+| ----------- | ---------------- | --------------- | --- | --- | --- | ---- |
+| Qwen3-0.6B  |                  |                 |     |     |     |      |
+| Qwen3-1.7B  |                  |                 |     |     |     |      |
 
 ### Plus tard (hors de ce repo pour l'instant)
 
@@ -599,6 +653,7 @@ p du test de McNemar exact) :
 │   ├── generate.py        # taxonomie → professeur (OpenRouter) → data/raw/
 │   ├── validate.py        # garde-fous → data/sft/
 │   ├── generate_pairs.py  # échantillonnage + paires chosen/rejected
+│   ├── rft.py             # réponses justes échantillonnées → données du RFT
 │   ├── grpo.py            # entraînement GRPO (étape 9)
 │   └── reward.py          # fonction de récompense GRPO
 ├── benchmark/        # benchmark écrit à la main, un YAML par catégorie

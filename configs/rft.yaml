@@ -1,0 +1,49 @@
+# Rejection sampling fine-tuning (étape 9 bis) : uv run mlx_lm.lora --config configs/rft.yaml
+# Données : uv run scripts/rft.py (réponses justes du modèle SFT, échantillonnées à l'étape 7).
+#
+# On part du modèle SFT fusionné avec un LoRA neuf, comme le DPO et le GRPO : les trois méthodes partent du même point.
+# Même recette que configs/sft.yaml, sauf la LR (5e-5 au lieu de 2e-4) et une seule epoch : le modèle connaît déjà la
+# tâche, on le recentre sur ses propres réussites sans l'éloigner du SFT.
+
+model: models/sft-0.6b
+train: true
+data: data/rft                 # train : 13 067 réponses justes ; valid : celui du SFT (regex de référence)
+adapter_path: adapters/rft-0.6b
+seed: 0
+
+fine_tune_type: lora
+num_layers: -1                 # toutes les couches
+lora_parameters:
+  rank: 16
+  scale: 2.0
+  dropout: 0.05
+  keys:
+    - self_attn.q_proj
+    - self_attn.k_proj
+    - self_attn.v_proj
+    - self_attn.o_proj
+    - mlp.gate_proj
+    - mlp.up_proj
+    - mlp.down_proj
+
+mask_prompt: true
+max_seq_length: 512
+
+# Mémoire : mêmes réglages que le SFT (pic ~4,6 Go).
+batch_size: 4
+grad_accumulation_steps: 2
+grad_checkpoint: true
+# 13 067 exemples : ~3 270 micro-batchs, soit 1 epoch et ~1 630 mises à jour. Warmup à ~5 %.
+iters: 3270
+optimizer: adamw
+learning_rate: 5.0e-5
+lr_schedule:
+  name: cosine_decay
+  warmup: 80
+  warmup_init: 1.0e-6
+  arguments: [5.0e-5, 1635, 1.0e-6]
+
+steps_per_report: 40
+steps_per_eval: 400
+val_batches: -1
+save_every: 800
