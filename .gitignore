@@ -3,8 +3,22 @@ __pycache__/
 *.pyc
 .DS_Store
 
-# Données téléchargées/générées et poids entraînés (volumineux)
-data/
+# Données : seules les données du projet regex sont versionnées
+# (spider/gretel = restes text-to-SQL, gitlab = données clients)
+data/*
+!data/raw/
+data/raw/*
+!data/raw/*.jsonl
+!data/prepared/
+!data/sft/
+!data/sft-2k/
+!data/sft-probe/
+!data/dpo/
+!data/rft/
+!data/eval/
+!data/exp/
+
+# Poids entraînés (volumineux)
 adapters/*
 !adapters/.gitkeep
 models/
