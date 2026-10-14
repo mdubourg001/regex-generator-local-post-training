@@ -408,6 +408,67 @@ longue, et sur 128 séquences il y en a presque toujours une qui boucle jusqu'à
 - **Apprendre** : le rôle du modèle de référence, le paramètre `beta`, en quoi DPO diffère du SFT.
 - **Livrable** : `adapters/dpo/` et le score DPO.
 
+**Mise en place** :
+
+- le modèle SFT est fusionné (`mlx_lm.fuse` → `models/sft-0.6b`). Il sert de point de départ et de modèle de
+  référence gelé : sans ça, mlx-lm-lora prendrait le modèle brut comme référence. Fusionné, il obtient 32,9 % au
+  benchmark contre 31,4 % avec l'adapter (arrondi des poids, dans le bruit) ;
+- `scripts/train_capped.py` lance mlx-lm-lora en plafonnant la mémoire (pic ~6 à 7 Go, contre 19 Go verrouillables
+  par défaut) ;
+- trois pièges de mlx-lm-lora 3.1.3 :
+  - une valeur du YAML n'est appliquée que si l'option de ligne de commande vaut None. Les options qui ont un défaut
+    (`--gradient-accumulation-steps`, `--dpo-cpo-loss-type`, `--delta`, et pour le GRPO `--temperature`,
+    `--group-size`, `--max-completion-length`) ignorent le YAML. L'accumulation de gradient était silencieusement
+    à 1 : batch de 2 et schedule de LR fini au premier quart du run ;
+  - chaque batch est complété à la longueur de sa plus longue séquence, et le pas compilé (`mx.compile`) l'est pour
+    chaque nouvelle forme : vers l'itération 200, `[metal::malloc] Resource limit (499000) exceeded`.
+    `train_capped.py` complète les batchs à un multiple de 32 tokens ;
+  - les batchs sont tirés au hasard avec remise : une « epoch » couvre ~63 % des paires. L'accuracy affichée compare
+    les moyennes du batch, pas les paires une à une ;
+  - `--dpo-cpo-loss-type` est rangé dans `DPOTrainingArgs.loss_type`, mais `train_dpo` lit son propre paramètre
+    `loss_type`, toujours à "sigmoid" : hinge, ipo et dpop sont ignorés sans rien dire. `train_capped.py` le
+    transmet et affiche la loss appliquée.
+
+**1er essai, DPO simple** (`configs/dpo.yaml` : β 0,1, LR 1e-5, batch effectif 8, 2 555 micro-batchs) : les métriques
+DPO sont excellentes (val loss 0,693 → 0,283, accuracy 96 %, marge 3,1) mais la génération s'effondre.
+
+| Qwen3-0.6B   | Held-out : succès | tests réussis | mal formées | Benchmark : succès | tests réussis | mal formées |
+| ------------ | ----------------- | ------------- | ----------- | ------------------ | ------------- | ----------- |
+| SFT          | 71,7 %            | 92,0 %        | 1,8 %       | 31,4 %             | 74,2 %        | 7,1 %       |
+| DPO simple   | 24,7 %            | 50,2 %        | 38,9 %      | 9,0 %              | 33,6 %        | 54,8 %      |
+
+- Les sorties deviennent des regex cassées : `/  *?\/\/?  *? TODO? or FIXME???…/`, `(?:-[a-z0-9]+)**)??`.
+- La loss ne voit que l'écart entre `chosen` et `rejected`. Le modèle l'a creusé en rendant **les deux** moins
+  probables (rewards `chosen` négatifs tout le run) : la masse de probabilité part vers des tokens qu'aucune paire ne
+  contient (_likelihood displacement_). Nos paires y sont exposées : `chosen` et `rejected` ne diffèrent souvent que
+  de quelques caractères (`{4}` contre `{1,4}`).
+- Ce n'est pas du sur-entraînement : le checkpoint de l'itération 500 est déjà cassé (13,3 % de succès, 31 % de
+  sorties mal formées au benchmark). Les métriques de préférence ne suffisent pas : seule l'évaluation par
+  génération et exécution révèle l'échec.
+
+**2e essai, DPOP** (`configs/dpop.yaml`, DPO-Positive, Pal et al. 2024) : une pénalité empêche la log-probabilité de
+`chosen` de passer sous celle de la référence, `loss = -log σ(β × marge) + δ × max(0, log π_ref(chosen) − log π(chosen))`,
+avec δ = 5 (β × λ = 0,1 × 50 de l'article, la pénalité étant hors du sigmoïde dans mlx-lm-lora) et une LR de 5e-6.
+Runs courts de 500 micro-batchs, comparés au benchmark :
+
+| Benchmark après 500 micro-batchs | Succès | Tests réussis | Mal formées |
+| -------------------------------- | ------ | ------------- | ----------- |
+| SFT fusionné (point de départ)   | 32,9 % | 74,9 %        | 6,7 %       |
+| DPO simple, LR 1e-5              | 13,3 % | 51,7 %        | 31,0 %      |
+| DPO simple, LR 5e-6              | 20,0 % | 59,2 %        | 25,2 %      |
+| DPOP, δ = 5, LR 5e-6             | 31,9 % | 75,1 %        | 6,7 %       |
+
+- Une LR plus basse ralentit l'effondrement du DPO simple sans l'empêcher. Ce run devait être le premier DPOP : la
+  loss demandée n'arrivait pas jusqu'à l'entraînement (dernier piège ci-dessus).
+- DPOP n'effondre plus rien, mais n'apprend rien non plus : la marge reste à ~0 (val accuracy 32 à 34 %), et
+  `chosen` comme `rejected` deviennent _plus_ probables, d'autant l'un que l'autre. La pénalité remonte `chosen`, et
+  `rejected`, qui en partage presque tous les tokens, monte avec. Sur le benchmark : 2 cas gagnés, 1 perdu.
+- Conclusion : sur des paires qui ne diffèrent que de quelques caractères, la préférence pèse très peu dans une
+  log-probabilité de séquence. Sans ancre, le DPO creuse l'écart en dégradant tout ; avec une ancre forte, la
+  pénalité écrase le signal. Pistes non explorées : une ancre plus faible (δ ≈ 1), retirer les `rejected` mal formés
+  (22 % des paires, souvent des boucles de 128 tokens). Le GRPO, qui apprend directement de la reward d'exécution sur
+  des réponses générées en ligne, est la suite logique.
+
 ### Étape 9 : GRPO (RL avec récompense vérifiable)
 
 - **Faire** : écrire `scripts/reward.py`, puis entraîner avec mlx-lm-lora en mode GRPO et ré-évaluer. Reward :

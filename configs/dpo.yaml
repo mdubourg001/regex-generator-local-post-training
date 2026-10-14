@@ -1,0 +1,51 @@
+# DPO (étape 8) : uv run scripts/train_capped.py --memory-gb 8 --cache-gb 0.25 --config configs/dpo.yaml --gradient-accumulation-steps 4
+#
+# Attention : mlx-lm-lora n'applique une valeur du YAML que si l'option de ligne de commande vaut None. Celles qui ont
+# un défaut (--gradient-accumulation-steps 1, --temperature, --group-size, --max-completion-length…) ignorent donc le
+# YAML et doivent être passées en ligne de commande.
+#
+# On part du modèle SFT fusionné, qui sert aussi de modèle de référence gelé (reference_model_path vide : mlx-lm-lora
+# recharge le même modèle). Pour le créer :
+#   uv run mlx_lm.fuse --model Qwen/Qwen3-0.6B --adapter-path adapters/sft-0.6b --save-path models/sft-0.6b
+
+model: models/sft-0.6b
+train: true
+train_mode: dpo
+data: data/dpo                 # {"system", "prompt", "chosen", "rejected"}, produit par scripts/pairs.py
+adapter_path: adapters/dpo-0.6b
+fuse: false                    # garder l'adapter seul, comme pour le SFT
+seed: 0
+
+beta: 0.1                      # laisse vers le modèle de référence : plus petit, plus d'écart permis
+dpo_cpo_loss_type: sigmoid     # la loss DPO d'origine : -log σ(β × marge)
+
+train_type: lora
+num_layers: -1
+lora_parameters:               # mêmes couches (toutes les Linear des blocs) et même rang que le SFT
+  rank: 16
+  scale: 2.0
+  dropout: 0.05
+
+max_seq_length: 512
+# Mémoire : chaque micro-batch passe chosen et rejected dans le modèle entraîné et dans la référence. Micro-batchs de
+# 2 paires et accumulation sur 4 : batch effectif de 8 paires.
+batch_size: 2
+gradient_accumulation_steps: 4  # documentaire : à passer en ligne de commande (voir plus haut)
+grad_checkpoint: true
+
+# ~1 epoch : 5 109 paires, soit 2 555 micro-batchs et 639 mises à jour. mlx-lm-lora tire chaque micro-batch au hasard
+# (avec remise) au lieu de parcourir le dataset : 2 555 tirages couvrent ~63 % des paires, certaines deux fois.
+# LR bien plus basse qu'au SFT : on ajuste des préférences sans réapprendre la tâche.
+iters: 2555
+optimizer: adamw
+learning_rate: 1.0e-5
+lr_schedule:
+  name: cosine_decay
+  warmup: 32                   # 5 % des mises à jour
+  warmup_init: 1.0e-7
+  arguments: [1.0e-5, 639, 1.0e-7]
+
+steps_per_report: 20
+steps_per_eval: 250
+val_batches: -1                # les 276 paires du valid
+save_every: 500
