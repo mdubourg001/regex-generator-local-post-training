@@ -3,7 +3,7 @@ theme: default
 title: Post-training d'un petit LLM, en local
 info: |
   Apprendre à Qwen3-0.6B à écrire des regex JavaScript à partir d'une description en anglais.
-  Partie 1 : des données jusqu'au SFT.
+  Partie 1 : des données jusqu'au DPO.
 colorSchema: auto
 transition: slide-left
 mdc: true
@@ -17,7 +17,7 @@ layout: cover
 
 # Apprendre à un petit LLM<br>à écrire des regex
 
-Des données jusqu'au SFT, sur un Mac, sans GPU NVIDIA
+Des données jusqu'au DPO, sur un Mac, sans GPU NVIDIA
 
 <div class="abs-bl m-12 text-sm opacity-60">
 Qwen3-0.6B · MLX · LoRA · Node 22
@@ -46,7 +46,8 @@ On s'arrête avant le DPO.
 5. **Le benchmark** : un examen qui ne sort pas du même moule
 6. **Les baselines** : que vaut le modèle brut ?
 7. **Le SFT avec LoRA** : la première vraie amélioration
-8. **Bilan** et ce qui vient ensuite
+8. **Le DPO** : apprendre de ses erreurs, et pourquoi ça a échoué
+9. **Bilan** et ce qui vient ensuite
 
 </div>
 </div>
@@ -215,13 +216,18 @@ Comme l'autocomplete de ton IDE, mais qui a lu une bonne partie d'Internet. Entr
   <div class="arrow">→</div>
   <div class="step" style="border-color: var(--c-accent); background: rgba(99,102,241,0.1)">
     <strong>SFT</strong>
-    Imiter des exemples « entrée → bonne réponse ».<br>
-    <span class="small">📍 <b>on est ici</b></span>
+    Imiter des exemples « entrée → bonne réponse ».
+  </div>
+  <div class="arrow">→</div>
+  <div class="step" style="border-color: var(--c-accent); background: rgba(99,102,241,0.1)">
+    <strong>DPO</strong>
+    Préférer la bonne réponse à la mauvaise, sur ses propres réponses.<br>
+    <span class="small">📍 SFT et DPO : <b>couverts ici</b></span>
   </div>
   <div class="arrow">→</div>
   <div class="step later">
-    <strong>DPO</strong>
-    Préférer la bonne réponse à la mauvaise, sur ses propres réponses.
+    <strong>RFT</strong>
+    Réapprendre sur ses propres réponses justes.
   </div>
   <div class="arrow">→</div>
   <div class="step later">
@@ -243,6 +249,52 @@ Comme l'autocomplete de ton IDE, mais qui a lu une bonne partie d'Internet. Entr
 
 <div class="analogy">
 Le pré-training, c'est apprendre le langage. Le post-training, c'est l'onboarding sur un poste précis.
+</div>
+
+---
+
+# Le paysage du post-training
+
+<div class="grid grid-cols-3 gap-4 mt-2">
+<div>
+<div class="lane-label">Imiter</div>
+<div class="tech used"><b>SFT</b> <span class="tag">ce repo</span><div class="motto">« Fais comme ça. »</div><p>Des exemples « entrée → bonne réponse » écrits par un humain ou un gros modèle.</p></div>
+<div class="tech used"><b>RFT</b> · STaR, ReST-EM <span class="tag">à venir</span><div class="motto">« Refais ce que tu as réussi. »</div><p>On garde les réponses justes du modèle lui-même, et on refait un SFT dessus.</p></div>
+<div class="tech"><b>Distillation de logits</b><div class="motto">« Pense comme moi. »</div><p>Imiter toutes les probabilités d'un gros modèle, pas seulement sa réponse.</p></div>
+</div>
+<div>
+<div class="lane-label">Préférer (paires figées)</div>
+<div class="tech used"><b>DPO</b> <span class="tag">ce repo</span><div class="motto">« Plutôt ça que ça. »</div><p>Une paire bonne / mauvaise réponse, avec une référence gelée.</p></div>
+<div class="tech"><b>IPO, DPOP…</b><div class="motto">« Plutôt ça, mais sans tout casser. »</div><p>Des variantes du DPO, plus prudentes (DPOP essayé ici).</p></div>
+<div class="tech"><b>KTO</b><div class="motto">« Ça, c'est bien. Ça, c'est pas bien. »</div><p>Des réponses notées une par une, sans paires.</p></div>
+<div class="tech"><b>ORPO, SimPO</b><div class="motto">« Plutôt ça que ça, sans baseline. »</div><p>Pas de modèle de référence ; ORPO fait le SFT en même temps.</p></div>
+</div>
+<div>
+<div class="lane-label">Essayer et être noté (RL en ligne)</div>
+<div class="tech"><b>RLHF avec PPO</b><div class="motto">« Un juge te note, un coach t'explique. »</div><p>Un modèle de récompense appris sur des préférences humaines, plus un « critic » qui estime les notes.</p></div>
+<div class="tech"><b>RLAIF</b><div class="motto">« Une IA te note. »</div><p>La même chose, avec un LLM à la place des humains.</p></div>
+<div class="tech used"><b>GRPO</b> · RLVR <span class="tag">à venir</span><div class="motto">« Essaie plusieurs fois, fais mieux que ta moyenne. »</div><p>Plusieurs réponses par prompt, chacune comparée à la moyenne du groupe. Pas de critic.</p></div>
+</div>
+</div>
+
+<p class="small muted mt-2">De gauche à droite : de plus en plus de signal sur les erreurs, mais aussi de plus en plus de machinerie. Le few-shot, lui, n'entraîne rien : il ne sert ici que de baseline.</p>
+
+---
+
+# Pourquoi celles-là ?
+
+| Technique | Ici | Pourquoi |
+| --- | --- | --- |
+| **SFT** | <span class="ok">✓ fait</span> | Indispensable : le modèle brut ne respecte même pas le format. C'est aussi la **distillation de séquences** : on imite les sorties du professeur. |
+| **DPO** | <span class="ok">✓ fait</span> | Le classique pour corriger des erreurs précises, sans RL. On peut générer les paires nous-mêmes, en notant par exécution. |
+| **RFT** | <span class="muted">à&nbsp;venir</span> | Le plus simple pour apprendre de ses propres sorties. C'est la baseline que le GRPO doit battre, sinon la complexité du RL ne se justifie pas. |
+| **GRPO** | <span class="muted">à&nbsp;venir</span> | Notre récompense est **vérifiable** : Node exécute la regex. Pas besoin de juge appris, ni de critic : ça tient en 24 Go. |
+| Distillation de logits | ✗ | Le professeur est derrière une API : on n'a que son texte, pas ses probabilités. |
+| PPO, RLHF, RLAIF | ✗ | Un modèle de récompense appris est inutile quand le moteur JS donne la vraie note. Et PPO ajoute un critic, trop lourd pour le Mac. |
+| KTO, ORPO, SimPO, IPO | ✗ | Des variantes du DPO ; on a essayé la plus adaptée à notre échec (DPOP). |
+
+<div class="analogy">
+Comme choisir entre tests unitaires, snapshots et tests E2E : on prend l'outil le plus simple qui donne le signal dont on a besoin, et on ne passe au plus lourd que s'il apporte quelque chose de mesurable.
 </div>
 
 ---
@@ -280,10 +332,20 @@ Le pré-training, c'est apprendre le langage. Le post-training, c'est l'onboardi
     <div class="arrow">→</div>
     <div class="step done"><strong>Scores</strong>held-out et benchmark</div>
   </div>
+  <div class="lane-label mt-4">Préférences</div>
+  <div class="flow">
+    <div class="step"><strong>Échantillonnage</strong>le SFT génère 8 réponses par exemple</div>
+    <div class="arrow">→</div>
+    <div class="step"><strong>Notation</strong>par exécution dans Node</div>
+    <div class="arrow">→</div>
+    <div class="step"><strong>Paires</strong>chosen / rejected</div>
+    <div class="arrow">→</div>
+    <div class="step" style="border-color: var(--c-accent); background: rgba(99,102,241,0.1)"><strong>DPO</strong>puis même évaluation</div>
+  </div>
 </div>
 
 <div class="small muted mt-2">
-Étapes du repo : 0 setup · 1 harnais d'éval · 2 taxonomie · 3 données · 4 benchmark · 5 baselines · 6 SFT
+Étapes du repo : 0 setup · 1 harnais d'éval · 2 taxonomie · 3 données · 4 benchmark · 5 baselines · 6 SFT · 7 paires · 8 DPO
 </div>
 
 ---
@@ -1197,7 +1259,601 @@ La courbe n'est pas saturée : plus de données aiderait probablement encore, su
 layout: section
 ---
 
-<div class="kicker">8 · Bilan</div>
+<div class="kicker">8 · Le DPO</div>
+
+# Apprendre de ses propres erreurs
+
+<p class="opacity-70">Étapes 7 et 8 : les paires de préférences, puis l'entraînement</p>
+
+---
+
+# Ce que le SFT ne sait pas faire
+
+<div class="grid grid-cols-2 gap-6 mt-4">
+<div class="card">
+<h3>SFT : « fais comme ça »</h3>
+<div class="flex flex-col gap-2 mt-3 text-sm">
+  <div class="card tight">📝 <i>even integer</i></div>
+  <div class="text-center muted">↓</div>
+  <div class="card tight good"><code>/^[+-]?\d*[02468]&#36;/</code> ✓ <span class="small muted">la référence</span></div>
+</div>
+<p class="mt-3">Le modèle ne voit que des bonnes réponses, écrites par quelqu'un d'autre. Il ne voit jamais <b>ses</b> erreurs, et rien ne lui dit qu'une réponse est fausse.</p>
+</div>
+<div class="card accent">
+<h3>DPO : « plutôt ça que ça »</h3>
+<div class="flex flex-col gap-2 mt-3 text-sm">
+  <div class="card tight">📝 <i>even integer</i></div>
+  <div class="text-center muted">↓</div>
+  <div class="grid grid-cols-2 gap-2">
+    <div class="card tight good"><b>chosen</b><br><code>/^[+-]?\d*[02468]&#36;/</code></div>
+    <div class="card tight bad"><b>rejected</b><br><code>/^\d*[02468]&#36;/</code></div>
+  </div>
+</div>
+<p class="mt-3">Deux réponses <b>produites par le modèle lui-même</b> : une juste, une fausse (ici, les nombres négatifs sont oubliés). Il apprend à préférer la première.</p>
+</div>
+</div>
+
+<div class="analogy">
+Le SFT, c'est lire du code propre. Le DPO, c'est la code review de <b>ses propres</b> PR : « cette version-ci plutôt que celle-là ».
+</div>
+
+---
+
+# Pourquoi « Direct » ?
+
+<div class="grid grid-cols-2 gap-6 mt-4">
+<div class="card">
+<h3>La méthode classique : RLHF</h3>
+<div class="flow mt-3" style="flex-direction: column; gap: 0.3rem">
+  <div class="step"><strong>1. Modèle de récompense</strong>Un 2ᵉ réseau apprend à noter les réponses à partir des paires.</div>
+  <div class="text-center muted">↓</div>
+  <div class="step"><strong>2. Apprentissage par renforcement (PPO)</strong>Le modèle génère, le modèle de récompense note, on renforce.</div>
+</div>
+<p class="mt-3">Deux modèles à entraîner, de la génération pendant l'entraînement, beaucoup de réglages : lourd et instable.</p>
+</div>
+<div class="card accent">
+<h3>DPO (Rafailov et al., 2023)</h3>
+<div class="flow mt-3" style="flex-direction: column; gap: 0.3rem">
+  <div class="step done"><strong>Une seule étape</strong>Une loss calculée directement sur les paires, comme un entraînement supervisé.</div>
+</div>
+<p class="mt-3">Pas de modèle de récompense, pas de RL. Le papier montre que la récompense est <b>implicite</b> : elle se lit dans les probabilités du modèle lui-même.</p>
+<p>Autre avantage ici : les paires sont générées <b>une fois pour toutes</b> avant l'entraînement.</p>
+</div>
+</div>
+
+<div class="takeaway">
+DPO garde l'idée du RLHF (apprendre des préférences) et jette la machinerie (modèle de récompense et RL).
+</div>
+
+---
+
+# La probabilité d'une réponse entière
+
+Pour comparer deux réponses, il faut savoir **à quel point le modèle trouve chacune probable**.
+
+<div class="flex flex-wrap gap-1 font-mono text-xs mt-4 items-end">
+  <div class="flex flex-col items-center"><span class="px-2 py-1 rounded bg-indigo-500/80 text-white">/^</span><span class="mt-1 opacity-70">0,98</span></div>
+  <div class="flex flex-col items-center"><span class="px-2 py-1 rounded bg-indigo-500/80 text-white">[+-]?</span><span class="mt-1 opacity-70">0,41</span></div>
+  <div class="flex flex-col items-center"><span class="px-2 py-1 rounded bg-indigo-500/80 text-white">\d*</span><span class="mt-1 opacity-70">0,90</span></div>
+  <div class="flex flex-col items-center"><span class="px-2 py-1 rounded bg-indigo-500/80 text-white">[02468]</span><span class="mt-1 opacity-70">0,95</span></div>
+  <div class="flex flex-col items-center"><span class="px-2 py-1 rounded bg-indigo-500/80 text-white">&#36;/</span><span class="mt-1 opacity-70">0,99</span></div>
+  <div class="ml-4 text-sm self-center">→ probabilité de la réponse = 0,98 × 0,41 × 0,90 × 0,95 × 0,99 ≈ <b>0,34</b></div>
+</div>
+<p class="small muted mt-1">Valeurs illustratives. Chaque nombre : la probabilité du token, sachant le prompt et les tokens précédents.</p>
+
+<div class="grid grid-cols-3 gap-4 mt-4">
+<div class="card">
+<h3>Un produit de probabilités</h3>
+<p>La probabilité d'une séquence, c'est le produit des probabilités de ses tokens. Elle chute vite avec la longueur.</p>
+</div>
+<div class="card">
+<h3>D'où le logarithme</h3>
+<p>On travaille en <b>log-probabilité</b> : le produit devient une somme, et on évite les nombres minuscules. Plus elle est proche de 0, plus la réponse est probable.</p>
+</div>
+<div class="card warn">
+<h3>À retenir pour la suite</h3>
+<p>Deux regex qui ne diffèrent que d'un token partagent tous les autres termes de la somme. Leurs log-probabilités bougent <b>ensemble</b>.</p>
+</div>
+</div>
+
+---
+
+# La loss DPO, sans maths
+
+On compare le modèle entraîné **π** à une copie gelée de son point de départ, le **modèle de référence π<sub>ref</sub>** (le SFT).
+
+$$
+\begin{aligned}
+\text{marge} &= \beta \Big[ \underbrace{\big(\log \pi(\text{chosen}) - \log \pi_{\text{ref}}(\text{chosen})\big)}_{\text{récompense implicite de chosen}} - \underbrace{\big(\log \pi(\text{rejected}) - \log \pi_{\text{ref}}(\text{rejected})\big)}_{\text{récompense implicite de rejected}} \Big] \\
+\text{loss} &= -\log \sigma(\text{marge})
+\end{aligned}
+$$
+
+<div class="grid grid-cols-3 gap-4 mt-2">
+<div class="card">
+<h3>1. Mesurer l'évolution</h3>
+<p>Pour chaque réponse : de combien le modèle l'a-t-il rendue plus (ou moins) probable <b>depuis le SFT</b> ? C'est la « récompense implicite ».</p>
+</div>
+<div class="card">
+<h3>2. Comparer</h3>
+<p>La <b>marge</b> : chosen doit avoir progressé plus que rejected. σ (la sigmoïde) transforme la marge en probabilité entre 0 et 1.</p>
+</div>
+<div class="card">
+<h3>3. Corriger</h3>
+<p>La loss vaut 0,693 (= log 2, pile ou face) au départ, et baisse quand la marge grandit. La descente de gradient fait le reste, comme au SFT.</p>
+</div>
+</div>
+
+<div class="analogy">
+On ne note pas une réponse dans l'absolu, mais son évolution par rapport à une baseline figée, comme un test de régression visuelle compare au snapshot de référence.
+</div>
+
+---
+
+# La référence et β : la laisse
+
+<div class="grid grid-cols-2 gap-8 mt-2">
+<div>
+
+<DeltaBars
+  title="Ce qu'on espère"
+  tone="good"
+  :rows="[
+    { label: 'chosen', value: 0.3 },
+    { label: 'rejected', value: -0.6 },
+  ]"
+  verdict="La bonne réponse devient plus probable, la mauvaise moins. Schéma, valeurs illustratives."
+/>
+
+<div class="card mt-3">
+<h3>Le modèle de référence</h3>
+<p>Le SFT, <b>fusionné</b> (<code>mlx_lm.fuse</code> : W + B·A) et gelé. Il sert à la fois de point de départ et de référence. On entraîne un nouvel adapter LoRA par-dessus.</p>
+</div>
+
+</div>
+<div>
+
+<div class="card accent">
+<h3>β règle la longueur de la laisse</h3>
+<ul>
+<li><b>β petit</b> : le modèle peut s'éloigner beaucoup du SFT pour creuser la marge.</li>
+<li><b>β grand</b> : il reste proche du SFT, et chaque écart coûte cher.</li>
+</ul>
+<p>Ici β = 0,1, la valeur classique.</p>
+</div>
+
+<div class="card mt-3">
+<h3>Pourquoi une laisse ?</h3>
+<p>Sans ancre, le modèle pourrait gagner sur la marge par n'importe quel moyen, par exemple en dégradant tout le reste. On verra que ce n'est pas une crainte théorique.</p>
+</div>
+
+<div class="card mt-3">
+<h3>Le seul moyen de faire baisser une erreur précise</h3>
+<p>Le SFT ne pénalise jamais directement une mauvaise réponse. Le DPO, si.</p>
+</div>
+
+</div>
+</div>
+
+---
+
+# Étape 7 : générer les paires, on-policy
+
+Les paires viennent **du modèle SFT lui-même**, pas d'un humain ni du professeur.
+
+<div class="flow mt-4">
+  <div class="step"><strong>1. Échantillonner</strong>8 réponses par exemple du train, à <b>température 1</b> pour qu'elles varient</div>
+  <div class="arrow">→</div>
+  <div class="step"><strong>2. Noter</strong>Chaque regex passe les tests cachés dans Node : juste ou fausse, et un score</div>
+  <div class="arrow">→</div>
+  <div class="step"><strong>3. Choisir</strong><b>chosen</b> = la réponse juste la plus fréquente<br><b>rejected</b> = l'erreur la plus fréquente</div>
+  <div class="arrow">→</div>
+  <div class="step"><strong>4. Filtrer</strong>Toutes justes ou toutes fausses : pas de paire</div>
+</div>
+
+<div class="grid grid-cols-2 gap-6 mt-5">
+<div>
+
+**Un vrai exemple** : <i>even integer</i>
+
+<div class="font-mono text-xs flex flex-col gap-1 mt-2">
+  <div><span class="ok">✓</span> /^[+-]?\d*[02468]&#36;/ <span class="muted">× 3 → chosen</span></div>
+  <div><span class="ok">✓</span> /^-?\d*[02468]&#36;/</div>
+  <div><span class="ok">✓</span> /^[+-]?(?:\d*[02468])&#36;/</div>
+  <div><span class="ko">✗</span> /^\d*[02468]&#36;/ <span class="muted">× 3 → rejected (oublie les négatifs)</span></div>
+</div>
+
+</div>
+<div>
+
+<div class="card">
+<h3>La température</h3>
+<p>À 0 (greedy), le modèle donne toujours sa réponse préférée. À 1, il tire au hasard selon ses probabilités : on voit ce qu'il <b>pourrait</b> répondre, erreurs comprises.</p>
+</div>
+
+<div class="card mt-2">
+<h3>Pourquoi « la plus fréquente » ?</h3>
+<p>chosen : ce que le modèle sait déjà faire, qu'on consolide. rejected : l'erreur qu'il fait le plus volontiers, donc la plus utile à corriger.</p>
+</div>
+
+</div>
+</div>
+
+---
+
+# Pourquoi on-policy ?
+
+<div class="grid grid-cols-2 gap-6 mt-4">
+<div class="card good">
+<h3>On-policy : les erreurs réelles</h3>
+<p>Les paires viennent du modèle qu'on entraîne. On corrige les erreurs qu'<b>il</b> commet vraiment, là où il les commet.</p>
+</div>
+<div class="card bad">
+<h3>Off-policy : des erreurs inventées</h3>
+<p>La regex de référence contre une regex fausse fabriquée à la main : le modèle apprendrait à éviter des erreurs qu'il ne fait pas.</p>
+</div>
+</div>
+
+<div class="card mt-5">
+<h3>Le genre d'erreur visé : « presque juste »</h3>
+<div class="font-mono text-xs mt-2 flex flex-col gap-1">
+  <div><span class="ok">chosen</span>&nbsp;&nbsp; /^(?:[0-9A-Fa-f]{4}:){7}[0-9A-Fa-f]{4}&#36;/</div>
+  <div><span class="ko">rejected</span> /^(?:[0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4}&#36;/</div>
+</div>
+<p class="mt-2">IPv6 complète : la version rejetée accepte de 1 à 4 chiffres par groupe. C'est exactement le type d'erreur vu sur le benchmark.</p>
+</div>
+
+<div class="analogy">
+Corriger les bugs qu'un dev produit réellement (ses retours de code review) plutôt que lui faire un cours sur des bugs qu'il ne fait jamais.
+</div>
+
+---
+
+# Le résultat de l'échantillonnage
+
+<div class="grid grid-cols-2 gap-8 mt-2">
+<div>
+
+**8 321 exemples du train × 8 réponses**
+
+<div class="flex gap-1 mt-3 h-10 text-xs text-white font-bold">
+  <div class="rounded flex items-center justify-center bg-slate-400" style="width: 28.3%">toutes justes 28 %</div>
+  <div class="rounded flex items-center justify-center bg-indigo-500" style="width: 61.5%">paire possible 61,5 %</div>
+  <div class="rounded flex items-center justify-center bg-red-400" style="width: 10.3%">0 ✓</div>
+</div>
+<p class="small muted mt-1">« Toutes justes » : rien à corriger. « Aucune juste » (10 %) : rien de juste à renforcer.</p>
+
+<div class="grid grid-cols-2 gap-3 mt-4">
+<div class="card tight good"><div class="big">5 109</div><div class="big-label">paires d'entraînement</div></div>
+<div class="card tight"><div class="big">276</div><div class="big-label">paires de validation</div></div>
+</div>
+
+<p class="small mt-3">65,9 % des réponses échantillonnées sont justes, avec 4,7 réponses distinctes par exemple en moyenne. Les paires couvrent toutes les difficultés (59 à 63 % des exemples).</p>
+
+</div>
+<div>
+
+**De quoi sont faits les rejected ?**
+
+<BarChart :max="100" :rows="[
+  { label: 'nettement fausses', value: 62.4, tone: 'bad' },
+  { label: 'mal formées', value: 22.4, tone: 'warn' },
+  { label: 'presque justes', value: 15.1, tone: 'base' },
+]" />
+<p class="small muted mt-1">3 193, 1 148 et 774 paires. « Presque juste » : score ≥ 0,4.</p>
+
+<div class="card mt-3">
+<h3>Génération : 4 prompts à la fois, pas 16</h3>
+<p>16 prompts × 8 réponses : 8 à 10 Go, ~1 prompt/s. 4 × 8 : 3 à 5 Go et <b>deux fois plus rapide</b>. Un lot dure jusqu'à sa réponse la plus longue, et sur 128 séquences, il y en a presque toujours une qui boucle jusqu'à la limite de tokens.</p>
+</div>
+
+<div class="analogy">
+Exactement <code>Promise.all</code> : le lot attend la requête la plus lente.
+</div>
+
+</div>
+</div>
+
+---
+
+# Étape 8 : la mise en place
+
+<div class="grid grid-cols-2 gap-8 mt-2">
+<div>
+
+**La recette** (`configs/dpo.yaml`)
+
+<div class="card">
+<ul>
+<li>Départ et référence : le SFT fusionné (<code>models/sft-0.6b</code>)</li>
+<li>LoRA rang 16 sur les mêmes couches qu'au SFT</li>
+<li><b>β = 0,1</b>, loss <code>sigmoid</code> (le DPO d'origine)</li>
+<li>LR <b>1e-5</b>, 20 fois plus basse qu'au SFT : on ajuste des préférences, on ne réapprend pas la tâche</li>
+<li>Batch effectif de 8 paires, ~1 epoch (2 555 micro-batchs)</li>
+</ul>
+</div>
+
+<div class="card mt-3">
+<h3>Plus gourmand que le SFT</h3>
+<p>Chaque paire passe <b>deux réponses</b> dans <b>deux modèles</b> (l'entraîné et la référence) : 4 passes au lieu d'une. Micro-batchs de 2 paires, accumulation sur 4, pic mémoire plafonné vers 6 à 7 Go.</p>
+</div>
+
+</div>
+<div>
+
+**Quatre pièges silencieux de mlx-lm-lora**
+
+<div class="card bad">
+<ul>
+<li><b>La config YAML ignorée</b> : une valeur n'est appliquée que si l'option CLI vaut <code>None</code>. L'accumulation de gradient était à 1 sans rien dire.</li>
+<li><b>Une recompilation par forme de batch</b> : <code>[metal::malloc] Resource limit exceeded</code>. Correctif : compléter à un multiple de 32 tokens.</li>
+<li><b>Tirage avec remise</b> : une « epoch » ne couvre que ~63 % des paires.</li>
+<li><b>Le type de loss ignoré</b> : toujours <code>sigmoid</code>. <code>train_capped.py</code> corrige et affiche la loss appliquée.</li>
+</ul>
+</div>
+
+<div class="analogy">
+Comme un bundler qui ignore une option sans warning : toujours vérifier la config <b>effective</b>, pas celle qu'on croit avoir écrite.
+</div>
+
+</div>
+</div>
+
+---
+
+# 1er essai : les métriques sont excellentes…
+
+<div class="grid grid-cols-2 gap-8 mt-2">
+<div>
+
+<LineChart
+  title="Accuracy de validation"
+  :x-max="2555"
+  :y-max="1"
+  :y-ticks="[0, 0.25, 0.5, 0.75, 1]"
+  y-format="percent"
+  x-label="micro-batchs →"
+  :series="[{ label: 'DPO simple', color: '#6366f1', points: [[0, 0], [250, 0.847], [500, 0.907], [750, 0.927], [1000, 0.954], [1250, 0.959], [1500, 0.946], [1750, 0.959], [2000, 0.953], [2250, 0.959], [2500, 0.959], [2555, 0.959]] }]"
+/>
+
+<p class="small">Part des paires de validation où le modèle préfère chosen à rejected.</p>
+
+</div>
+<div>
+
+<LineChart
+  title="Marge de validation"
+  :x-max="2555"
+  :y-max="3.5"
+  :y-ticks="[0, 1, 2, 3]"
+  x-label="micro-batchs →"
+  :series="[{ label: 'DPO simple', color: '#6366f1', points: [[0, 0], [250, 0.938], [500, 1.933], [750, 2.35], [1000, 2.503], [1250, 2.6], [1500, 2.883], [1750, 3.015], [2000, 3.083], [2250, 3.126], [2500, 3.133], [2555, 3.117]] }]"
+/>
+
+<p class="small">La loss de validation passe de 0,693 à <b>0,283</b>.</p>
+
+</div>
+</div>
+
+<div class="takeaway">
+Sur le papier, c'est un succès : le modèle préfère chosen dans 96 % des paires qu'il n'a jamais vues.
+</div>
+
+---
+
+# …mais le modèle est cassé
+
+| Qwen3-0.6B | Held-out : succès | tests réussis | mal formées | Benchmark : succès | tests réussis | mal formées |
+| --- | --- | --- | --- | --- | --- | --- |
+| SFT | **71,7 %** | **92,0 %** | **1,8 %** | **31,4 %** | **74,2 %** | **7,1 %** |
+| DPO simple | 24,7 % | 50,2 % | <span class="ko">38,9 %</span> | 9,0 % | 33,6 % | <span class="ko">54,8 %</span> |
+
+<div class="grid grid-cols-2 gap-6 mt-5">
+<div>
+
+<BarChart title="Benchmark : succès complet" :rows="[
+  { label: 'SFT', value: 31.4, tone: 'good' },
+  { label: 'DPO simple', value: 9.0, tone: 'bad' },
+]" />
+
+<BarChart class="mt-3" title="Benchmark : sorties mal formées" :rows="[
+  { label: 'SFT', value: 7.1, tone: 'good' },
+  { label: 'DPO simple', value: 54.8, tone: 'bad' },
+]" />
+
+</div>
+<div>
+
+<div class="card bad">
+<h3>Des regex qui ne veulent plus rien dire</h3>
+<div class="font-mono text-xs mt-2 flex flex-col gap-1">
+  <div>/  *?\/\/?  *? TODO? or FIXME???…/</div>
+  <div>(?:-[a-z0-9]+)**)??</div>
+</div>
+</div>
+
+<div class="card warn mt-3">
+<h3>La leçon</h3>
+<p>Les métriques de préférence ne mesurent que la <b>préférence entre deux réponses connues</b>. Seule l'évaluation par génération et exécution révèle l'échec.</p>
+</div>
+
+</div>
+</div>
+
+---
+
+# Que s'est-il passé ? Le likelihood displacement
+
+<div class="grid grid-cols-2 gap-8 mt-2">
+<div>
+
+<DeltaBars
+  title="Ce que le DPO simple a fait"
+  tone="bad"
+  :rows="[
+    { label: 'chosen', value: -0.35 },
+    { label: 'rejected', value: -0.7 },
+  ]"
+  verdict="Les deux réponses deviennent moins probables, rejected un peu plus. La marge grandit, la loss baisse… et la probabilité part ailleurs."
+/>
+
+<p class="small mt-2">Dans les logs, la récompense implicite de chosen reste <b>négative</b> tout le run. Schéma, valeurs illustratives.</p>
+
+</div>
+<div>
+
+<div class="card">
+<h3>Où part la probabilité ?</h3>
+<p>Les probabilités d'un token somment à 1. Si chosen et rejected baissent, la masse va vers des tokens <b>qu'aucune paire ne contient</b> : des regex jamais vues, souvent cassées.</p>
+</div>
+
+<div class="card mt-3">
+<h3>Nos paires y sont très exposées</h3>
+<div class="font-mono text-xs mt-1 flex flex-col gap-1">
+  <div><span class="ok">chosen</span>&nbsp;&nbsp; /^[0-9a-f]{7,40}&#36;/</div>
+  <div><span class="ko">rejected</span> /^[0-9a-f]{7,40}&#36;/i</div>
+</div>
+<p>Un seul caractère d'écart (« git commit hash », le flag <code>i</code> accepte les majuscules). Pousser rejected vers le bas tire chosen avec lui : ils partagent presque tous leurs tokens.</p>
+</div>
+
+<div class="analogy">
+La loi de Goodhart : optimiser un score Lighthouse à coups de hacks, le score monte et le site se dégrade.
+</div>
+
+</div>
+</div>
+
+---
+
+# Ni du sur-entraînement, ni un problème de LR
+
+Runs courts de **500 micro-batchs**, comparés au benchmark :
+
+| Benchmark après 500 micro-batchs | Succès | Tests réussis | Mal formées |
+| --- | --- | --- | --- |
+| SFT fusionné (point de départ) | **32,9 %** | 74,9 % | 6,7 % |
+| DPO simple, LR 1e-5 | 13,3 % | 51,7 % | <span class="ko">31,0 %</span> |
+| DPO simple, LR 5e-6 | 20,0 % | 59,2 % | <span class="ko">25,2 %</span> |
+
+<div class="grid grid-cols-2 gap-6 mt-5">
+<div class="card">
+<h3>Cassé très tôt</h3>
+<p>Dès 500 micro-batchs (1/5 du run), le modèle est déjà dégradé. Ce n'est pas qu'on a entraîné trop longtemps.</p>
+</div>
+<div class="card">
+<h3>Une LR plus basse ralentit, sans empêcher</h3>
+<p>En divisant la LR par 2, l'effondrement est moins avancé au même point, mais il est déjà là. Il faut changer la loss, pas juste le réglage.</p>
+</div>
+</div>
+
+<p class="small muted mt-3">Le SFT fusionné obtient 32,9 % contre 31,4 % avec l'adapter séparé : l'arrondi des poids à la fusion, dans le bruit.</p>
+
+---
+
+# 2e essai : DPOP, une ancre sur chosen
+
+**DPO-Positive** (Pal et al., 2024) ajoute une pénalité dès que chosen devient **moins probable que dans la référence**.
+
+$$
+\text{loss} = -\log \sigma(\text{marge}) \; + \; \delta \times \max\big(0,\; \log \pi_{\text{ref}}(\text{chosen}) - \log \pi(\text{chosen})\big)
+$$
+
+<div class="grid grid-cols-2 gap-8 mt-2">
+<div>
+
+<DeltaBars
+  title="Ce que DPOP a fait"
+  tone="warn"
+  :rows="[
+    { label: 'chosen', value: 0.4 },
+    { label: 'rejected', value: 0.4 },
+  ]"
+  verdict="Les deux réponses deviennent plus probables, d'autant l'une que l'autre. Plus d'effondrement, mais plus d'apprentissage non plus."
+/>
+
+<p class="small mt-2">δ = 5, LR 5e-6. Schéma, valeurs illustratives.</p>
+
+</div>
+<div>
+
+<LineChart
+  title="Accuracy de validation"
+  :x-max="500"
+  :y-max="1"
+  :y-ticks="[0, 0.25, 0.5, 0.75, 1]"
+  y-format="percent"
+  x-label="micro-batchs →"
+  :series="[
+    { label: 'DPO simple, LR 5e-6', color: '#6366f1', points: [[0, 0], [250, 0.852], [500, 0.887]] },
+    { label: 'DPOP', color: '#f59e0b', points: [[0, 0], [250, 0.322], [500, 0.341]] },
+  ]"
+/>
+
+<p class="small">Avec DPOP, la marge reste à ~0 : le modèle ne distingue plus chosen de rejected.</p>
+
+</div>
+</div>
+
+---
+
+# DPOP : rien de cassé, rien de gagné
+
+| Benchmark après 500 micro-batchs | Succès | Tests réussis | Mal formées |
+| --- | --- | --- | --- |
+| SFT fusionné (point de départ) | 32,9 % | 74,9 % | 6,7 % |
+| DPO simple, LR 5e-6 | 20,0 % | 59,2 % | 25,2 % |
+| **DPOP, δ = 5, LR 5e-6** | **31,9 %** | **75,1 %** | **6,7 %** |
+
+<div class="grid grid-cols-2 gap-6 mt-5">
+<div class="card">
+<h3>Pourquoi ça n'apprend rien</h3>
+<p>La pénalité fait remonter chosen. Mais rejected en partage presque tous les tokens : il monte avec. Résultat sur le benchmark : <b>2 cas gagnés, 1 perdu</b>, dans le bruit.</p>
+</div>
+<div class="card warn">
+<h3>Le dilemme</h3>
+<p>Sans ancre, le DPO creuse l'écart <b>en dégradant tout</b>. Avec une ancre forte, la pénalité <b>écrase le signal</b>. Sur des paires qui ne diffèrent que de quelques caractères, la préférence pèse très peu dans une log-probabilité de séquence.</p>
+</div>
+</div>
+
+<div class="card mt-4">
+<h3>Pistes non explorées</h3>
+<p>Une ancre plus faible (δ ≈ 1) ; retirer les rejected mal formés (22 % des paires, souvent des boucles de 128 tokens), qui n'apprennent pas grand-chose au modèle sur les regex.</p>
+</div>
+
+---
+
+# Ce que le DPO nous a appris
+
+<div class="grid grid-cols-3 gap-4 mt-4">
+<div class="card">
+<h3>📉 Une bonne loss ne suffit pas</h3>
+<p>Val loss 0,693 → 0,283, accuracy 96 %… et un modèle cassé. On ne juge un modèle qu'en le faisant générer.</p>
+</div>
+<div class="card">
+<h3>🔗 La forme des paires compte</h3>
+<p>Des paires presque identiques sont le pire cas pour le DPO : le gradient ne peut pas séparer chosen de rejected sans toucher aux deux.</p>
+</div>
+<div class="card">
+<h3>🧭 Le harnais a tout attrapé</h3>
+<p>Sans l'évaluation par exécution mise en place à l'étape 1, on aurait conclu au succès sur la foi des métriques d'entraînement.</p>
+</div>
+</div>
+
+<div class="flow mt-8">
+  <div class="step done"><strong>SFT</strong>31,4 % au benchmark<br><span class="small">le meilleur modèle à ce stade</span></div>
+  <div class="arrow">→</div>
+  <div class="step" style="border-color: var(--c-bad); background: rgba(239,68,68,0.06)"><strong>DPO simple</strong>9,0 %<br><span class="small">effondrement</span></div>
+  <div class="arrow">→</div>
+  <div class="step" style="border-color: var(--c-warn); background: rgba(245,158,11,0.06)"><strong>DPOP</strong>31,9 % (500 micro-batchs)<br><span class="small">statu quo</span></div>
+  <div class="arrow">→</div>
+  <div class="step later"><strong>GRPO</strong>apprendre directement de la reward d'exécution</div>
+</div>
+
+---
+layout: section
+---
+
+<div class="kicker">9 · Bilan</div>
 
 # Où on en est
 
@@ -1233,8 +1889,8 @@ layout: section
 <p>6,05 $ de génération de données. Le reste tourne sur la machine.</p>
 </div>
 <div class="card mt-3 warn">
-<h3>🚧 La limite du SFT</h3>
-<p>Le modèle <b>imite</b>. Il ne voit jamais ses propres erreurs, et ne sait pas qu'une réponse est « presque juste » ou « complètement fausse ».</p>
+<h3>🚧 Le DPO n'a pas battu le SFT</h3>
+<p>Des paires presque identiques : le DPO simple effondre le modèle, DPOP n'apprend rien. Le SFT reste le meilleur modèle (31,4 % au benchmark).</p>
 </div>
 
 </div>
@@ -1242,31 +1898,43 @@ layout: section
 
 ---
 
-# La suite : apprendre de ses propres erreurs
+# La suite : RFT et GRPO
 
 <div class="flow mt-8">
   <div class="step done">
     <strong>✅ SFT</strong>
     « Fais comme ça. »<br>
-    <span class="small">Imitation de bonnes réponses.</span>
+    <span class="small">31,4 % au benchmark.</span>
+  </div>
+  <div class="arrow">→</div>
+  <div class="step" style="border-color: var(--c-warn); background: rgba(245,158,11,0.06)">
+    <strong>⚠️ DPO</strong>
+    « Plutôt ça que ça. »<br>
+    <span class="small">Paires figées, trop proches : pas de gain.</span>
   </div>
   <div class="arrow">→</div>
   <div class="step" style="border-color: var(--c-accent)">
-    <strong>DPO</strong>
-    « Plutôt ça que ça. »<br>
-    <span class="small">Le modèle génère plusieurs réponses, on les note par exécution, il apprend à préférer la bonne à la mauvaise.</span>
+    <strong>RFT</strong>
+    « Refais ce que tu as réussi. »<br>
+    <span class="small">Un SFT sur ses propres réponses justes : la baseline simple.</span>
   </div>
   <div class="arrow">→</div>
   <div class="step" style="border-color: var(--c-accent)">
     <strong>GRPO</strong>
     « Essaie, je te note. »<br>
-    <span class="small">Apprentissage par renforcement : la récompense est le taux de tests réussis.</span>
+    <span class="small">Apprentissage par renforcement avec une récompense calculée par exécution.</span>
   </div>
 </div>
 
-<div class="card mt-10">
-<h3>Le genre d'erreur qu'on vise</h3>
-<p>IPv6 complète : <code>/^(?:[0-9A-Fa-f]{4}:){7}[0-9A-Fa-f]{4}&#36;/</code> est juste, <code>…{1,4}…</code> est trop permissive. C'est « presque juste », et le SFT ne pénalise jamais directement une mauvaise réponse.</p>
+<div class="grid grid-cols-2 gap-6 mt-8">
+<div class="card">
+<h3>Ce qui change par rapport au DPO</h3>
+<p>Le modèle génère ses réponses <b>pendant</b> l'entraînement, et chacune reçoit une note graduée (part des tests réussis), pas juste « meilleure / pire ».</p>
+</div>
+<div class="card">
+<h3>Pourquoi ça devrait mieux marcher ici</h3>
+<p>La reward d'exécution distingue directement « presque juste » de « faux », là où une paire de regex à un caractère près noie le signal.</p>
+</div>
 </div>
 
 ---
