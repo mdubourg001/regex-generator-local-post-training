@@ -378,6 +378,30 @@ uv run mlx_lm.lora --config configs/sft-2k.yaml   # ~12 min
   n'apprennent rien.
 - **Livrable** : `data/dpo/{train,valid}.jsonl`.
 
+```sh
+uv run scripts/pairs.py sample --split train --prompts-per-batch 4   # ~1 h, ~3 à 5 Go
+uv run scripts/pairs.py sample --split valid --prompts-per-batch 4
+uv run scripts/pairs.py build
+```
+
+**Recette** : 8 réponses par exemple du modèle SFT (température 1, 128 tokens au plus), notées par exécution avec la
+reward de `scripts/reward.py`. `chosen` est la réponse juste la plus fréquente, `rejected` l'erreur la plus fréquente
+(à égalité, la moins bien notée). Un exemple dont les 8 réponses sont toutes justes ou toutes fausses ne donne pas de
+paire.
+
+**Mémoire et débit** : la génération en parallèle de 16 prompts × 8 réponses montait à 8 à 10 Go, pour ~1 prompt/s.
+Avec 4 × 8, le pic tombe à 3 à 5 Go et le débit double (~1,9 prompt/s) : un batch dure jusqu'à sa réponse la plus
+longue, et sur 128 séquences il y en a presque toujours une qui boucle jusqu'à la limite de tokens.
+
+| Échantillons du SFT 0.6B | Réponses justes | Mal formées | Distinctes / exemple | Toutes justes | Paire possible | Aucune juste | Paires |
+| ------------------------ | --------------- | ----------- | -------------------- | ------------- | -------------- | ------------ | ------ |
+| train (8 321 exemples)   | 65,9 %          | 4,4 %       | 4,7                  | 28,3 %        | 61,5 %         | 10,3 %       | 5 109  |
+| valid (505 exemples)     | 59,2 %          | 5,5 %       | 4,8                  | 27,1 %        | 54,7 %         | 18,2 %       | 276    |
+
+- Les paires couvrent toutes les difficultés : 59 % des exemples simples, 63 % des intermédiaires, 61 % des difficiles.
+- Côté `rejected` : 3 193 réponses nettement fausses, 774 presque justes (reward ≥ 0,4) et 1 148 mal formées.
+- Le valid, jamais vu au SFT, a moins de réponses justes que le train (59 % contre 66 %) : un léger effet de mémorisation.
+
 ### Étape 8 : DPO
 
 - **Faire** : entraîner avec mlx-lm-lora en mode DPO, en partant du modèle SFT, puis ré-évaluer.
