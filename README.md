@@ -618,6 +618,63 @@ Il ne peut donc pas creuser l'écart en dégradant tout, comme le DPO simple. En
 exemples où le modèle n'a jamais réussi (10 %), ni du « presque juste ». S'il fait jeu égal avec le GRPO, l'étape
 suivante est de l'itérer : rééchantillonner avec le modèle RFT, refiltrer, réentraîner.
 
+### Étape 9 ter : données ciblées sur les catégories faibles
+
+- **Faire** : compléter le train sur les catégories les plus faibles au benchmark, puis refaire le SFT. Le RFT et le
+  GRPO ne font que renforcer ce que le modèle réussit déjà parfois ; ils n'apprennent rien des besoins qu'il ne
+  résout jamais. Et la courbe de volume de l'étape 6 n'était pas saturée.
+- **Apprendre** : comparer un levier « données » à un levier « méthode ».
+- **Livrable** : `adapters/sft-0.6b-plus/` et son score.
+
+**Génération** : pour ne pas engager de nouvelle dépense OpenRouter, les besoins sont écrits par des agents Claude (Claude Code), avec
+exactement les prompts de `generate.py`, et en gardant sa séparation : 4 agents écrivent descriptions et regex,
+4 autres écrivent les tests **sans voir les regex**. Aucun agent n'ouvre `benchmark/` ni `data/`.
+
+```sh
+uv run scripts/claude_batches.py plan --work-dir <dossier>      # 120 lots, préfixe c, prompts en 4 parts
+# agents « descriptions » : desc-shard<k>.json → desc-out<k>.json
+uv run scripts/claude_batches.py tests --work-dir <dossier>     # prompts « tests », descriptions seules
+# agents « tests » : test-shard<k>.json → test-out<k>.json
+uv run scripts/claude_batches.py assemble --work-dir <dossier>  # → data/raw-claude/, au format de generate.py
+uv run scripts/validate.py --extra-raw-dir data/raw-claude --prepared-dir data/prepared-plus --sft-dir data/sft-plus
+uv run mlx_lm.lora --config configs/sft-plus.yaml               # ~1 h, pic 4,6 Go
+uv run scripts/eval.py --name sft-0.6b-plus-benchmark --data data/eval/benchmark.jsonl --adapter adapters/sft-0.6b-plus
+```
+
+- **Cibles** : 120 lots de 5 besoins, `logs` et `multiline` × 3, `dev-tooling`, `files-paths`, `exclusions` et `text`
+  × 1. Consigne ajoutée aux agents : sur les cas intermédiaires et difficiles, privilégier backreferences, lookbehind,
+  groupes nommés, flags `m` et `s` et `\p{…}` quand le besoin s'y prête.
+- **`validate.py --extra-raw-dir`** : les besoins du complément passent les mêmes garde-fous (dont la
+  décontamination) et vont **tous au train**, après le plan principal (en cas de doublon, c'est le complément qui
+  est écarté). Valid et held-out restent identiques à l'octet près, l'ancien train aussi : les comparaisons avec
+  les étapes précédentes restent valables. Sans l'option, `validate.py` reproduit exactement les données actuelles.
+
+**Filtrage** : 452 besoins gardés sur 600 (75 %, contre 34 % pour le professeur). Rejets : ancrage non testé (81),
+tests peu discriminants (42), recoupe le benchmark (15), référence en désaccord avec les tests (8), pas assez de
+tests (2). Gardés : 142 `multiline` (253 → 395 au train), 106 `logs` (190 → 296), 46 à 56 pour les autres. La
+consigne sur les constructions rares a peu porté : lookahead 34 % et lookbehind 8 % des regex gardées (12 % et 1,3 %
+au train d'origine), mais seulement 11 backreferences et 4 groupes nommés.
+
+**Résultats** (même recette que l'étape 6, 2 epochs sur 8 752 exemples ; val loss finale 0,158 contre 0,164) :
+
+| Qwen3-0.6B        | Held-out : succès | tests réussis | mal formées | Benchmark : succès | tests réussis | mal formées | gagnés / perdus face au SFT (p), held-out | benchmark      |
+| ----------------- | ----------------- | ------------- | ----------- | ------------------ | ------------- | ----------- | ----------------------------------------- | -------------- |
+| SFT               | 71,7 %            | 92,0 %        | 1,8 %       | 31,4 %             | 74,2 %        | 7,1 %       |                                           |                |
+| RFT               | 74,9 %            | 93,3 %        | 1,6 %       | 33,8 %             | 77,4 %        | 3,8 %       | 24 / 10 (0,02)                            | 6 / 1 (0,13)   |
+| GRPO, pas 500     | 71,5 %            | 93,2 %        | 0,9 %       | 35,2 %             | 77,4 %        | 4,8 %       | 19 / 20 (1,0)                             | 14 / 6 (0,12)  |
+| **SFT enrichi**   | 73,8 %            | 91,8 %        | 2,0 %       | **36,2 %**         | 76,7 %        | 7,1 %       | 30 / 21 (0,26)                            | **15 / 5 (0,04)** |
+
+- **Meilleur score au benchmark à ce jour, et significatif face au SFT**, avec seulement 5 % d'exemples en plus.
+- **Le gain est là où on l'a visé** : 14 → 24 cas réussis sur les 60 des catégories ciblées (`logs` 0 → 3,
+  `multiline` 2 → 4, `exclusions` 3 → 6, `files-paths` 4 → 6 ; `dev-tooling` et `text` stables), 52 → 52 sur les
+  150 autres. Rien ne se dégrade ailleurs.
+- Le held-out bouge peu (+2,1 points, non significatif) : il vient de la distribution du professeur et ne contient
+  aucun besoin du complément.
+- Face au RFT et au GRPO, pas de différence significative au benchmark (p = 0,41 et 0,86). Les sorties mal formées
+  restent à 7,1 %, là où le RFT les fait baisser : les deux leviers semblent complémentaires.
+- Conclusion d'étape : sur le 0.6B, des données ciblées rapportent plus que le passage du SFT au RL. Suite : un RFT
+  sur ce SFT enrichi, pour cumuler les deux.
+
 ### Étape 10 : passage au 1.7B et bilan
 
 - **Faire** : rejouer le meilleur pipeline sur Qwen3-1.7B.
@@ -644,14 +701,15 @@ suivante est de l'itérer : rééchantillonner avec le modèle RFT, refiltrer, r
 ├── NOTES.md          # notes de cours (SFT, LoRA, overfitting…)
 ├── pyproject.toml
 ├── .node-version
-├── configs/          # taxonomy.yaml, sft.yaml, dpo.yaml, grpo.yaml
-├── data/             # raw/, sft/, eval/, dpo/ (ignoré par git)
+├── configs/          # taxonomy.yaml, sft.yaml, sft-plus.yaml, dpo.yaml, rft.yaml
+├── data/             # raw/, raw-claude/, sft/, sft-plus/, eval/, dpo/, rft/ (ignoré par git)
 ├── scripts/
 │   ├── common.py          # prompt, parsing du littéral, métriques (partagé par toutes les étapes)
 │   ├── regex_runner.mjs   # worker Node : exécute les regex sur les tests, avec timeout
 │   ├── eval.py            # succès complet / taux de tests réussis sur un JSONL
 │   ├── generate.py        # taxonomie → professeur (OpenRouter) → data/raw/
 │   ├── validate.py        # garde-fous → data/sft/
+│   ├── claude_batches.py  # complément écrit par des agents Claude, au format de generate.py
 │   ├── generate_pairs.py  # échantillonnage + paires chosen/rejected
 │   ├── rft.py             # réponses justes échantillonnées → données du RFT
 │   ├── grpo.py            # entraînement GRPO (étape 9)

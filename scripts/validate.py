@@ -313,11 +313,22 @@ def split_of(batch: str, split: dict) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--raw-dir", type=Path, default=RAW_DIR, help="dossier des journaux de generate.py")
+    parser.add_argument("--extra-raw-dir", type=Path, help="complément hors plan principal : tous ses lots vont au train")
+    parser.add_argument("--prepared-dir", type=Path, default=PREPARED_DIR)
+    parser.add_argument("--sft-dir", type=Path, default=SFT_DIR)
     parser.add_argument("--stats-only", action="store_true", help="affiche les statistiques sans écrire les données")
     args = parser.parse_args()
 
     cfg, taxonomy = yaml.safe_load(CONFIG.read_text()), yaml.safe_load(TAXONOMY.read_text())
     examples, rejected = candidates(args.raw_dir)
+    # Après le plan principal : en cas de doublon, c'est l'exemple du complément qui est écarté. Ses lots vont tous au
+    # train, pour que valid et held-out restent comparables d'un run à l'autre.
+    extra_batches = set()
+    if args.extra_raw_dir:
+        extra, extra_rejected = candidates(args.extra_raw_dir)
+        examples += extra
+        rejected += extra_rejected
+        extra_batches = {e["batch"] for e in extra}
     generated = len(examples) + sum(rejected.values())
     with RegexRunner() as runner:
         kept, more = check(examples, cfg, runner)
@@ -330,19 +341,19 @@ def main() -> None:
 
     splits = defaultdict(list)
     for e in kept:
-        splits[split_of(e["batch"], cfg["split"])].append(e)
-    PREPARED_DIR.mkdir(parents=True, exist_ok=True)
-    SFT_DIR.mkdir(parents=True, exist_ok=True)
+        splits["train" if e["batch"] in extra_batches else split_of(e["batch"], cfg["split"])].append(e)
+    args.prepared_dir.mkdir(parents=True, exist_ok=True)
+    args.sft_dir.mkdir(parents=True, exist_ok=True)
     too_long = 0
     for name in () if args.stats_only else ("train", "valid", "heldout"):
-        with (PREPARED_DIR / f"{name}.jsonl").open("w") as f:
+        with (args.prepared_dir / f"{name}.jsonl").open("w") as f:
             for e in splits[name]:
                 f.write(json.dumps(e, ensure_ascii=False) + "\n")
         if name != "heldout":
             conversations = [build_messages(e, with_answer=True) for e in splits[name]]
             lengths = sft_lengths(conversations)
             too_long += sum(n > MAX_SFT_TOKENS for n in lengths)
-            with (SFT_DIR / f"{name}.jsonl").open("w") as f:
+            with (args.sft_dir / f"{name}.jsonl").open("w") as f:
                 for messages, n in zip(conversations, lengths):
                     if n <= MAX_SFT_TOKENS:
                         f.write(json.dumps({"messages": messages}, ensure_ascii=False) + "\n")
