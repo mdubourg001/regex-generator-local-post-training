@@ -1,0 +1,16 @@
+# Build public du playground (playground/). Les poids sont chargés depuis le Hub Hugging Face, pas servis ici, à la
+# révision figée ci-dessous : pour publier un nouvel export, l'uploader puis mettre à jour le SHA.
+[build]
+  base = "playground"
+  command = "pnpm build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  VITE_HUB_SFT_0_6B_PLUS = "maximedubourg/regex-sft-qwen3-0.6b-onnx@4a6d54a4461a6253e6d67fee008bf4852db49e20"
+
+# Fichiers de Vite nommés par hash de contenu, dont le runtime onnxruntime-web (~27 Mo) : cache permanent.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

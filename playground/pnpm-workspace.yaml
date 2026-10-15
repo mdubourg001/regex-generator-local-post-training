@@ -1,0 +1,7 @@
+# pnpm 12 ne lit plus le champ "pnpm" de package.json, et en CI tout script de build non déclaré fait échouer
+# l'install. Aucun n'est utile ici : onnxruntime-node et sharp sont des runtimes Node.js, inutilisés dans le
+# navigateur, et le postinstall de protobufjs n'est qu'un contrôle de version.
+allowBuilds:
+  onnxruntime-node: false
+  protobufjs: false
+  sharp: false

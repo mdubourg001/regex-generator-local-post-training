@@ -1,7 +1,6 @@
 {
   "name": "regex-playground",
   "private": true,
-  "packageManager": "pnpm@12.9.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -22,5 +21,6 @@
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
     "vite": "^8.3.4"
-  }
+  },
+  "packageManager": "pnpm@12.9.1"
 }
