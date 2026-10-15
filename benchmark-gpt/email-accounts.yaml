@@ -1,0 +1,685 @@
+# Benchmark GPT, catégorie email-accounts. Format et contrôles : scripts/benchmark.py.
+- id: gpt-email-accounts-01
+  difficulty: simple
+  status: ok
+  description: >-
+    A staff handle is @ followed by exactly six lowercase ASCII letters; no digits or punctuation.
+  regex: "/^@[abcdefghijklmnopqrstuvwxyz]{6}$(?![\\s\\S])/"
+  match:
+    - "@aaaaaa"
+    - "@zzzzzz"
+    - "@nnnnnn"
+    - "@azazaz"
+    - "@zazaza"
+    - "@azzzzz"
+    - "@zaaaaa"
+    - "@naaaaa"
+  no_match:
+    - "@aaaaa"
+    - "@aaaaaaa"
+    - "@?aaaaa"
+    - "@ aaaaa"
+    - "@aaaaa\u00e9"
+    - "@aaaaaa\t"
+    - "?aaaaaa"
+    - "@Aaaaaa"
+    - "!@aaaaaa"
+    - "@aaaaaa!"
+    - "@aaaaaa\n"
+    - "@aaaaaa\r"
+    - "@aaaaaa\r\n"
+    - "@aaaaaa\u2028"
+    - "@aaaaaa\u2029"
+    - " @aaaaaa"
+    - "@aaaaaa "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-email-accounts-02
+  difficulty: simple
+  status: ok
+  description: >-
+    A service mailbox has exactly four lowercase ASCII letters before the literal suffix +bot@ops.test. Nothing else.
+  regex: "/^[abcdefghijklmnopqrstuvwxyz]{4}\\+bot@ops\\.test$(?![\\s\\S])/"
+  match:
+    - "aaaa+bot@ops.test"
+    - "zzzz+bot@ops.test"
+    - "nnnn+bot@ops.test"
+    - "azaz+bot@ops.test"
+    - "zaza+bot@ops.test"
+    - "azzz+bot@ops.test"
+    - "zaaa+bot@ops.test"
+    - "naaa+bot@ops.test"
+  no_match:
+    - "aaa+bot@ops.test"
+    - "aaaaa+bot@ops.test"
+    - "?aaa+bot@ops.test"
+    - " aaa+bot@ops.test"
+    - "aaa\u00e9+bot@ops.test"
+    - "aaaa\t+bot@ops.test"
+    - "aaaa?bot@ops.test"
+    - "Aaaa+bot@ops.test"
+    - "!aaaa+bot@ops.test"
+    - "aaaa+bot@ops.test!"
+    - "aaaa+bot@ops.test\n"
+    - "aaaa+bot@ops.test\r"
+    - "aaaa+bot@ops.test\r\n"
+    - "aaaa+bot@ops.test\u2028"
+    - "aaaa+bot@ops.test\u2029"
+    - " aaaa+bot@ops.test"
+    - "aaaa+bot@ops.test "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-email-accounts-03
+  difficulty: simple
+  status: ok
+  description: >-
+    An account number is acct_ followed by exactly eight ASCII digits. Leading zeros are accepted.
+  regex: "/^acct_[0123456789]{8}$(?![\\s\\S])/"
+  match:
+    - "acct_00000000"
+    - "acct_99999999"
+    - "acct_55555555"
+    - "acct_09090909"
+    - "acct_90909090"
+    - "acct_09999999"
+    - "acct_90000000"
+    - "acct_50000000"
+  no_match:
+    - "acct_0000000"
+    - "acct_000000000"
+    - "acct_?0000000"
+    - "acct_ 0000000"
+    - "acct_0000000\u00e9"
+    - "acct_00000000\t"
+    - "acct?00000000"
+    - "!acct_00000000"
+    - "acct_00000000!"
+    - "acct_00000000\n"
+    - "acct_00000000\r"
+    - "acct_00000000\r\n"
+    - "acct_00000000\u2028"
+    - "acct_00000000\u2029"
+    - " acct_00000000"
+    - "acct_00000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-email-accounts-04
+  difficulty: simple
+  status: ok
+  description: >-
+    A recovery alias is r- followed by exactly eight lowercase hexadecimal characters.
+  regex: "/^r\\-[0123456789abcdef]{8}$(?![\\s\\S])/"
+  match:
+    - "r-00000000"
+    - "r-ffffffff"
+    - "r-88888888"
+    - "r-0f0f0f0f"
+    - "r-f0f0f0f0"
+    - "r-0fffffff"
+    - "r-f0000000"
+    - "r-80000000"
+  no_match:
+    - "r-0000000"
+    - "r-000000000"
+    - "r-?0000000"
+    - "r- 0000000"
+    - "r-0000000\u00e9"
+    - "r-00000000\t"
+    - "r?00000000"
+    - "r-A0000000"
+    - "!r-00000000"
+    - "r-00000000!"
+    - "r-00000000\n"
+    - "r-00000000\r"
+    - "r-00000000\r\n"
+    - "r-00000000\u2028"
+    - "r-00000000\u2029"
+    - " r-00000000"
+    - "r-00000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-email-accounts-05
+  difficulty: simple
+  status: ok
+  description: >-
+    The directory login is exactly five uppercase ASCII letters followed by literal @STAFF. No domain parsing is involved.
+  regex: "/^[ABCDEFGHIJKLMNOPQRSTUVWXYZ]{5}@STAFF$(?![\\s\\S])/"
+  match:
+    - "AAAAA@STAFF"
+    - "ZZZZZ@STAFF"
+    - "NNNNN@STAFF"
+    - "AZAZA@STAFF"
+    - "ZAZAZ@STAFF"
+    - "AZZZZ@STAFF"
+    - "ZAAAA@STAFF"
+    - "NAAAA@STAFF"
+  no_match:
+    - "AAAA@STAFF"
+    - "AAAAAA@STAFF"
+    - "?AAAA@STAFF"
+    - " AAAA@STAFF"
+    - "AAAA\u00e9@STAFF"
+    - "AAAAA\t@STAFF"
+    - "AAAAA?STAFF"
+    - "aAAAA@STAFF"
+    - "!AAAAA@STAFF"
+    - "AAAAA@STAFF!"
+    - "AAAAA@STAFF\n"
+    - "AAAAA@STAFF\r"
+    - "AAAAA@STAFF\r\n"
+    - "AAAAA@STAFF\u2028"
+    - "AAAAA@STAFF\u2029"
+    - " AAAAA@STAFF"
+    - "AAAAA@STAFF "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-email-accounts-06
+  difficulty: medium
+  status: ok
+  description: >-
+    Form-validation ticket: A bot username is bot followed by a canonical integer 1 through 40, no padding, spaces or separators.
+  regex: "/^bot(?:[1-9]|[1-3][0-9]|40)$(?![\\s\\S])/"
+  match:
+    - "bot1"
+    - "bot2"
+    - "bot3"
+    - "bot38"
+    - "bot39"
+    - "bot40"
+    - "bot20"
+    - "bot21"
+  no_match:
+    - "bot0"
+    - "bot41"
+    - "bot01"
+    - "bot+1"
+    - "bot1.0"
+    - "bot 1"
+    - "bot400"
+    - "!bot1"
+    - "bot1!"
+    - "bot1\n"
+    - "bot1\r"
+    - "bot1\r\n"
+    - "bot1\u2028"
+    - "bot1\u2029"
+    - " bot1"
+    - "bot1 "
+  pitfall: >-
+    Endpoints and canonical decimal spelling must both be enforced.
+- id: gpt-email-accounts-07
+  difficulty: medium
+  status: ok
+  description: >-
+    A project mailbox is 3 to 10 lowercase ASCII letters, optionally followed by plus and 1 to 3 ASCII digits, then @team.test. No other local-part characters, spaces or uppercase.
+  regex: "/^[a-z]{3,10}(?:\\+[0-9]{1,3})?@team\\.test$(?![\\s\\S])/"
+  match:
+    - "abc@team.test"
+    - "abcdefghij@team.test"
+    - "abc+0@team.test"
+    - "abc+999@team.test"
+    - "alice@team.test"
+    - "alice+12@team.test"
+    - "bot+001@team.test"
+    - "xyz+9@team.test"
+  no_match:
+    - "ab@team.test"
+    - "abcdefghijk@team.test"
+    - "abc+@team.test"
+    - "abc+1234@team.test"
+    - "Abc@team.test"
+    - "abc@teamXtest"
+    - "abc_1@team.test"
+    - "!abc@team.test"
+    - "abc@team.test!"
+    - "abc@team.test\n"
+    - "abc@team.test\r"
+    - "abc@team.test\r\n"
+    - "abc@team.test\u2028"
+    - "abc@team.test\u2029"
+    - " abc@team.test"
+    - "abc@team.test "
+  pitfall: >-
+    Optional plus tags have their own length and alphabet.
+- id: gpt-email-accounts-08
+  difficulty: medium
+  status: ok
+  description: >-
+    A social handle begins @ and contains 4 to 12 lowercase ASCII letters, digits or underscores after it. The handle must start with a letter and end with a letter or digit; adjacent underscores are forbidden.
+  regex: "/^@(?=[a-z0-9_]{4,12}$)(?!.*__)[a-z][a-z0-9_]*[a-z0-9]$(?![\\s\\S])/"
+  match:
+    - "@abcd"
+    - "@abc1"
+    - "@a_bc"
+    - "@a1_2"
+    - "@abcdefghijkl"
+    - "@a_b_c_d_e_f1"
+    - "@user_42"
+    - "@x123"
+  no_match:
+    - "@abc"
+    - "@abcdefghijklm"
+    - "@1abc"
+    - "@abc_"
+    - "@ab__c"
+    - "@Abcd"
+    - "@ab-c"
+    - "!@abcd"
+    - "@abcd!"
+    - "@abcd\n"
+    - "@abcd\r"
+    - "@abcd\r\n"
+    - "@abcd\u2028"
+    - "@abcd\u2029"
+    - " @abcd"
+    - "@abcd "
+  pitfall: >-
+    Length, endpoints and underscore adjacency are separate rules.
+- id: gpt-email-accounts-09
+  difficulty: medium
+  status: ok
+  description: >-
+    A departmental account ID is dept- then a canonical integer 10 through 72 and literal @internal. No spaces or leading zeros.
+  regex: "/^dept\\-(?:[1-6][0-9]|7[0-2])@internal$(?![\\s\\S])/"
+  match:
+    - "dept-10@internal"
+    - "dept-11@internal"
+    - "dept-12@internal"
+    - "dept-70@internal"
+    - "dept-71@internal"
+    - "dept-72@internal"
+    - "dept-41@internal"
+    - "dept-42@internal"
+  no_match:
+    - "dept-9@internal"
+    - "dept-73@internal"
+    - "dept-010@internal"
+    - "dept-+10@internal"
+    - "dept-10.0@internal"
+    - "dept- 10@internal"
+    - "dept-720@internal"
+    - "!dept-10@internal"
+    - "dept-10@internal!"
+    - "dept-10@internal\n"
+    - "dept-10@internal\r"
+    - "dept-10@internal\r\n"
+    - "dept-10@internal\u2028"
+    - "dept-10@internal\u2029"
+    - " dept-10@internal"
+    - "dept-10@internal "
+  pitfall: >-
+    Endpoints and canonical decimal spelling must both be enforced.
+- id: gpt-email-accounts-10
+  difficulty: medium
+  status: ok
+  description: >-
+    Import gate — reject any nonconforming input. A login is 6 through 14 lowercase ASCII letters or digits and must contain both kinds. It may start with a digit; exact names guest1 and admin1 are reserved.
+  regex: "/^(?!guest1$|admin1$)(?=[a-z0-9]{6,14}$)(?=.*[a-z])(?=.*[0-9])[a-z0-9]+$(?![\\s\\S])/"
+  match:
+    - "user01"
+    - "1alice"
+    - "abcdef12345678"
+    - "guest12"
+    - "admin12"
+    - "12345a"
+    - "a00000"
+    - "foo123"
+  no_match:
+    - "guest1"
+    - "admin1"
+    - "abcdef"
+    - "123456"
+    - "abc12"
+    - "abcdef123456789"
+    - "ABC123"
+    - "abc_12"
+    - "!user01"
+    - "user01!"
+    - "user01\n"
+    - "user01\r"
+    - "user01\r\n"
+    - "user01\u2028"
+    - "user01\u2029"
+    - " user01"
+    - "user01 "
+  pitfall: >-
+    Reserved names are exact matches, and a digit-first login is allowed.
+- id: gpt-email-accounts-11
+  difficulty: medium
+  status: ok
+  description: >-
+    Search filter, not whole-input validation. Search a message for a lowercase eight-letter user name immediately after user= and before semicolon. Surrounding text is unrestricted.
+  regex: "/(?<=user=)[a-z]{8}(?=;)/"
+  match:
+    - "user=aaaaaaaa;"
+    - "user=zzzzzzzz;"
+    - "user=abcdefgh;"
+    - "user=username;"
+    - "before user=customer; after"
+    - "before user=operator; after"
+    - "before user=testuser; after"
+    - "before user=qwertyui; after"
+  no_match:
+    - "user=aaaaaaa;"
+    - "user=aaaaaaaaa;"
+    - "user=AAAAAAAA;"
+    - "user=abcdefg1;"
+    - "user=abcdefg_;"
+    - "user=abcdefg\u00e9;"
+    - "USER=aaaaaaaa;"
+    - "user=aaaaaaaa ;"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-email-accounts-12
+  difficulty: medium
+  status: ok
+  description: >-
+    Find an account slot 01 through 24 immediately between lowercase account[ and ]. Search anywhere; the two-digit spelling is mandatory.
+  regex: "/(?<=account\\[)(?:0[1-9]|1[0-9]|2[0-4])(?=\\])/"
+  match:
+    - "account[01]"
+    - "account[02]"
+    - "account[09]"
+    - "account[10]"
+    - "before account[12] after"
+    - "before account[20] after"
+    - "before account[23] after"
+    - "before account[24] after"
+  no_match:
+    - "account[00]"
+    - "account[25]"
+    - "account[1]"
+    - "account[001]"
+    - "account[a1]"
+    - "account[+1]"
+    - "ACCOUNT[01]"
+    - "account[01 ]"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-email-accounts-13
+  difficulty: medium
+  status: ok
+  description: >-
+    A forum username has 3 to 16 lowercase ASCII letters or digits, starts with a letter, and may contain single hyphens internally, never adjacent or at the ends. Count hyphens toward the length.
+  regex: "/^(?=.{3,16}$)[a-z][a-z0-9]*(?:-[a-z0-9]+)*$(?![\\s\\S])/"
+  match:
+    - "abc"
+    - "a-b"
+    - "alice-2"
+    - "abcdefghijklmnop"
+    - "a1-b2-c3"
+    - "user123"
+    - "x-9"
+    - "foo-bar"
+  no_match:
+    - "ab"
+    - "abcdefghijklmnopq"
+    - "1abc"
+    - "-abc"
+    - "abc-"
+    - "ab--c"
+    - "Abc"
+    - "ab_c"
+    - "!abc"
+    - "abc!"
+    - "abc\n"
+    - "abc\r"
+    - "abc\r\n"
+    - "abc\u2028"
+    - "abc\u2029"
+    - " abc"
+    - "abc "
+  pitfall: >-
+    Segmented hyphens and overall length must agree.
+- id: gpt-email-accounts-14
+  difficulty: hard
+  status: ok
+  description: >-
+    An account confirmation is login: followed by two identical lowercase ASCII usernames of 3 to 8 letters, separated by slash. No spaces. Each of the two values must be enclosed in matching ASCII single or double quotes; the same quote character must be used for both values. Quotes are not part of the value, and escapes are not permitted.
+  regex: "/^login:(['\\\"])([a-z]{3,8})\\1\\/\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "login:'abc'/'abc'"
+    - "login:\"xyz\"/\"xyz\""
+    - "login:'abcdefgh'/'abcdefgh'"
+    - "login:\"alice\"/\"alice\""
+    - "login:'charlie'/'charlie'"
+    - "login:\"user\"/\"user\""
+    - "login:'adminx'/'adminx'"
+    - "login:\"sample\"/\"sample\""
+  no_match:
+    - "login:'abc'/'xyz'"
+    - "login:'abc'/'abcabc'"
+    - "login:'?'/'?'"
+    - "login:'abc '/'abc'"
+    - "login:'abc'/' abc'"
+    - "login:'abc'/'abc/abc'"
+    - "login:'!!!'/'!!!'"
+    - "login:'ab'/'ab'"
+    - "login:'abc0'/'abc0'"
+    - "login:'000'/'000'"
+    - "login:'abc\"/'abc'"
+    - "login:'abc'/\"abc\""
+    - "login:abc/abc"
+    - "!login:'abc'/'abc'"
+    - "login:'abc'/'abc'!"
+    - "login:'abc'/'abc'\n"
+    - "login:'abc'/'abc'\r"
+    - "login:'abc'/'abc'\r\n"
+    - "login:'abc'/'abc'\u2028"
+    - "login:'abc'/'abc'\u2029"
+    - " login:'abc'/'abc'"
+    - "login:'abc'/'abc' "
+  pitfall: >-
+    Quote style, both closing quotes, value policy and exact value repetition must all agree.
+- id: gpt-email-accounts-15
+  difficulty: hard
+  status: ok
+  description: >-
+    Code review requirement: A migration address is a lowercase ASCII username 3 to 8 letters at old.test, then an arrow ->, then the exact same username at new.test. No spaces or plus tags.
+  regex: "/^([a-z]{3,8})@old\\.test->\\1@new\\.test$(?![\\s\\S])/"
+  match:
+    - "abc@old.test->abc@new.test"
+    - "xyz@old.test->xyz@new.test"
+    - "abcdefgh@old.test->abcdefgh@new.test"
+    - "alice@old.test->alice@new.test"
+    - "bob@old.test->bob@new.test"
+    - "user@old.test->user@new.test"
+    - "sample@old.test->sample@new.test"
+    - "charlie@old.test->charlie@new.test"
+  no_match:
+    - "abc@old.test->xyz@new.test"
+    - "ab@old.test->ab@new.test"
+    - "abcdefghi@old.test->abcdefghi@new.test"
+    - "ABC@old.test->ABC@new.test"
+    - "abc@oldXtest->abc@new.test"
+    - "abc@old.test ->abc@new.test"
+    - "!abc@old.test->abc@new.test"
+    - "abc@old.test->abc@new.test!"
+    - "abc@old.test->abc@new.test\n"
+    - "abc@old.test->abc@new.test\r"
+    - "abc@old.test->abc@new.test\r\n"
+    - "abc@old.test->abc@new.test\u2028"
+    - "abc@old.test->abc@new.test\u2029"
+    - " abc@old.test->abc@new.test"
+    - "abc@old.test->abc@new.test "
+  pitfall: >-
+    Username equality and literal domains both matter.
+- id: gpt-email-accounts-16
+  difficulty: hard
+  status: ok
+  description: >-
+    An international display name: 2 through 12 Unicode letter clusters. Each cluster is a Unicode letter followed by zero to two Unicode combining marks. One optional ASCII hyphen may join two nonempty runs of clusters, but no edge hyphen or second hyphen is allowed. Length counts letter clusters, excluding the hyphen and any fixed prefix; spaces, digits and other characters are forbidden. No normalization is performed.
+  regex: "/^(?=(?:\\p{L}\\p{M}{0,2}-?){2,12}$)(?:\\p{L}\\p{M}{0,2}){1,12}(?:-(?:\\p{L}\\p{M}{0,2}){1,12})?$(?![\\s\\S])/u"
+  match:
+    - "ab"
+    - "e\u0301x"
+    - "a\u0301\u0308b"
+    - "\u6771\u4eac-\u5927\u962a"
+    - "\u0394\u03ad\u03bb\u03c4\u03b1"
+    - "\u0645\u0631\u062d\u0628\u0627"
+    - "\u0417\u0438\u043c\u0430"
+    - "abcdefghijkl"
+    - "e\u0301-e\u0308"
+    - "A\u00e9"
+  no_match:
+    - "a"
+    - "abcdefghijklm"
+    - "ab1"
+    - "a_b"
+    - "a b"
+    - "e\u0301"
+    - "\U0001f600a"
+    - "\u0301ab"
+    - "a\u0301\u0308\u0303b"
+    - "-ab"
+    - "ab-"
+    - "a--b"
+    - "ab-cd-ef"
+    - "!ab"
+    - "ab!"
+    - "ab\n"
+    - "ab\r"
+    - "ab\r\n"
+    - "ab\u2028"
+    - "ab\u2029"
+    - " ab"
+    - "ab "
+  pitfall: >-
+    Count base-letter clusters, attach bounded marks only after a letter, and limit the optional internal separator.
+- id: gpt-email-accounts-17
+  difficulty: hard
+  status: ok
+  description: >-
+    A support search should succeed if any entire LF-separated line is suspended: followed by a lowercase ASCII username of 3 to 8 letters. Other lines may be arbitrary; a carriage return is not stripped from a line.
+  regex: "/(?:^|\\n)suspended:[a-z]{3,8}(?=\\n|(?![\\s\\S]))/"
+  match:
+    - "suspended:abc"
+    - "suspended:abcdefgh"
+    - "x\nsuspended:alice\ny"
+    - "\nsuspended:xyz\n"
+    - "suspended:user\ntext"
+    - "text\nsuspended:sample"
+    - "a\nb\nsuspended:charlie\nz"
+    - "suspended:bob"
+  no_match:
+    - "suspended:ab"
+    - "suspended:abcdefghi"
+    - "suspended:ABC"
+    - "x suspended:abc"
+    - "suspended:abc x"
+    - "Suspended:abc"
+    - "suspended:abc\r"
+    - "suspended:abc1"
+  pitfall: >-
+    Match a complete line, not a substring of it.
+- id: gpt-email-accounts-18
+  difficulty: hard
+  status: ok
+  description: >-
+    An LF-only account receipt has handle= and @ plus four lowercase ASCII letters on the first line, then copy= and the exact same handle on the second. No final LF or spaces. Both values must be enclosed in matching ASCII single or double quotes, using the same quote character on both lines. The quotes are delimiters, not part of the value; no escapes are permitted.
+  regex: "/^handle=(['\\\"])(@[a-z]{4})\\1\\ncopy=\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "handle='@abcd'\ncopy='@abcd'"
+    - "handle=\"@wxyz\"\ncopy=\"@wxyz\""
+    - "handle='@aaaa'\ncopy='@aaaa'"
+    - "handle=\"@zzzz\"\ncopy=\"@zzzz\""
+    - "handle='@user'\ncopy='@user'"
+    - "handle=\"@team\"\ncopy=\"@team\""
+    - "handle='@test'\ncopy='@test'"
+    - "handle=\"@qwer\"\ncopy=\"@qwer\""
+  no_match:
+    - "handle='@abcd'\ncopy='@wxyz'"
+    - "handle='@abcd\r'\ncopy='@abcd'"
+    - "handle=@abcd copy=@abcd"
+    - "handle=@abcd\nCopy=@abcd"
+    - "handle='?'\ncopy='?'"
+    - "handle='@abcd'\ncopy='@abcd '"
+    - "handle='!!!!!'\ncopy='!!!!!'"
+    - "handle='@abc'\ncopy='@abc'"
+    - "handle='@abcd0'\ncopy='@abcd0'"
+    - "handle='@0000'\ncopy='@0000'"
+    - "handle='@abcd\"\ncopy='@abcd'"
+    - "handle='@abcd'\ncopy=\"@abcd\""
+    - "handle=@abcd\ncopy=@abcd"
+    - "handle='@abcd'\r\ncopy='@abcd'"
+    - "!handle='@abcd'\ncopy='@abcd'"
+    - "handle='@abcd'\ncopy='@abcd'!"
+    - "handle='@abcd'\ncopy='@abcd'\n"
+    - "handle='@abcd'\ncopy='@abcd'\r"
+    - "handle='@abcd'\ncopy='@abcd'\r\n"
+    - "handle='@abcd'\ncopy='@abcd'\u2028"
+    - "handle='@abcd'\ncopy='@abcd'\u2029"
+    - " handle='@abcd'\ncopy='@abcd'"
+    - "handle='@abcd'\ncopy='@abcd' "
+  pitfall: >-
+    The exact value and quote convention must agree across LF-separated lines, in addition to the value policy.
+- id: gpt-email-accounts-19
+  difficulty: hard
+  status: ok
+  description: >-
+    Acceptance criteria:
+    - A namespaced login is a lowercase ASCII team name of 3 to 8 letters, colon, a lowercase ASCII username of 3 to 8 letters. Team and username must differ, and neither may be the exact reserved name root.
+    - Evaluate the input as supplied; do not trim or normalize it.
+  regex: "/^(?!root:)([a-z]{3,8}):(?!\\1$|root$)[a-z]{3,8}$(?![\\s\\S])/"
+  match:
+    - "team:alice"
+    - "alice:team"
+    - "abc:xyz"
+    - "abcdefgh:user"
+    - "roots:rooted"
+    - "foo:bar"
+    - "ops:admin"
+    - "staff:tester"
+  no_match:
+    - "root:alice"
+    - "alice:root"
+    - "abc:abc"
+    - "ab:xyz"
+    - "abc:abcdefghi"
+    - "ABC:xyz"
+    - "abc: xyz"
+    - "!team:alice"
+    - "team:alice!"
+    - "team:alice\n"
+    - "team:alice\r"
+    - "team:alice\r\n"
+    - "team:alice\u2028"
+    - "team:alice\u2029"
+    - " team:alice"
+    - "team:alice "
+  pitfall: >-
+    Exclude exact names rather than prefixes and compare whole fields.
+- id: gpt-email-accounts-20
+  difficulty: hard
+  status: ok
+  description: >-
+    A tagged mailbox is a lowercase ASCII username of 3 to 8 letters, plus, a lowercase ASCII tag of 2 to 6 letters, at team.test. The tag must occur as a substring of the username; no other characters or uppercase.
+  regex: "/^(?=[a-z]{3,8}\\+([a-z]{2,6})@team\\.test$)[a-z]*\\1[a-z]*\\+\\1@team\\.test$(?![\\s\\S])/"
+  match:
+    - "alice+ali@team.test"
+    - "alice+ice@team.test"
+    - "abc+ab@team.test"
+    - "abcdef+abcdef@team.test"
+    - "foobar+bar@team.test"
+    - "user+us@team.test"
+    - "testing+test@team.test"
+    - "charlie+lie@team.test"
+  no_match:
+    - "alice+bob@team.test"
+    - "abc+a@team.test"
+    - "ab+ab@team.test"
+    - "abcdefghi+abc@team.test"
+    - "abcdefg+abcdefg@team.test"
+    - "Alice+ali@team.test"
+    - "alice+ali@teamXtest"
+    - "!alice+ali@team.test"
+    - "alice+ali@team.test!"
+    - "alice+ali@team.test\n"
+    - "alice+ali@team.test\r"
+    - "alice+ali@team.test\r\n"
+    - "alice+ali@team.test\u2028"
+    - "alice+ali@team.test\u2029"
+    - " alice+ali@team.test"
+    - "alice+ali@team.test "
+  pitfall: >-
+    The tag is bounded independently and must be found in the local username.

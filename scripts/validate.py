@@ -139,10 +139,10 @@ def features(pattern: str, flags: str) -> set[str]:
 # --- Décontamination ------------------------------------------------------------------------------------------------
 
 
-def load_benchmark() -> list[dict]:
-    """Tous les cas du benchmark, la catégorie venant du nom du fichier."""
+def load_benchmark(directory: Path = BENCHMARK_DIR) -> list[dict]:
+    """Tous les cas d'un benchmark, la catégorie venant du nom du fichier."""
     cases = []
-    for path in sorted(BENCHMARK_DIR.glob("*.yaml")):
+    for path in sorted(directory.glob("*.yaml")):
         cases += [{"category": path.stem, **c} for c in yaml.safe_load(path.read_text()) or []]
     return cases
 

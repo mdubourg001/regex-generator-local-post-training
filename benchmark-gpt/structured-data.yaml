@@ -1,0 +1,711 @@
+# Benchmark GPT, catégorie structured-data. Format et contrôles : scripts/benchmark.py.
+- id: gpt-structured-data-01
+  difficulty: simple
+  status: ok
+  description: >-
+    A compact key-value record is key= followed by exactly six lowercase ASCII letters and semicolon. No spaces or other fields.
+  regex: "/^key=[abcdefghijklmnopqrstuvwxyz]{6};$(?![\\s\\S])/"
+  match:
+    - "key=aaaaaa;"
+    - "key=zzzzzz;"
+    - "key=nnnnnn;"
+    - "key=azazaz;"
+    - "key=zazaza;"
+    - "key=azzzzz;"
+    - "key=zaaaaa;"
+    - "key=naaaaa;"
+  no_match:
+    - "key=aaaaa;"
+    - "key=aaaaaaa;"
+    - "key=?aaaaa;"
+    - "key= aaaaa;"
+    - "key=aaaaa\u00e9;"
+    - "key=aaaaaa\t;"
+    - "key?aaaaaa;"
+    - "key=aaaaaa?"
+    - "key=Aaaaaa;"
+    - "!key=aaaaaa;"
+    - "key=aaaaaa;!"
+    - "key=aaaaaa;\n"
+    - "key=aaaaaa;\r"
+    - "key=aaaaaa;\r\n"
+    - "key=aaaaaa;\u2028"
+    - "key=aaaaaa;\u2029"
+    - " key=aaaaaa;"
+    - "key=aaaaaa; "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-structured-data-02
+  difficulty: simple
+  status: ok
+  description: >-
+    A shallow JSON record is exactly a JSON object with sole key id and a quoted string value of eight lowercase hexadecimal characters. No whitespace anywhere, no escapes.
+  regex: "/^\\{\"id\":\"[0123456789abcdef]{8}\"\\}$(?![\\s\\S])/"
+  match:
+    - "{\"id\":\"00000000\"}"
+    - "{\"id\":\"ffffffff\"}"
+    - "{\"id\":\"88888888\"}"
+    - "{\"id\":\"0f0f0f0f\"}"
+    - "{\"id\":\"f0f0f0f0\"}"
+    - "{\"id\":\"0fffffff\"}"
+    - "{\"id\":\"f0000000\"}"
+    - "{\"id\":\"80000000\"}"
+  no_match:
+    - "{\"id\":\"0000000\"}"
+    - "{\"id\":\"000000000\"}"
+    - "{\"id\":\"?0000000\"}"
+    - "{\"id\":\" 0000000\"}"
+    - "{\"id\":\"0000000\u00e9\"}"
+    - "{\"id\":\"00000000\t\"}"
+    - "{\"id\":?00000000\"}"
+    - "{\"id\":\"00000000?}"
+    - "{\"id\":\"A0000000\"}"
+    - "!{\"id\":\"00000000\"}"
+    - "{\"id\":\"00000000\"}!"
+    - "{\"id\":\"00000000\"}\n"
+    - "{\"id\":\"00000000\"}\r"
+    - "{\"id\":\"00000000\"}\r\n"
+    - "{\"id\":\"00000000\"}\u2028"
+    - "{\"id\":\"00000000\"}\u2029"
+    - " {\"id\":\"00000000\"}"
+    - "{\"id\":\"00000000\"} "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-structured-data-03
+  difficulty: simple
+  status: ok
+  description: >-
+    A fixed CSV record is literal row, comma, five ASCII digits, comma and literal ok. No quotes, whitespace or extra fields.
+  regex: "/^row,[0123456789]{5},ok$(?![\\s\\S])/"
+  match:
+    - "row,00000,ok"
+    - "row,99999,ok"
+    - "row,55555,ok"
+    - "row,09090,ok"
+    - "row,90909,ok"
+    - "row,09999,ok"
+    - "row,90000,ok"
+    - "row,50000,ok"
+  no_match:
+    - "row,0000,ok"
+    - "row,000000,ok"
+    - "row,?0000,ok"
+    - "row, 0000,ok"
+    - "row,0000\u00e9,ok"
+    - "row,00000\t,ok"
+    - "row?00000,ok"
+    - "row,00000?ok"
+    - "!row,00000,ok"
+    - "row,00000,ok!"
+    - "row,00000,ok\n"
+    - "row,00000,ok\r"
+    - "row,00000,ok\r\n"
+    - "row,00000,ok\u2028"
+    - "row,00000,ok\u2029"
+    - " row,00000,ok"
+    - "row,00000,ok "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-structured-data-04
+  difficulty: simple
+  status: ok
+  description: >-
+    A tag record is <id> followed by exactly four uppercase ASCII letters and </id>. No whitespace, attributes or nesting.
+  regex: "/^<id>[ABCDEFGHIJKLMNOPQRSTUVWXYZ]{4}<\\/id>$(?![\\s\\S])/"
+  match:
+    - "<id>AAAA</id>"
+    - "<id>ZZZZ</id>"
+    - "<id>NNNN</id>"
+    - "<id>AZAZ</id>"
+    - "<id>ZAZA</id>"
+    - "<id>AZZZ</id>"
+    - "<id>ZAAA</id>"
+    - "<id>NAAA</id>"
+  no_match:
+    - "<id>AAA</id>"
+    - "<id>AAAAA</id>"
+    - "<id>?AAA</id>"
+    - "<id> AAA</id>"
+    - "<id>AAA\u00e9</id>"
+    - "<id>AAAA\t</id>"
+    - "<id?AAAA</id>"
+    - "<id>AAAA?/id>"
+    - "<id>aAAA</id>"
+    - "!<id>AAAA</id>"
+    - "<id>AAAA</id>!"
+    - "<id>AAAA</id>\n"
+    - "<id>AAAA</id>\r"
+    - "<id>AAAA</id>\r\n"
+    - "<id>AAAA</id>\u2028"
+    - "<id>AAAA</id>\u2029"
+    - " <id>AAAA</id>"
+    - "<id>AAAA</id> "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-structured-data-05
+  difficulty: simple
+  status: ok
+  description: >-
+    A tuple is ( followed by exactly six ASCII digits and ). This is a string token, not a number parser.
+  regex: "/^\\([0123456789]{6}\\)$(?![\\s\\S])/"
+  match:
+    - "(000000)"
+    - "(999999)"
+    - "(555555)"
+    - "(090909)"
+    - "(909090)"
+    - "(099999)"
+    - "(900000)"
+    - "(500000)"
+  no_match:
+    - "(00000)"
+    - "(0000000)"
+    - "(?00000)"
+    - "( 00000)"
+    - "(00000\u00e9)"
+    - "(000000\t)"
+    - "?000000)"
+    - "(000000?"
+    - "!(000000)"
+    - "(000000)!"
+    - "(000000)\n"
+    - "(000000)\r"
+    - "(000000)\r\n"
+    - "(000000)\u2028"
+    - "(000000)\u2029"
+    - " (000000)"
+    - "(000000) "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-structured-data-06
+  difficulty: medium
+  status: ok
+  description: >-
+    Form-validation ticket: A JSON counter record has exactly the text {"count": then an integer from 0 through 63, then }. No whitespace, leading zeros or other keys.
+  regex: "/^\\{\"count\":(?:[0-9]|[1-5][0-9]|6[0-3])\\}$(?![\\s\\S])/"
+  match:
+    - "{\"count\":0}"
+    - "{\"count\":1}"
+    - "{\"count\":2}"
+    - "{\"count\":61}"
+    - "{\"count\":62}"
+    - "{\"count\":63}"
+    - "{\"count\":31}"
+    - "{\"count\":32}"
+  no_match:
+    - "{\"count\":-1}"
+    - "{\"count\":64}"
+    - "{\"count\":00}"
+    - "{\"count\":+0}"
+    - "{\"count\":0.0}"
+    - "{\"count\": 0}"
+    - "{\"count\":630}"
+    - "!{\"count\":0}"
+    - "{\"count\":0}!"
+    - "{\"count\":0}\n"
+    - "{\"count\":0}\r"
+    - "{\"count\":0}\r\n"
+    - "{\"count\":0}\u2028"
+    - "{\"count\":0}\u2029"
+    - " {\"count\":0}"
+    - "{\"count\":0} "
+  pitfall: >-
+    Endpoints and canonical decimal spelling must both be enforced.
+- id: gpt-structured-data-07
+  difficulty: medium
+  status: ok
+  description: >-
+    A flags record is flags=[ followed by 1 to 4 lowercase ASCII words chosen from on, off and auto, separated by commas, then ]. No spaces or quotes; repeats are allowed.
+  regex: "/^flags=\\[(?:on|off|auto)(?:,(?:on|off|auto)){0,3}\\]$(?![\\s\\S])/"
+  match:
+    - "flags=[on]"
+    - "flags=[off]"
+    - "flags=[auto]"
+    - "flags=[on,off]"
+    - "flags=[on,off,auto]"
+    - "flags=[on,on,on,on]"
+    - "flags=[auto,off]"
+    - "flags=[auto,auto,auto,auto]"
+  no_match:
+    - "flags=[]"
+    - "flags=[on,on,on,on,on]"
+    - "flags=[ON]"
+    - "flags=[yes]"
+    - "flags=[on, off]"
+    - "flags=[on,]"
+    - "flags=[\"on\"]"
+    - "!flags=[on]"
+    - "flags=[on]!"
+    - "flags=[on]\n"
+    - "flags=[on]\r"
+    - "flags=[on]\r\n"
+    - "flags=[on]\u2028"
+    - "flags=[on]\u2029"
+    - " flags=[on]"
+    - "flags=[on] "
+  pitfall: >-
+    Item count and exact alternatives matter independently.
+- id: gpt-structured-data-08
+  difficulty: medium
+  status: ok
+  description: >-
+    A compact coordinate tuple is (x,y) with both coordinates canonical nonnegative ASCII integers 0 through 99. No spaces, signs or leading zeros.
+  regex: "/^\\((?:0|[1-9][0-9]?),(?:0|[1-9][0-9]?)\\)$(?![\\s\\S])/"
+  match:
+    - "(0,0)"
+    - "(99,99)"
+    - "(1,0)"
+    - "(0,1)"
+    - "(10,20)"
+    - "(9,99)"
+    - "(99,9)"
+    - "(50,50)"
+  no_match:
+    - "(00,0)"
+    - "(0,00)"
+    - "(100,0)"
+    - "(0,100)"
+    - "(-1,0)"
+    - "(1, 2)"
+    - "(1;2)"
+    - "!(0,0)"
+    - "(0,0)!"
+    - "(0,0)\n"
+    - "(0,0)\r"
+    - "(0,0)\r\n"
+    - "(0,0)\u2028"
+    - "(0,0)\u2029"
+    - " (0,0)"
+    - "(0,0) "
+  pitfall: >-
+    Both coordinates must use canonical bounded spellings.
+- id: gpt-structured-data-09
+  difficulty: medium
+  status: ok
+  description: >-
+    An INI-like pair is a lowercase ASCII key 3 to 8 letters, equals, and a lowercase ASCII value 1 to 12 letters. No whitespace; key must not be root or null.
+  regex: "/^(?!root=|null=)[a-z]{3,8}=[a-z]{1,12}$(?![\\s\\S])/"
+  match:
+    - "abc=a"
+    - "abcdefgh=abcdefghijkl"
+    - "roots=ok"
+    - "nulls=yes"
+    - "mode=auto"
+    - "name=sample"
+    - "foo=bar"
+    - "key=value"
+  no_match:
+    - "root=ok"
+    - "null=yes"
+    - "ab=a"
+    - "abcdefghi=a"
+    - "abc="
+    - "abc=abcdefghijklm"
+    - "Abc=a"
+    - "abc =a"
+    - "!abc=a"
+    - "abc=a!"
+    - "abc=a\n"
+    - "abc=a\r"
+    - "abc=a\r\n"
+    - "abc=a\u2028"
+    - "abc=a\u2029"
+    - " abc=a"
+    - "abc=a "
+  pitfall: >-
+    Only the key has exact reserved-word exclusions.
+- id: gpt-structured-data-10
+  difficulty: medium
+  status: ok
+  description: >-
+    Import gate — reject any nonconforming input. A shallow JSON record has keys n and ready in that order: n is one ASCII digit, ready is true or false. The only optional whitespace is one ASCII space after the ready colon. No other whitespace or keys.
+  regex: "/^\\{\"n\":[0-9],\"ready\": ?(?:true|false)\\}$(?![\\s\\S])/"
+  match:
+    - "{\"n\":0,\"ready\":true}"
+    - "{\"n\":9,\"ready\":false}"
+    - "{\"n\":1,\"ready\": true}"
+    - "{\"n\":2,\"ready\": false}"
+    - "{\"n\":3,\"ready\":true}"
+    - "{\"n\":4,\"ready\":false}"
+    - "{\"n\":5,\"ready\": true}"
+    - "{\"n\":6,\"ready\": false}"
+  no_match:
+    - "{\"n\":0,\"ready\":True}"
+    - "{\"n\":0,\"ready\":0}"
+    - "{\"n\":0,\"ready\":  true}"
+    - "{ \"n\":0,\"ready\":true}"
+    - "{\"n\":0,\"ready\" :true}"
+    - "{\"n\":0,\"ready\":true }"
+    - "{\"n\":00,\"ready\":true}"
+    - "{\"n\":a,\"ready\":true}"
+    - "!{\"n\":0,\"ready\":true}"
+    - "{\"n\":0,\"ready\":true}!"
+    - "{\"n\":0,\"ready\":true}\n"
+    - "{\"n\":0,\"ready\":true}\r"
+    - "{\"n\":0,\"ready\":true}\r\n"
+    - "{\"n\":0,\"ready\":true}\u2028"
+    - "{\"n\":0,\"ready\":true}\u2029"
+    - " {\"n\":0,\"ready\":true}"
+    - "{\"n\":0,\"ready\":true} "
+  pitfall: >-
+    Optional whitespace is position-specific and limited.
+- id: gpt-structured-data-11
+  difficulty: medium
+  status: ok
+  description: >-
+    Search filter, not whole-input validation. Search an arbitrary payload for a lowercase ASCII key 3 to 8 letters immediately between key= and semicolon. No parsing of the rest of the payload is required.
+  regex: "/(?<=key=)[a-z]{3,8}(?=;)/"
+  match:
+    - "key=abc;"
+    - "key=xyz;"
+    - "key=abcdefgh;"
+    - "key=field;"
+    - "before key=value; after"
+    - "before key=token; after"
+    - "before key=sample; after"
+    - "before key=label; after"
+  no_match:
+    - "key=ab;"
+    - "key=abcdefghi;"
+    - "key=ABC;"
+    - "key=ab1;"
+    - "key=ab_;"
+    - "key=ab\u00e9;"
+    - "KEY=abc;"
+    - "key=abc ;"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-structured-data-12
+  difficulty: medium
+  status: ok
+  description: >-
+    Find a list size 1 through 32 in shortest ASCII decimal spelling immediately between lowercase size[ and ]. Search anywhere in the string.
+  regex: "/(?<=size\\[)(?:[1-9]|[12][0-9]|3[0-2])(?=\\])/"
+  match:
+    - "size[1]"
+    - "size[2]"
+    - "size[9]"
+    - "size[10]"
+    - "before size[20] after"
+    - "before size[29] after"
+    - "before size[30] after"
+    - "before size[32] after"
+  no_match:
+    - "size[0]"
+    - "size[33]"
+    - "size[01]"
+    - "size[+1]"
+    - "size[a]"
+    - "size[1.0]"
+    - "SIZE[1]"
+    - "size[1 ]"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-structured-data-13
+  difficulty: medium
+  status: ok
+  description: >-
+    A compact map entry is { then a lowercase ASCII key of 3 to 8 letters, colon, an integer 1 to 99 without leading zeros, and }. No quotes or spaces; this is a custom format, not JSON.
+  regex: "/^\\{[a-z]{3,8}:[1-9][0-9]?\\}$(?![\\s\\S])/"
+  match:
+    - "{abc:1}"
+    - "{abcdefgh:99}"
+    - "{count:10}"
+    - "{value:9}"
+    - "{total:20}"
+    - "{size:30}"
+    - "{foo:40}"
+    - "{bar:50}"
+  no_match:
+    - "{ab:1}"
+    - "{abcdefghi:1}"
+    - "{ABC:1}"
+    - "{abc:0}"
+    - "{abc:100}"
+    - "{abc:01}"
+    - "{abc: 1}"
+    - "{\"abc\":1}"
+    - "!{abc:1}"
+    - "{abc:1}!"
+    - "{abc:1}\n"
+    - "{abc:1}\r"
+    - "{abc:1}\r\n"
+    - "{abc:1}\u2028"
+    - "{abc:1}\u2029"
+    - " {abc:1}"
+    - "{abc:1} "
+  pitfall: >-
+    Custom map syntax must not acquire JSON quotes or spacing.
+- id: gpt-structured-data-14
+  difficulty: hard
+  status: ok
+  description: >-
+    A duplicate-field record is value: and two identical lowercase ASCII words 3 to 8 letters separated by slash. No spaces or other fields. Each of the two values must be enclosed in matching ASCII single or double quotes; the same quote character must be used for both values. Quotes are not part of the value, and escapes are not permitted.
+  regex: "/^value:(['\\\"])([a-z]{3,8})\\1\\/\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "value:'abc'/'abc'"
+    - "value:\"xyz\"/\"xyz\""
+    - "value:'abcdefgh'/'abcdefgh'"
+    - "value:\"field\"/\"field\""
+    - "value:'value'/'value'"
+    - "value:\"token\"/\"token\""
+    - "value:'sample'/'sample'"
+    - "value:\"label\"/\"label\""
+  no_match:
+    - "value:'abc'/'xyz'"
+    - "value:'abc'/'abcabc'"
+    - "value:'?'/'?'"
+    - "value:'abc '/'abc'"
+    - "value:'abc'/' abc'"
+    - "value:'abc'/'abc/abc'"
+    - "value:'!!!'/'!!!'"
+    - "value:'ab'/'ab'"
+    - "value:'abc0'/'abc0'"
+    - "value:'000'/'000'"
+    - "value:'abc\"/'abc'"
+    - "value:'abc'/\"abc\""
+    - "value:abc/abc"
+    - "!value:'abc'/'abc'"
+    - "value:'abc'/'abc'!"
+    - "value:'abc'/'abc'\n"
+    - "value:'abc'/'abc'\r"
+    - "value:'abc'/'abc'\r\n"
+    - "value:'abc'/'abc'\u2028"
+    - "value:'abc'/'abc'\u2029"
+    - " value:'abc'/'abc'"
+    - "value:'abc'/'abc' "
+  pitfall: >-
+    Quote style, both closing quotes, value policy and exact value repetition must all agree.
+- id: gpt-structured-data-15
+  difficulty: hard
+  status: ok
+  description: >-
+    Code review requirement: A shallow XML record has a lowercase ASCII tag name 3 to 8 letters, an attribute id in double quotes containing four ASCII digits, then the exact same four digits as text and a matching closing tag. Exactly one space before id and no other whitespace or attributes.
+  regex: "/^<([a-z]{3,8}) id=\"([0-9]{4})\">\\2<\\/\\1>$(?![\\s\\S])/"
+  match:
+    - "<abc id=\"0000\">0000</abc>"
+    - "<abcdefgh id=\"9999\">9999</abcdefgh>"
+    - "<item id=\"1234\">1234</item>"
+    - "<data id=\"4321\">4321</data>"
+    - "<row id=\"1000\">1000</row>"
+    - "<value id=\"0001\">0001</value>"
+    - "<field id=\"5555\">5555</field>"
+    - "<sample id=\"9876\">9876</sample>"
+  no_match:
+    - "<abc id=\"0000\">0001</abc>"
+    - "<abc id=\"0000\">0000</xyz>"
+    - "<ab id=\"0000\">0000</ab>"
+    - "<abcdefghi id=\"0000\">0000</abcdefghi>"
+    - "<ABC id=\"0000\">0000</ABC>"
+    - "<abc id=\"000\">000</abc>"
+    - "<abc  id=\"0000\">0000</abc>"
+    - "!<abc id=\"0000\">0000</abc>"
+    - "<abc id=\"0000\">0000</abc>!"
+    - "<abc id=\"0000\">0000</abc>\n"
+    - "<abc id=\"0000\">0000</abc>\r"
+    - "<abc id=\"0000\">0000</abc>\r\n"
+    - "<abc id=\"0000\">0000</abc>\u2028"
+    - "<abc id=\"0000\">0000</abc>\u2029"
+    - " <abc id=\"0000\">0000</abc>"
+    - "<abc id=\"0000\">0000</abc> "
+  pitfall: >-
+    Tag identity and attribute/text identity are independent backreferences.
+- id: gpt-structured-data-16
+  difficulty: hard
+  status: ok
+  description: >-
+    An international mapping key: the literal prefix { followed by 2 through 12 Unicode letter clusters. Each cluster is a Unicode letter followed by zero to two Unicode combining marks. One optional ASCII hyphen may join two nonempty runs of clusters, but no edge hyphen or second hyphen is allowed. Length counts letter clusters, excluding the hyphen and any fixed prefix; spaces, digits and other characters are forbidden. No normalization is performed. Append the exact literal suffix :ok} after the name; its characters do not count toward the cluster limit.
+  regex: "/^\\{(?=(?:\\p{L}\\p{M}{0,2}-?){2,12}:ok\\}$)(?:\\p{L}\\p{M}{0,2}){1,12}(?:-(?:\\p{L}\\p{M}{0,2}){1,12})?:ok\\}$(?![\\s\\S])/u"
+  match:
+    - "{ab:ok}"
+    - "{e\u0301x:ok}"
+    - "{a\u0301\u0308b:ok}"
+    - "{\u6771\u4eac-\u5927\u962a:ok}"
+    - "{\u0394\u03ad\u03bb\u03c4\u03b1:ok}"
+    - "{\u0645\u0631\u062d\u0628\u0627:ok}"
+    - "{\u0417\u0438\u043c\u0430:ok}"
+    - "{abcdefghijkl:ok}"
+    - "{e\u0301-e\u0308:ok}"
+    - "{A\u00e9:ok}"
+  no_match:
+    - "{a:ok}"
+    - "{abcdefghijklm:ok}"
+    - "{ab1:ok}"
+    - "{a_b:ok}"
+    - "{a b:ok}"
+    - "{e\u0301:ok}"
+    - "{\U0001f600a:ok}"
+    - "{\u0301ab:ok}"
+    - "{a\u0301\u0308\u0303b:ok}"
+    - "{-ab:ok}"
+    - "{ab-:ok}"
+    - "{a--b:ok}"
+    - "{ab-cd-ef:ok}"
+    - "{ab"
+    - "{ab?ok}"
+    - "{ab:OK}"
+    - "!{ab:ok}"
+    - "{ab:ok}!"
+    - "{ab:ok}\n"
+    - "{ab:ok}\r"
+    - "{ab:ok}\r\n"
+    - "{ab:ok}\u2028"
+    - "{ab:ok}\u2029"
+    - " {ab:ok}"
+    - "{ab:ok} "
+  pitfall: >-
+    Count base-letter clusters, attach bounded marks only after a letter, and limit the optional internal separator.
+- id: gpt-structured-data-17
+  difficulty: hard
+  status: ok
+  description: >-
+    A payload capsule: the entire string has the literal opening wrapper DATA{, a lowercase ASCII routing label of 2 through 6 letters, colon, a body, colon, the exact same routing label and the literal closing wrapper }DATA. The body has 1 through 40 Unicode code points, allows any characters including line breaks and colons, and must contain the lowercase substring field. Only the body counts toward its length limit; no other text is allowed.
+  regex: "/^DATA\\{(?<route>[a-z]{2,6}):(?=.{1,40}:\\k<route>\\}DATA$)(?=.{0,40}field.{0,40}:\\k<route>\\}DATA$).*:\\k<route>\\}DATA$(?![\\s\\S])/su"
+  match:
+    - "DATA{aa:field:aa}DATA"
+    - "DATA{abcdef:afield:abcdef}DATA"
+    - "DATA{tag:fieldb:tag}DATA"
+    - "DATA{route:\nfield:route}DATA"
+    - "DATA{memo:field\n:memo}DATA"
+    - "DATA{ab:\tfield:ab}DATA"
+    - "DATA{zz:\U0001f600field:zz}DATA"
+    - "DATA{key:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxfield:key}DATA"
+    - "DATA{xy:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600field:xy}DATA"
+    - "DATA{aa:prefix: field: suffix:aa}DATA"
+  no_match:
+    - "DATA{aa::aa}DATA"
+    - "DATA{aa:abc:aa}DATA"
+    - "DATA{aa:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxfield:aa}DATA"
+    - "DATA{aa:field:ab}DATA"
+    - "DATA{a:field:a}DATA"
+    - "DATA{abcdefg:field:abcdefg}DATA"
+    - "DATA{AA:field:AA}DATA"
+    - "DATA{aa:FIELD:aa}DATA"
+    - "DATA{aa:field:aa"
+    - "aa:field:aa}DATA"
+    - "DATA{aa:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600field:aa}DATA"
+    - "DATA{field:abc:field}DATA"
+    - "!DATA{aa:field:aa}DATA"
+    - "DATA{aa:field:aa}DATA!"
+    - "DATA{aa:field:aa}DATA\n"
+    - "DATA{aa:field:aa}DATA\r"
+    - "DATA{aa:field:aa}DATA\r\n"
+    - "DATA{aa:field:aa}DATA\u2028"
+    - "DATA{aa:field:aa}DATA\u2029"
+    - " DATA{aa:field:aa}DATA"
+    - "DATA{aa:field:aa}DATA "
+  pitfall: >-
+    Repeat the routing label exactly, count only body code points including line breaks, and require the marker inside that body.
+- id: gpt-structured-data-18
+  difficulty: hard
+  status: ok
+  description: >-
+    An LF-only data receipt has key= and 3 to 8 lowercase ASCII letters on line one, then copy= and the same key on line two. No final LF, additional punctuation or spaces. Both values must be enclosed in matching ASCII single or double quotes, using the same quote character on both lines. The quotes are delimiters, not part of the value; no escapes are permitted.
+  regex: "/^key=(['\\\"])([a-z]{3,8})\\1\\ncopy=\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "key='abc'\ncopy='abc'"
+    - "key=\"xyz\"\ncopy=\"xyz\""
+    - "key='abcdefgh'\ncopy='abcdefgh'"
+    - "key=\"field\"\ncopy=\"field\""
+    - "key='value'\ncopy='value'"
+    - "key=\"token\"\ncopy=\"token\""
+    - "key='sample'\ncopy='sample'"
+    - "key=\"label\"\ncopy=\"label\""
+  no_match:
+    - "key='abc'\ncopy='xyz'"
+    - "key='abc\r'\ncopy='abc'"
+    - "key=abc copy=abc"
+    - "key=abc\nCopy=abc"
+    - "key='?'\ncopy='?'"
+    - "key='abc'\ncopy='abc '"
+    - "key='!!!'\ncopy='!!!'"
+    - "key='ab'\ncopy='ab'"
+    - "key='abc0'\ncopy='abc0'"
+    - "key='000'\ncopy='000'"
+    - "key='abc\"\ncopy='abc'"
+    - "key='abc'\ncopy=\"abc\""
+    - "key=abc\ncopy=abc"
+    - "key='abc'\r\ncopy='abc'"
+    - "!key='abc'\ncopy='abc'"
+    - "key='abc'\ncopy='abc'!"
+    - "key='abc'\ncopy='abc'\n"
+    - "key='abc'\ncopy='abc'\r"
+    - "key='abc'\ncopy='abc'\r\n"
+    - "key='abc'\ncopy='abc'\u2028"
+    - "key='abc'\ncopy='abc'\u2029"
+    - " key='abc'\ncopy='abc'"
+    - "key='abc'\ncopy='abc' "
+  pitfall: >-
+    The exact value and quote convention must agree across LF-separated lines, in addition to the value policy.
+- id: gpt-structured-data-19
+  difficulty: hard
+  status: ok
+  description: >-
+    Acceptance criteria:
+    - A three-entry tuple is [ then three different canonical integers 0 through 99 separated by commas, then ]. No spaces, signs or leading zeros.
+    - Evaluate the input as supplied; do not trim or normalize it.
+  regex: "/^\\[(0|[1-9][0-9]?),(?!\\1,)(0|[1-9][0-9]?),(?!\\1\\]|\\2\\])(?:0|[1-9][0-9]?)\\]$(?![\\s\\S])/"
+  match:
+    - "[0,1,2]"
+    - "[99,98,97]"
+    - "[1,10,99]"
+    - "[10,1,20]"
+    - "[5,50,55]"
+    - "[12,34,56]"
+    - "[90,9,19]"
+    - "[2,22,23]"
+  no_match:
+    - "[0,0,1]"
+    - "[0,1,0]"
+    - "[0,1,1]"
+    - "[100,1,2]"
+    - "[01,2,3]"
+    - "[1, 2,3]"
+    - "[1,2]"
+    - "[1,2,3,4]"
+    - "![0,1,2]"
+    - "[0,1,2]!"
+    - "[0,1,2]\n"
+    - "[0,1,2]\r"
+    - "[0,1,2]\r\n"
+    - "[0,1,2]\u2028"
+    - "[0,1,2]\u2029"
+    - " [0,1,2]"
+    - "[0,1,2] "
+  pitfall: >-
+    Every pair of values must differ, not just neighbors.
+- id: gpt-structured-data-20
+  difficulty: hard
+  status: ok
+  description: >-
+    A quoted key-value assertion is a matching pair of ASCII single or double quotes around a lowercase ASCII key 3 to 8 letters, equals, the same quote-key-quote spelling. Key must not be null. No whitespace or escapes.
+  regex: "/^(['\\\"])(?!null\\1)([a-z]{3,8})\\1=\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "'abc'='abc'"
+    - "\"xyz\"=\"xyz\""
+    - "'abcdefgh'='abcdefgh'"
+    - "\"nulls\"=\"nulls\""
+    - "'field'='field'"
+    - "\"value\"=\"value\""
+    - "'token'='token'"
+    - "\"sample\"=\"sample\""
+  no_match:
+    - "'null'='null'"
+    - "'abc'='xyz'"
+    - "'abc'=\"abc\""
+    - "'abc\"='abc'"
+    - "'ab'='ab'"
+    - "'abcdefghi'='abcdefghi'"
+    - "'ABC'='ABC'"
+    - "'abc' = 'abc'"
+    - "!'abc'='abc'"
+    - "'abc'='abc'!"
+    - "'abc'='abc'\n"
+    - "'abc'='abc'\r"
+    - "'abc'='abc'\r\n"
+    - "'abc'='abc'\u2028"
+    - "'abc'='abc'\u2029"
+    - " 'abc'='abc'"
+    - "'abc'='abc' "
+  pitfall: >-
+    Quote style and key spelling both repeat exactly.

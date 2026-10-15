@@ -1,0 +1,685 @@
+# Benchmark GPT, catégorie unicode. Format et contrôles : scripts/benchmark.py.
+- id: gpt-unicode-01
+  difficulty: simple
+  status: ok
+  description: >-
+    A French toggle record is one ASCII digit, colon, and exactly activé or désactivé, lowercase with precomposed accents. No whitespace or normalization.
+  regex: "/^[0-9]:(?:activé|désactivé)$(?![\\s\\S])/"
+  match:
+    - "0:activ\u00e9"
+    - "9:d\u00e9sactiv\u00e9"
+    - "1:activ\u00e9"
+    - "2:d\u00e9sactiv\u00e9"
+    - "3:activ\u00e9"
+    - "4:d\u00e9sactiv\u00e9"
+    - "5:activ\u00e9"
+    - "6:d\u00e9sactiv\u00e9"
+  no_match:
+    - "0:Activ\u00e9"
+    - "0:desactiv\u00e9"
+    - "0:active\u0301"
+    - "0:d\u00e9sactive\u0301"
+    - "00:activ\u00e9"
+    - "a:activ\u00e9"
+    - "0:ACTIV\u00c9"
+    - "0: activ\u00e9"
+    - "!0:activ\u00e9"
+    - "0:activ\u00e9!"
+    - "0:activ\u00e9\n"
+    - "0:activ\u00e9\r"
+    - "0:activ\u00e9\r\n"
+    - "0:activ\u00e9\u2028"
+    - "0:activ\u00e9\u2029"
+    - " 0:activ\u00e9"
+    - "0:activ\u00e9 "
+  pitfall: >-
+    Precomposed accents and the one-digit prefix are exact.
+- id: gpt-unicode-02
+  difficulty: simple
+  status: ok
+  description: >-
+    A city key is 2 through 8 Unicode letters only. No spaces, digits, marks or punctuation; length counts code points.
+  regex: "/^\\p{L}{2,8}$(?![\\s\\S])/u"
+  match:
+    - "ab"
+    - "\u00c9t\u00e9"
+    - "\u6771\u4eac"
+    - "\u0394\u03ad\u03bb\u03c4\u03b1"
+    - "\u0645\u0631\u062d\u0628\u0627"
+    - "\u0417\u0438\u043c\u0430"
+    - "abcdefgh"
+    - "A\u00e9"
+  no_match:
+    - "a"
+    - "abcdefghi"
+    - "ab1"
+    - "a_b"
+    - "a b"
+    - "e\u0301"
+    - "\U0001f600a"
+    - "!ab"
+    - "ab!"
+    - "ab\n"
+    - "ab\r"
+    - "ab\r\n"
+    - "ab\u2028"
+    - "ab\u2029"
+    - " ab"
+    - "ab "
+  pitfall: >-
+    A Unicode letter class is broader than ASCII but excludes marks.
+- id: gpt-unicode-03
+  difficulty: simple
+  status: ok
+  description: >-
+    A numeric glyph field is exactly four Unicode decimal digits, from any script; mixing scripts is allowed. No signs, spaces or other number categories.
+  regex: "/^\\p{Nd}{4}$(?![\\s\\S])/u"
+  match:
+    - "0000"
+    - "9999"
+    - "\uff11\uff12\uff13\uff14"
+    - "\u0661\u0662\u0663\u0664"
+    - "\u0967\u0968\u0969\u096a"
+    - "\u09e6\u09e7\u09e8\u09e9"
+    - "1\u0662\uff13\u096a"
+    - "\u06f4\u06f5\u06f6\u06f7"
+  no_match:
+    - "123"
+    - "12345"
+    - "1a34"
+    - "12 4"
+    - "\u2163\u2162\u2161\u2160"
+    - "\u00b2\u00b3\u2074\u2075"
+    - "+123"
+    - "!0000"
+    - "0000!"
+    - "0000\n"
+    - "0000\r"
+    - "0000\r\n"
+    - "0000\u2028"
+    - "0000\u2029"
+    - " 0000"
+    - "0000 "
+  pitfall: >-
+    Decimal digits differ from the entire Unicode number category.
+- id: gpt-unicode-04
+  difficulty: simple
+  status: ok
+  description: >-
+    A Greek label is exactly three code points, each both a Unicode letter and in the Greek script. Marks and punctuation are forbidden.
+  regex: "/^(?:(?=\\p{L})\\p{Script=Greek}){3}$(?![\\s\\S])/u"
+  match:
+    - "\u03b1\u03b2\u03b3"
+    - "\u0391\u0392\u0393"
+    - "\u0394\u03ad\u03bb"
+    - "\u03a9\u03c9\u03b1"
+    - "\u03c0\u03c3\u03c4"
+    - "\u03ae\u03b8\u03bf"
+    - "\u03be\u03c8\u03b6"
+    - "\u03ba\u03bb\u03bc"
+  no_match:
+    - "\u03b1\u03b2"
+    - "\u03b1\u03b2\u03b3\u03b4"
+    - "a\u03b2\u03b3"
+    - "\u03b11\u03b3"
+    - "\u03b1\u0301\u03b2"
+    - "\u03b1\u00b7\u03b3"
+    - "\u03b1\u03b2!"
+    - "!\u03b1\u03b2\u03b3"
+    - "\u03b1\u03b2\u03b3!"
+    - "\u03b1\u03b2\u03b3\n"
+    - "\u03b1\u03b2\u03b3\r"
+    - "\u03b1\u03b2\u03b3\r\n"
+    - "\u03b1\u03b2\u03b3\u2028"
+    - "\u03b1\u03b2\u03b3\u2029"
+    - " \u03b1\u03b2\u03b3"
+    - "\u03b1\u03b2\u03b3 "
+  pitfall: >-
+    Script membership alone also contains nonletters.
+- id: gpt-unicode-05
+  difficulty: simple
+  status: ok
+  description: >-
+    A Han tag is han: followed by exactly two Unicode letters in the Han script. No spaces, marks or punctuation.
+  regex: "/^han:(?:(?=\\p{L})\\p{Script=Han}){2}$(?![\\s\\S])/u"
+  match:
+    - "han:\u6771\u4eac"
+    - "han:\u4e2d\u6587"
+    - "han:\u6f22\u5b57"
+    - "han:\u5c71\u6c34"
+    - "han:\u5929\u5730"
+    - "han:\u65e5\u6708"
+    - "han:\u4eba\u5fc3"
+    - "han:\u5927\u5c0f"
+  no_match:
+    - "han:\u6771"
+    - "han:\u6771\u4eac\u4eac"
+    - "han:\u6771a"
+    - "han:\u3042\u3044"
+    - "han:\u4e1c1"
+    - "Han:\u6771\u4eac"
+    - "han:\u6771!"
+    - "!han:\u6771\u4eac"
+    - "han:\u6771\u4eac!"
+    - "han:\u6771\u4eac\n"
+    - "han:\u6771\u4eac\r"
+    - "han:\u6771\u4eac\r\n"
+    - "han:\u6771\u4eac\u2028"
+    - "han:\u6771\u4eac\u2029"
+    - " han:\u6771\u4eac"
+    - "han:\u6771\u4eac "
+  pitfall: >-
+    Both letter category and Han script are required.
+- id: gpt-unicode-06
+  difficulty: medium
+  status: ok
+  description: >-
+    Form-validation ticket: An international personal label contains 2 through 12 letter clusters. Each cluster is one Unicode letter followed by zero to two Unicode combining marks. No spaces, initial marks, digits or punctuation; count clusters rather than code points.
+  regex: "/^(?:\\p{L}\\p{M}{0,2}){2,12}$(?![\\s\\S])/u"
+  match:
+    - "ab"
+    - "e\u0301x"
+    - "a\u0301\u0308b"
+    - "\u00c9t\u00e9"
+    - "\u6771\u4eac"
+    - "\u0394\u03ad\u03bb\u03c4\u03b1"
+    - "\u0645\u0631\u062d\u0628\u0627"
+    - "abcdefghijkl"
+  no_match:
+    - "a"
+    - "abcdefghijklm"
+    - "\u0301ab"
+    - "a\u0301\u0308\u0303b"
+    - "ab1"
+    - "a b"
+    - "\U0001f600a"
+    - "!ab"
+    - "ab!"
+    - "ab\n"
+    - "ab\r"
+    - "ab\r\n"
+    - "ab\u2028"
+    - "ab\u2029"
+    - " ab"
+    - "ab "
+  pitfall: >-
+    Marks must attach to a preceding letter and have a bounded count.
+- id: gpt-unicode-07
+  difficulty: medium
+  status: ok
+  description: >-
+    A Latin locale label has 3 through 10 code points, each both a Unicode letter and in the Latin script. No marks, digits or whitespace.
+  regex: "/^(?:(?=\\p{L})\\p{Script=Latin}){3,10}$(?![\\s\\S])/u"
+  match:
+    - "abc"
+    - "\u00c9t\u00e9"
+    - "Stra\u00dfe"
+    - "\u00c5ngstr\u00f6m"
+    - "abcdefghij"
+    - "na\u00efve"
+    - "Espa\u00f1a"
+    - "\u0141\u00f3d\u017a"
+  no_match:
+    - "ab"
+    - "abcdefghijk"
+    - "ab\u03b1"
+    - "ab1"
+    - "e\u0301x"
+    - "a b"
+    - "ab\U0001f600"
+    - "!abc"
+    - "abc!"
+    - "abc\n"
+    - "abc\r"
+    - "abc\r\n"
+    - "abc\u2028"
+    - "abc\u2029"
+    - " abc"
+    - "abc "
+  pitfall: >-
+    Latin script includes more than ASCII but script and category must intersect.
+- id: gpt-unicode-08
+  difficulty: medium
+  status: ok
+  description: >-
+    An Arabic-digit reading is ar: followed by exactly four Arabic-Indic digits U+0660 through U+0669. Western, extended Arabic-Indic and other script digits are forbidden.
+  regex: "/^ar:[\\u0660-\\u0669]{4}$(?![\\s\\S])/u"
+  match:
+    - "ar:\u0660\u0660\u0660\u0660"
+    - "ar:\u0669\u0669\u0669\u0669"
+    - "ar:\u0661\u0662\u0663\u0664"
+    - "ar:\u0664\u0663\u0662\u0661"
+    - "ar:\u0661\u0660\u0660\u0660"
+    - "ar:\u0660\u0660\u0660\u0661"
+    - "ar:\u0665\u0665\u0665\u0665"
+    - "ar:\u0669\u0668\u0667\u0666"
+  no_match:
+    - "ar:\u0660\u0660\u0660"
+    - "ar:\u0660\u0660\u0660\u0660\u0660"
+    - "ar:1234"
+    - "ar:\u06f1\u06f2\u06f3\u06f4"
+    - "ar:\u0661\u06623\u0664"
+    - "AR:\u0661\u0662\u0663\u0664"
+    - "ar:\u0661\u0662a\u0664"
+    - "!ar:\u0660\u0660\u0660\u0660"
+    - "ar:\u0660\u0660\u0660\u0660!"
+    - "ar:\u0660\u0660\u0660\u0660\n"
+    - "ar:\u0660\u0660\u0660\u0660\r"
+    - "ar:\u0660\u0660\u0660\u0660\r\n"
+    - "ar:\u0660\u0660\u0660\u0660\u2028"
+    - "ar:\u0660\u0660\u0660\u0660\u2029"
+    - " ar:\u0660\u0660\u0660\u0660"
+    - "ar:\u0660\u0660\u0660\u0660 "
+  pitfall: >-
+    Decimal-digit categories would accept scripts this field forbids.
+- id: gpt-unicode-09
+  difficulty: medium
+  status: ok
+  description: >-
+    An international username is 4 through 12 Unicode code points, starts with a Unicode letter and then uses Unicode letters or ASCII digits. It must contain at least one ASCII digit; no combining marks or other digits.
+  regex: "/^(?=.{4,12}$)(?=.*[0-9])\\p{L}[\\p{L}0-9]*$(?![\\s\\S])/u"
+  match:
+    - "abc1"
+    - "\u00c9t\u00e92"
+    - "\u6771\u4eac12"
+    - "\u0394\u03ad\u03bb\u03c4\u03b13"
+    - "\u0645\u0631\u062d\u0628\u06274"
+    - "\u0417\u0438\u043c\u04305"
+    - "abcdefghijk1"
+    - "A\u00e912"
+  no_match:
+    - "abc"
+    - "abcdefghijklm1"
+    - "1abc"
+    - "abcdef"
+    - "abc\u0661"
+    - "ab\u03011"
+    - "ab_1"
+    - "!abc1"
+    - "abc1!"
+    - "abc1\n"
+    - "abc1\r"
+    - "abc1\r\n"
+    - "abc1\u2028"
+    - "abc1\u2029"
+    - " abc1"
+    - "abc1 "
+  pitfall: >-
+    Length uses code points; allowed digits remain ASCII.
+- id: gpt-unicode-10
+  difficulty: medium
+  status: ok
+  description: >-
+    Import gate — reject any nonconforming input. A Unicode heading is 4 through 16 code points consisting only of Unicode letters and ASCII spaces. It begins and ends with a letter and permits only single internal spaces; at least one space is required. Marks are forbidden.
+  regex: "/^(?=.{4,16}$)\\p{L}+(?: \\p{L}+)+$(?![\\s\\S])/u"
+  match:
+    - "a bc"
+    - "\u00c9t\u00e9 \u00e9t\u00e9"
+    - "\u6771\u4eac \u5927\u962a"
+    - "\u0394\u03ad\u03bb\u03c4\u03b1 \u0386\u03bb\u03c6\u03b1"
+    - "\u0645\u0631\u062d\u0628\u0627 \u0639\u0627\u0644\u0645"
+    - "\u0417\u0438\u043c\u0430 \u043b\u0435\u0442\u043e"
+    - "abcdefgh ijklmno"
+    - "ab cd"
+  no_match:
+    - "abc"
+    - "abcd"
+    - "abcdefghijklmnopq"
+    - " ab cd"
+    - "ab cd "
+    - "ab  cd"
+    - "ab 1c"
+    - "e\u0301 ab"
+    - "!a bc"
+    - "a bc!"
+    - "a bc\n"
+    - "a bc\r"
+    - "a bc\r\n"
+    - "a bc\u2028"
+    - "a bc\u2029"
+    - " a bc"
+    - "a bc "
+    - "abcdefgh ijklmnopq"
+  pitfall: >-
+    Space presence and placement interact with code-point length.
+- id: gpt-unicode-11
+  difficulty: medium
+  status: ok
+  description: >-
+    Search filter, not whole-input validation. Find exactly four Han-script Unicode letters immediately between lowercase han[ and ]. Search anywhere; marks and punctuation do not count as letters.
+  regex: "/(?<=han\\[)(?:(?=\\p{L})\\p{Script=Han}){4}(?=\\])/u"
+  match:
+    - "han[\u6771\u4eac\u5927\u962a]"
+    - "han[\u4e2d\u6587\u6f22\u5b57]"
+    - "han[\u5c71\u6c34\u5929\u5730]"
+    - "han[\u65e5\u6708\u4eba\u5fc3]"
+    - "before han[\u5927\u5c0f\u591a\u5c11] after"
+    - "before han[\u6771\u897f\u5357\u5317] after"
+    - "before han[\u6625\u590f\u79cb\u51ac] after"
+    - "before han[\u4e0a\u4e0b\u5de6\u53f3] after"
+  no_match:
+    - "han[\u6771\u4eac\u5927]"
+    - "han[\u6771\u4eac\u5927\u962a\u4eac]"
+    - "han[\u6771\u4eac\u5927a]"
+    - "han[\u3042\u3044\u3046\u3048]"
+    - "han[\u6771\u4eac1\u962a]"
+    - "han[\u6771\u4eac \u5927]"
+    - "HAN[\u6771\u4eac\u5927\u962a]"
+    - "han[\u6771\u4eac\u5927\u962a ]"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-unicode-12
+  difficulty: medium
+  status: ok
+  description: >-
+    Search text for the literal lowercase token café, precomposed, with no Unicode letter immediately before or after it. Digits, marks and punctuation are valid boundaries; case and normalization are not ignored.
+  regex: "/(?<!\\p{L})café(?!\\p{L})/u"
+  match:
+    - "caf\u00e9"
+    - "a caf\u00e9 b"
+    - "(caf\u00e9)"
+    - "caf\u00e91"
+    - "2caf\u00e9"
+    - "_caf\u00e9_"
+    - "\ncaf\u00e9\n"
+    - "caf\u00e9\u0301"
+  no_match:
+    - "Caf\u00e9"
+    - "cafe\u0301"
+    - "xcaf\u00e9"
+    - "caf\u00e9x"
+    - "\u00e9caf\u00e9"
+    - "caf\u00e9\u6771"
+    - "CAF\u00c9"
+    - "cafe"
+  pitfall: >-
+    Unicode letter boundaries must work beyond ASCII.
+- id: gpt-unicode-13
+  difficulty: medium
+  status: ok
+  description: >-
+    An uppercase international code is 3 through 8 Unicode uppercase letters, followed by hyphen and two ASCII digits. Other letter categories, combining marks and lowercase are forbidden.
+  regex: "/^\\p{Lu}{3,8}-[0-9]{2}$(?![\\s\\S])/u"
+  match:
+    - "ABC-00"
+    - "ABCDEFGH-99"
+    - "\u00c9T\u00c9-12"
+    - "\u0391\u0392\u0393-34"
+    - "\u0417\u0418\u041c\u0410-56"
+    - "\u0141\u00d3D\u0179-78"
+    - "\u00c5\u00c4\u00d6-01"
+    - "XYZ-98"
+  no_match:
+    - "AB-00"
+    - "ABCDEFGHI-00"
+    - "AbC-00"
+    - "\u6771\u4eac\u6771-00"
+    - "ABC-0"
+    - "ABC-000"
+    - "ABC-\u0661\u0662"
+    - "ABC_00"
+    - "!ABC-00"
+    - "ABC-00!"
+    - "ABC-00\n"
+    - "ABC-00\r"
+    - "ABC-00\r\n"
+    - "ABC-00\u2028"
+    - "ABC-00\u2029"
+    - " ABC-00"
+    - "ABC-00 "
+  pitfall: >-
+    Uppercase category is narrower than all letters.
+- id: gpt-unicode-14
+  difficulty: hard
+  status: ok
+  description: >-
+    A bilingual code consists of 2 to 6 Latin-script Unicode letters, colon, 2 to 6 Greek-script Unicode letters. Marks, digits and spaces are forbidden. Each side must contain at least one uppercase and one lowercase letter within its own script.
+  regex: "/^(?=[^:]*\\p{Lu})(?=[^:]*\\p{Ll})(?:(?=\\p{L})\\p{Script=Latin}){2,6}:(?=[^:]*\\p{Lu})(?=[^:]*\\p{Ll})(?:(?=\\p{L})\\p{Script=Greek}){2,6}$(?![\\s\\S])/u"
+  match:
+    - "Ab:\u0391\u03b2"
+    - "\u00c9\u00e9:\u03a9\u03c9"
+    - "Abcdef:\u0391\u03b2\u03b3\u03b4\u03b5\u03b6"
+    - "Zz:\u0394\u03ad\u03bb\u03c4\u03b1"
+    - "\u00c5\u00e5:\u03a0\u03c0"
+    - "Foo:\u03a3\u03c3"
+    - "\u0141\u0142:\u039e\u03be"
+    - "Xy:\u0389\u03b7"
+  no_match:
+    - "AB:\u0391\u03b2"
+    - "ab:\u0391\u03b2"
+    - "Ab:\u0391\u0392"
+    - "Ab:\u03b1\u03b2"
+    - "A:\u0391\u03b2"
+    - "Ab:\u0391"
+    - "Abcdefg:\u0391\u03b2"
+    - "Ab:\u0391\u03b2\u03b3\u03b4\u03b5\u03b6\u03b7"
+    - "Ab:\u0391a"
+    - "!Ab:\u0391\u03b2"
+    - "Ab:\u0391\u03b2!"
+    - "Ab:\u0391\u03b2\n"
+    - "Ab:\u0391\u03b2\r"
+    - "Ab:\u0391\u03b2\r\n"
+    - "Ab:\u0391\u03b2\u2028"
+    - "Ab:\u0391\u03b2\u2029"
+    - " Ab:\u0391\u03b2"
+    - "Ab:\u0391\u03b2 "
+  pitfall: >-
+    Script-specific alphabets and case-category presence interact on both sides.
+- id: gpt-unicode-15
+  difficulty: hard
+  status: ok
+  description: >-
+    Code review requirement: A Unicode echo token is 2 through 6 Unicode letters followed by slash and the exact same code-point sequence. Combining marks are forbidden, and the first half must contain both an uppercase and a lowercase Unicode letter.
+  regex: "/^(?=[^/]*\\p{Lu})(?=[^/]*\\p{Ll})([\\p{L}]{2,6})\\/\\1$(?![\\s\\S])/u"
+  match:
+    - "Ab/Ab"
+    - "\u00c9\u00e9/\u00c9\u00e9"
+    - "\u0391\u03b2/\u0391\u03b2"
+    - "\u0417\u0438/\u0417\u0438"
+    - "\u00c5\u00e5/\u00c5\u00e5"
+    - "Abcdef/Abcdef"
+    - "Foo/Foo"
+    - "\u0141\u0142/\u0141\u0142"
+  no_match:
+    - "AB/AB"
+    - "ab/ab"
+    - "Ab/aB"
+    - "Ab/Ac"
+    - "A/A"
+    - "Abcdefg/Abcdefg"
+    - "e\u0301/e\u0301"
+    - "\u6771\u4eac/\u6771\u4eac"
+    - "!Ab/Ab"
+    - "Ab/Ab!"
+    - "Ab/Ab\n"
+    - "Ab/Ab\r"
+    - "Ab/Ab\r\n"
+    - "Ab/Ab\u2028"
+    - "Ab/Ab\u2029"
+    - " Ab/Ab"
+    - "Ab/Ab "
+    - "Ab!/Ab!"
+  pitfall: >-
+    Exact code-point equality is not normalization or case folding.
+- id: gpt-unicode-16
+  difficulty: hard
+  status: ok
+  description: >-
+    An international identifier has 4 through 12 code points consisting only of Unicode letters, marks and ASCII digits. It starts with a letter, each letter may be followed by at most one mark, and every digit stands alone. It must include a mark and a digit; no adjacent digits.
+  regex: "/^(?=.{4,12}$)(?=.*\\p{M})(?=.*[0-9])(?!.*[0-9]{2})\\p{L}\\p{M}?(?:\\p{L}\\p{M}?|[0-9])*$(?![\\s\\S])/u"
+  match:
+    - "a\u0301b1"
+    - "e\u0301x2"
+    - "A\u0308b3"
+    - "\u03b1\u0301\u03b24"
+    - "\u0438\u0301\u044f5"
+    - "a\u03011b"
+    - "a1b\u0301"
+    - "a\u0301bcdefghij1"
+  no_match:
+    - "abc1"
+    - "a\u0301bc"
+    - "\u0301ab1"
+    - "a\u0301\u0308b1"
+    - "a\u0301b12"
+    - "a\u0301b\u0661"
+    - "a\u03011\u0301b"
+    - "a\u0301bcdefghijk1"
+    - "!a\u0301b1"
+    - "a\u0301b1!"
+    - "a\u0301b1\n"
+    - "a\u0301b1\r"
+    - "a\u0301b1\r\n"
+    - "a\u0301b1\u2028"
+    - "a\u0301b1\u2029"
+    - " a\u0301b1"
+    - "a\u0301b1 "
+  pitfall: >-
+    Marks attach only to letters while digit placement and total length are independent.
+- id: gpt-unicode-17
+  difficulty: hard
+  status: ok
+  description: >-
+    A Unicode note: the entire string has the literal opening wrapper UNI{, a lowercase ASCII routing label of 2 through 6 letters, colon, a body, colon, the exact same routing label and the literal closing wrapper }UNI. The body has 1 through 40 Unicode code points, allows any characters including line breaks and colons, and must contain the lowercase substring texte. Only the body counts toward its length limit; no other text is allowed.
+  regex: "/^UNI\\{(?<route>[a-z]{2,6}):(?=.{1,40}:\\k<route>\\}UNI$)(?=.{0,40}texte.{0,40}:\\k<route>\\}UNI$).*:\\k<route>\\}UNI$(?![\\s\\S])/su"
+  match:
+    - "UNI{aa:texte:aa}UNI"
+    - "UNI{abcdef:atexte:abcdef}UNI"
+    - "UNI{tag:texteb:tag}UNI"
+    - "UNI{route:\ntexte:route}UNI"
+    - "UNI{memo:texte\n:memo}UNI"
+    - "UNI{ab:\ttexte:ab}UNI"
+    - "UNI{zz:\U0001f600texte:zz}UNI"
+    - "UNI{key:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxtexte:key}UNI"
+    - "UNI{xy:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600texte:xy}UNI"
+    - "UNI{aa:prefix: texte: suffix:aa}UNI"
+  no_match:
+    - "UNI{aa::aa}UNI"
+    - "UNI{aa:abc:aa}UNI"
+    - "UNI{aa:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxtexte:aa}UNI"
+    - "UNI{aa:texte:ab}UNI"
+    - "UNI{a:texte:a}UNI"
+    - "UNI{abcdefg:texte:abcdefg}UNI"
+    - "UNI{AA:texte:AA}UNI"
+    - "UNI{aa:TEXTE:aa}UNI"
+    - "UNI{aa:texte:aa"
+    - "aa:texte:aa}UNI"
+    - "UNI{aa:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600texte:aa}UNI"
+    - "UNI{texte:abc:texte}UNI"
+    - "!UNI{aa:texte:aa}UNI"
+    - "UNI{aa:texte:aa}UNI!"
+    - "UNI{aa:texte:aa}UNI\n"
+    - "UNI{aa:texte:aa}UNI\r"
+    - "UNI{aa:texte:aa}UNI\r\n"
+    - "UNI{aa:texte:aa}UNI\u2028"
+    - "UNI{aa:texte:aa}UNI\u2029"
+    - " UNI{aa:texte:aa}UNI"
+    - "UNI{aa:texte:aa}UNI "
+  pitfall: >-
+    Repeat the routing label exactly, count only body code points including line breaks, and require the marker inside that body.
+- id: gpt-unicode-18
+  difficulty: hard
+  status: ok
+  description: >-
+    An LF-only Unicode receipt has name= then 2 through 6 Unicode letters including both an uppercase and lowercase letter, then LF and copy= with exactly the same code points. No marks, spaces or final LF.
+  regex: "/^name=(?=[^\\n]*\\p{Lu})(?=[^\\n]*\\p{Ll})(\\p{L}{2,6})\\ncopy=\\1$(?![\\s\\S])/u"
+  match:
+    - "name=Ab\ncopy=Ab"
+    - "name=\u00c9\u00e9\ncopy=\u00c9\u00e9"
+    - "name=\u0391\u03b2\ncopy=\u0391\u03b2"
+    - "name=\u0417\u0438\ncopy=\u0417\u0438"
+    - "name=\u00c5\u00e5\ncopy=\u00c5\u00e5"
+    - "name=Abcdef\ncopy=Abcdef"
+    - "name=Foo\ncopy=Foo"
+    - "name=\u0141\u0142\ncopy=\u0141\u0142"
+  no_match:
+    - "name=AB\ncopy=AB"
+    - "name=ab\ncopy=ab"
+    - "name=Ab\ncopy=aB"
+    - "name=A\ncopy=A"
+    - "name=Abcdefg\ncopy=Abcdefg"
+    - "name=e\u0301\ncopy=e\u0301"
+    - "name=Ab\r\ncopy=Ab"
+    - "!name=Ab\ncopy=Ab"
+    - "name=Ab\ncopy=Ab!"
+    - "name=Ab\ncopy=Ab\n"
+    - "name=Ab\ncopy=Ab\r"
+    - "name=Ab\ncopy=Ab\r\n"
+    - "name=Ab\ncopy=Ab\u2028"
+    - "name=Ab\ncopy=Ab\u2029"
+    - " name=Ab\ncopy=Ab"
+    - "name=Ab\ncopy=Ab "
+  pitfall: >-
+    Case-category constraints and exact cross-line reuse apply to Unicode code points.
+- id: gpt-unicode-19
+  difficulty: hard
+  status: ok
+  description: >-
+    Acceptance criteria:
+    - A Latin alias has 4 through 12 Latin-script Unicode letters only, includes at least one uppercase and one lowercase letter, and has no adjacent identical code points. Marks, digits and spaces are forbidden; no normalization is done.
+    - Evaluate the input as supplied; do not trim or normalize it.
+  regex: "/^(?=.{4,12}$)(?=.*\\p{Lu})(?=.*\\p{Ll})(?!.*(\\p{L})\\1)(?:(?=\\p{L})\\p{Script=Latin})+$(?![\\s\\S])/u"
+  match:
+    - "Abcd"
+    - "\u00c9t\u00e9A"
+    - "\u00c5a\u00c5a"
+    - "Abcdefghijkl"
+    - "ZzZz"
+    - "Stra\u00dfe"
+    - "\u0141\u00f3d\u017a"
+    - "Na\u00efve"
+  no_match:
+    - "ABCD"
+    - "abcd"
+    - "Abc"
+    - "Abcdefghijklm"
+    - "AbbC"
+    - "A\u00e9\u00e9B"
+    - "Ab\u03b1d"
+    - "e\u0301Abc"
+    - "Ab1c"
+    - "!Abcd"
+    - "Abcd!"
+    - "Abcd\n"
+    - "Abcd\r"
+    - "Abcd\r\n"
+    - "Abcd\u2028"
+    - "Abcd\u2029"
+    - " Abcd"
+    - "Abcd "
+  pitfall: >-
+    Script membership, case presence and adjacency compare exact code points.
+- id: gpt-unicode-20
+  difficulty: hard
+  status: ok
+  description: >-
+    A Cyrillic echo code is two distinct Cyrillic-script Unicode letters, colon, the same two letters in reverse order. Each code point must be a letter, not a mark; equality is case sensitive and no normalization is done.
+  regex: "/^((?=\\p{L})\\p{Script=Cyrillic})(?!\\1)((?=\\p{L})\\p{Script=Cyrillic}):\\2\\1$(?![\\s\\S])/u"
+  match:
+    - "\u0410\u0431:\u0431\u0410"
+    - "\u042f\u044f:\u044f\u042f"
+    - "\u0416\u0437:\u0437\u0416"
+    - "\u0418\u0439:\u0439\u0418"
+    - "\u042e\u044e:\u044e\u042e"
+    - "\u0411\u0432:\u0432\u0411"
+    - "\u0414\u0435:\u0435\u0414"
+    - "\u0417\u0438:\u0438\u0417"
+  no_match:
+    - "\u0410\u0410:\u0410\u0410"
+    - "\u0410\u0431:\u0410\u0431"
+    - "\u0410\u0431:\u0431\u0430"
+    - "A\u0431:\u0431A"
+    - "\u04101:1\u0410"
+    - "\u0410\u0301:\u0301\u0410"
+    - "\u0410\u0431\u0431:\u0431\u0431\u0410"
+    - "!\u0410\u0431:\u0431\u0410"
+    - "\u0410\u0431:\u0431\u0410!"
+    - "\u0410\u0431:\u0431\u0410\n"
+    - "\u0410\u0431:\u0431\u0410\r"
+    - "\u0410\u0431:\u0431\u0410\r\n"
+    - "\u0410\u0431:\u0431\u0410\u2028"
+    - "\u0410\u0431:\u0431\u0410\u2029"
+    - " \u0410\u0431:\u0431\u0410"
+    - "\u0410\u0431:\u0431\u0410 "
+  pitfall: >-
+    Script, distinctness and reversed exact equality are independent.

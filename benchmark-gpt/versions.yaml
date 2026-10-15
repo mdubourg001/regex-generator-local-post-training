@@ -1,0 +1,703 @@
+# Benchmark GPT, catégorie versions. Format et contrôles : scripts/benchmark.py.
+- id: gpt-versions-01
+  difficulty: simple
+  status: ok
+  description: >-
+    A release serial is rel- followed by exactly six ASCII digits. Leading zeros are permitted.
+  regex: "/^rel\\-[0123456789]{6}$(?![\\s\\S])/"
+  match:
+    - "rel-000000"
+    - "rel-999999"
+    - "rel-555555"
+    - "rel-090909"
+    - "rel-909090"
+    - "rel-099999"
+    - "rel-900000"
+    - "rel-500000"
+  no_match:
+    - "rel-00000"
+    - "rel-0000000"
+    - "rel-?00000"
+    - "rel- 00000"
+    - "rel-00000\u00e9"
+    - "rel-000000\t"
+    - "rel?000000"
+    - "!rel-000000"
+    - "rel-000000!"
+    - "rel-000000\n"
+    - "rel-000000\r"
+    - "rel-000000\r\n"
+    - "rel-000000\u2028"
+    - "rel-000000\u2029"
+    - " rel-000000"
+    - "rel-000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-versions-02
+  difficulty: simple
+  status: ok
+  description: >-
+    A snapshot tag is snap. followed by exactly eight lowercase hexadecimal characters, no other components.
+  regex: "/^snap\\.[0123456789abcdef]{8}$(?![\\s\\S])/"
+  match:
+    - "snap.00000000"
+    - "snap.ffffffff"
+    - "snap.88888888"
+    - "snap.0f0f0f0f"
+    - "snap.f0f0f0f0"
+    - "snap.0fffffff"
+    - "snap.f0000000"
+    - "snap.80000000"
+  no_match:
+    - "snap.0000000"
+    - "snap.000000000"
+    - "snap.?0000000"
+    - "snap. 0000000"
+    - "snap.0000000\u00e9"
+    - "snap.00000000\t"
+    - "snap?00000000"
+    - "snap.A0000000"
+    - "!snap.00000000"
+    - "snap.00000000!"
+    - "snap.00000000\n"
+    - "snap.00000000\r"
+    - "snap.00000000\r\n"
+    - "snap.00000000\u2028"
+    - "snap.00000000\u2029"
+    - " snap.00000000"
+    - "snap.00000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-versions-03
+  difficulty: simple
+  status: ok
+  description: >-
+    The channel revision is RC followed by exactly three ASCII digits, uppercase prefix.
+  regex: "/^RC[0123456789]{3}$(?![\\s\\S])/"
+  match:
+    - "RC000"
+    - "RC999"
+    - "RC555"
+    - "RC090"
+    - "RC909"
+    - "RC099"
+    - "RC900"
+    - "RC500"
+  no_match:
+    - "RC00"
+    - "RC0000"
+    - "RC?00"
+    - "RC 00"
+    - "RC00\u00e9"
+    - "RC000\t"
+    - "R?000"
+    - "!RC000"
+    - "RC000!"
+    - "RC000\n"
+    - "RC000\r"
+    - "RC000\r\n"
+    - "RC000\u2028"
+    - "RC000\u2029"
+    - " RC000"
+    - "RC000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-versions-04
+  difficulty: simple
+  status: ok
+  description: >-
+    A nightly build is nightly- followed by exactly eight ASCII digits and literal .dev. No calendar validation.
+  regex: "/^nightly\\-[0123456789]{8}\\.dev$(?![\\s\\S])/"
+  match:
+    - "nightly-00000000.dev"
+    - "nightly-99999999.dev"
+    - "nightly-55555555.dev"
+    - "nightly-09090909.dev"
+    - "nightly-90909090.dev"
+    - "nightly-09999999.dev"
+    - "nightly-90000000.dev"
+    - "nightly-50000000.dev"
+  no_match:
+    - "nightly-0000000.dev"
+    - "nightly-000000000.dev"
+    - "nightly-?0000000.dev"
+    - "nightly- 0000000.dev"
+    - "nightly-0000000\u00e9.dev"
+    - "nightly-00000000\t.dev"
+    - "nightly?00000000.dev"
+    - "nightly-00000000?dev"
+    - "!nightly-00000000.dev"
+    - "nightly-00000000.dev!"
+    - "nightly-00000000.dev\n"
+    - "nightly-00000000.dev\r"
+    - "nightly-00000000.dev\r\n"
+    - "nightly-00000000.dev\u2028"
+    - "nightly-00000000.dev\u2029"
+    - " nightly-00000000.dev"
+    - "nightly-00000000.dev "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-versions-05
+  difficulty: simple
+  status: ok
+  description: >-
+    A preview tag is exactly four lowercase ASCII letters followed by -preview.
+  regex: "/^[abcdefghijklmnopqrstuvwxyz]{4}\\-preview$(?![\\s\\S])/"
+  match:
+    - "aaaa-preview"
+    - "zzzz-preview"
+    - "nnnn-preview"
+    - "azaz-preview"
+    - "zaza-preview"
+    - "azzz-preview"
+    - "zaaa-preview"
+    - "naaa-preview"
+  no_match:
+    - "aaa-preview"
+    - "aaaaa-preview"
+    - "?aaa-preview"
+    - " aaa-preview"
+    - "aaa\u00e9-preview"
+    - "aaaa\t-preview"
+    - "aaaa?preview"
+    - "Aaaa-preview"
+    - "!aaaa-preview"
+    - "aaaa-preview!"
+    - "aaaa-preview\n"
+    - "aaaa-preview\r"
+    - "aaaa-preview\r\n"
+    - "aaaa-preview\u2028"
+    - "aaaa-preview\u2029"
+    - " aaaa-preview"
+    - "aaaa-preview "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-versions-06
+  difficulty: medium
+  status: ok
+  description: >-
+    Form-validation ticket: The maintenance tag is patch- followed by a canonical integer 1 through 48, no leading zeros, signs or spaces.
+  regex: "/^patch\\-(?:[1-9]|[1-3][0-9]|4[0-8])$(?![\\s\\S])/"
+  match:
+    - "patch-1"
+    - "patch-2"
+    - "patch-3"
+    - "patch-46"
+    - "patch-47"
+    - "patch-48"
+    - "patch-24"
+    - "patch-25"
+  no_match:
+    - "patch-0"
+    - "patch-49"
+    - "patch-01"
+    - "patch-+1"
+    - "patch-1.0"
+    - "patch- 1"
+    - "patch-480"
+    - "!patch-1"
+    - "patch-1!"
+    - "patch-1\n"
+    - "patch-1\r"
+    - "patch-1\r\n"
+    - "patch-1\u2028"
+    - "patch-1\u2029"
+    - " patch-1"
+    - "patch-1 "
+  pitfall: >-
+    Endpoints and canonical decimal spelling must both be enforced.
+- id: gpt-versions-07
+  difficulty: medium
+  status: ok
+  description: >-
+    A mobile version has literal v followed by three decimal components, each 0 to 99 with no leading zeros. Components use dots and no metadata or suffix is permitted.
+  regex: "/^v(?:0|[1-9][0-9]?)\\.(?:0|[1-9][0-9]?)\\.(?:0|[1-9][0-9]?)$(?![\\s\\S])/"
+  match:
+    - "v0.0.0"
+    - "v99.99.99"
+    - "v1.2.3"
+    - "v10.0.9"
+    - "v0.99.1"
+    - "v99.0.99"
+    - "v20.30.40"
+    - "v9.10.11"
+  no_match:
+    - "v00.0.0"
+    - "v0.01.0"
+    - "v0.0.01"
+    - "v100.0.0"
+    - "v0.100.0"
+    - "v0.0.100"
+    - "V1.2.3"
+    - "v1x2.3"
+    - "!v0.0.0"
+    - "v0.0.0!"
+    - "v0.0.0\n"
+    - "v0.0.0\r"
+    - "v0.0.0\r\n"
+    - "v0.0.0\u2028"
+    - "v0.0.0\u2029"
+    - " v0.0.0"
+    - "v0.0.0 "
+  pitfall: >-
+    Canonical bounded components are stricter than plain semantic-version digits.
+- id: gpt-versions-08
+  difficulty: medium
+  status: ok
+  description: >-
+    A release branch is release/ and major 1 through 24, dot, minor 0 through 9. No padding or other components.
+  regex: "/^release\\/(?:[1-9]|1[0-9]|2[0-4])\\.[0-9]$(?![\\s\\S])/"
+  match:
+    - "release/1.0"
+    - "release/24.9"
+    - "release/9.9"
+    - "release/10.0"
+    - "release/12.3"
+    - "release/20.5"
+    - "release/23.8"
+    - "release/2.1"
+  no_match:
+    - "release/0.0"
+    - "release/25.0"
+    - "release/01.0"
+    - "release/1.10"
+    - "release/1.00"
+    - "Release/1.0"
+    - "release/1x0"
+    - "!release/1.0"
+    - "release/1.0!"
+    - "release/1.0\n"
+    - "release/1.0\r"
+    - "release/1.0\r\n"
+    - "release/1.0\u2028"
+    - "release/1.0\u2029"
+    - " release/1.0"
+    - "release/1.0 "
+  pitfall: >-
+    The major and minor have different ranges.
+- id: gpt-versions-09
+  difficulty: medium
+  status: ok
+  description: >-
+    A package tag is a canonical integer 1 through 99, dot, canonical integer 0 through 99, optionally -beta. followed by an integer 1 through 9. No other suffix or metadata.
+  regex: "/^[1-9][0-9]?\\.(?:0|[1-9][0-9]?)(?:-beta\\.[1-9])?$(?![\\s\\S])/"
+  match:
+    - "1.0"
+    - "99.99"
+    - "1.0-beta.1"
+    - "99.99-beta.9"
+    - "10.20"
+    - "10.20-beta.5"
+    - "9.9"
+    - "9.9-beta.2"
+  no_match:
+    - "0.0"
+    - "100.0"
+    - "1.100"
+    - "01.0"
+    - "1.00"
+    - "1.0-beta.0"
+    - "1.0-beta.10"
+    - "1.0-Beta.1"
+    - "!1.0"
+    - "1.0!"
+    - "1.0\n"
+    - "1.0\r"
+    - "1.0\r\n"
+    - "1.0\u2028"
+    - "1.0\u2029"
+    - " 1.0"
+    - "1.0 "
+  pitfall: >-
+    Optional prerelease bounds do not alter canonical core numbering.
+- id: gpt-versions-10
+  difficulty: medium
+  status: ok
+  description: >-
+    Import gate — reject any nonconforming input. An API level is api- followed by a two-digit level 01 through 32, optionally plus the literal suffix -legacy. No other suffix, spaces or lowercase changes.
+  regex: "/^api-(?:0[1-9]|[12][0-9]|3[0-2])(?:-legacy)?$(?![\\s\\S])/"
+  match:
+    - "api-01"
+    - "api-32"
+    - "api-01-legacy"
+    - "api-32-legacy"
+    - "api-09"
+    - "api-10-legacy"
+    - "api-20"
+    - "api-31-legacy"
+  no_match:
+    - "api-00"
+    - "api-33"
+    - "api-1"
+    - "api-001"
+    - "API-01"
+    - "api-01-Legacy"
+    - "api-01-old"
+    - "!api-01"
+    - "api-01!"
+    - "api-01\n"
+    - "api-01\r"
+    - "api-01\r\n"
+    - "api-01\u2028"
+    - "api-01\u2029"
+    - " api-01"
+    - "api-01 "
+  pitfall: >-
+    The numeric part remains padded even in the optional variant.
+- id: gpt-versions-11
+  difficulty: medium
+  status: ok
+  description: >-
+    Search filter, not whole-input validation. Search text for a revision integer from 10 through 79 immediately after lowercase revision= and before semicolon, shortest ASCII spelling; surrounding text is unrestricted.
+  regex: "/(?<=revision=)[1-7][0-9](?=;)/"
+  match:
+    - "revision=10;"
+    - "revision=11;"
+    - "revision=19;"
+    - "revision=20;"
+    - "before revision=50; after"
+    - "before revision=70; after"
+    - "before revision=78; after"
+    - "before revision=79; after"
+  no_match:
+    - "revision=9;"
+    - "revision=80;"
+    - "revision=010;"
+    - "revision=+10;"
+    - "revision=1a;"
+    - "revision=100;"
+    - "REVISION=10;"
+    - "revision=10 ;"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-versions-12
+  difficulty: medium
+  status: ok
+  description: >-
+    Find an eight-character lowercase hexadecimal build digest immediately between lowercase build[ and ]. Search anywhere in the text.
+  regex: "/(?<=build\\[)[0-9a-f]{8}(?=\\])/"
+  match:
+    - "build[00000000]"
+    - "build[ffffffff]"
+    - "build[abcdef12]"
+    - "build[12345678]"
+    - "before build[deadbeef] after"
+    - "before build[a0000001] after"
+    - "before build[01234567] after"
+    - "before build[99aabbcc] after"
+  no_match:
+    - "build[0000000]"
+    - "build[000000000]"
+    - "build[ABCDEF12]"
+    - "build[abcdefg1]"
+    - "build[a000000!]"
+    - "build[\u00e90000000]"
+    - "BUILD[00000000]"
+    - "build[00000000 ]"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-versions-13
+  difficulty: medium
+  status: ok
+  description: >-
+    A calendar-style release tag is r followed by four ASCII year digits, dot, and padded month 01 through 12. Optionally append -hotfix and a digit 1 through 9. Format only, no calendar facts.
+  regex: "/^r[0-9]{4}\\.(?:0[1-9]|1[0-2])(?:-hotfix[1-9])?$(?![\\s\\S])/"
+  match:
+    - "r0000.01"
+    - "r9999.12"
+    - "r2026.10"
+    - "r2026.10-hotfix1"
+    - "r2026.12-hotfix9"
+    - "r1234.09"
+    - "r0001.02-hotfix5"
+    - "r2000.03"
+  no_match:
+    - "r2026.00"
+    - "r2026.13"
+    - "r2026.1"
+    - "r202.01"
+    - "r2026.01-hotfix0"
+    - "r2026.01-hotfix10"
+    - "r2026x01"
+    - "!r0000.01"
+    - "r0000.01!"
+    - "r0000.01\n"
+    - "r0000.01\r"
+    - "r0000.01\r\n"
+    - "r0000.01\u2028"
+    - "r0000.01\u2029"
+    - " r0000.01"
+    - "r0000.01 "
+  pitfall: >-
+    Year is format-only while month and hotfix are bounded.
+- id: gpt-versions-14
+  difficulty: hard
+  status: ok
+  description: >-
+    A deployment confirmation starts deploy: and contains two identical tags separated by slash. Each tag is v plus major 1 to 99, dot, minor 0 to 9, both shortest decimal spellings. No suffix or spaces. Each of the two values must be enclosed in matching ASCII single or double quotes; the same quote character must be used for both values. Quotes are not part of the value, and escapes are not permitted.
+  regex: "/^deploy:(['\\\"])(v[1-9][0-9]?\\.[0-9])\\1\\/\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "deploy:'v1.0'/'v1.0'"
+    - "deploy:\"v99.9\"/\"v99.9\""
+    - "deploy:'v10.2'/'v10.2'"
+    - "deploy:\"v9.3\"/\"v9.3\""
+    - "deploy:'v20.4'/'v20.4'"
+    - "deploy:\"v30.5\"/\"v30.5\""
+    - "deploy:'v40.6'/'v40.6'"
+    - "deploy:\"v50.7\"/\"v50.7\""
+  no_match:
+    - "deploy:'v1.0'/'v99.9'"
+    - "deploy:'v1.0'/'v1.0v1.0'"
+    - "deploy:'?'/'?'"
+    - "deploy:'v1.0 '/'v1.0'"
+    - "deploy:'v1.0'/' v1.0'"
+    - "deploy:'v1.0'/'v1.0/v1.0'"
+    - "deploy:'!!!!'/'!!!!'"
+    - "deploy:'v1.'/'v1.'"
+    - "deploy:'v1.00'/'v1.00'"
+    - "deploy:'vz.z'/'vz.z'"
+    - "deploy:'01.0'/'01.0'"
+    - "deploy:'v1.0\"/'v1.0'"
+    - "deploy:'v1.0'/\"v1.0\""
+    - "deploy:v1.0/v1.0"
+    - "!deploy:'v1.0'/'v1.0'"
+    - "deploy:'v1.0'/'v1.0'!"
+    - "deploy:'v1.0'/'v1.0'\n"
+    - "deploy:'v1.0'/'v1.0'\r"
+    - "deploy:'v1.0'/'v1.0'\r\n"
+    - "deploy:'v1.0'/'v1.0'\u2028"
+    - "deploy:'v1.0'/'v1.0'\u2029"
+    - " deploy:'v1.0'/'v1.0'"
+    - "deploy:'v1.0'/'v1.0' "
+  pitfall: >-
+    Quote style, both closing quotes, value policy and exact value repetition must all agree.
+- id: gpt-versions-15
+  difficulty: hard
+  status: ok
+  description: >-
+    Code review requirement: A compatibility pair is a major integer 1 through 99, dot, a minor digit, slash, the exact same major, dot, a different minor digit. No leading zeros, padding, spaces or suffixes.
+  regex: "/^([1-9][0-9]?)\\.([0-9])\\/\\1\\.(?!\\2$)[0-9]$(?![\\s\\S])/"
+  match:
+    - "1.0/1.1"
+    - "99.9/99.8"
+    - "10.0/10.9"
+    - "9.1/9.0"
+    - "20.2/20.3"
+    - "30.4/30.5"
+    - "40.6/40.7"
+    - "50.8/50.9"
+  no_match:
+    - "1.0/2.1"
+    - "1.0/1.0"
+    - "0.0/0.1"
+    - "100.0/100.1"
+    - "01.0/01.1"
+    - "1.10/1.1"
+    - "1x0/1.1"
+    - "!1.0/1.1"
+    - "1.0/1.1!"
+    - "1.0/1.1\n"
+    - "1.0/1.1\r"
+    - "1.0/1.1\r\n"
+    - "1.0/1.1\u2028"
+    - "1.0/1.1\u2029"
+    - " 1.0/1.1"
+    - "1.0/1.1 "
+  pitfall: >-
+    Equal major and unequal minor must be checked independently.
+- id: gpt-versions-16
+  difficulty: hard
+  status: ok
+  description: >-
+    A localized release nickname: 2 through 12 Unicode letter clusters. Each cluster is a Unicode letter followed by zero to two Unicode combining marks. One optional ASCII hyphen may join two nonempty runs of clusters, but no edge hyphen or second hyphen is allowed. Length counts letter clusters, excluding the hyphen and any fixed prefix; spaces, digits and other characters are forbidden. No normalization is performed.
+  regex: "/^(?=(?:\\p{L}\\p{M}{0,2}-?){2,12}$)(?:\\p{L}\\p{M}{0,2}){1,12}(?:-(?:\\p{L}\\p{M}{0,2}){1,12})?$(?![\\s\\S])/u"
+  match:
+    - "ab"
+    - "e\u0301x"
+    - "a\u0301\u0308b"
+    - "\u6771\u4eac-\u5927\u962a"
+    - "\u0394\u03ad\u03bb\u03c4\u03b1"
+    - "\u0645\u0631\u062d\u0628\u0627"
+    - "\u0417\u0438\u043c\u0430"
+    - "abcdefghijkl"
+    - "e\u0301-e\u0308"
+    - "A\u00e9"
+  no_match:
+    - "a"
+    - "abcdefghijklm"
+    - "ab1"
+    - "a_b"
+    - "a b"
+    - "e\u0301"
+    - "\U0001f600a"
+    - "\u0301ab"
+    - "a\u0301\u0308\u0303b"
+    - "-ab"
+    - "ab-"
+    - "a--b"
+    - "ab-cd-ef"
+    - "!ab"
+    - "ab!"
+    - "ab\n"
+    - "ab\r"
+    - "ab\r\n"
+    - "ab\u2028"
+    - "ab\u2029"
+    - " ab"
+    - "ab "
+  pitfall: >-
+    Count base-letter clusters, attach bounded marks only after a letter, and limit the optional internal separator.
+- id: gpt-versions-17
+  difficulty: hard
+  status: ok
+  description: >-
+    A release note capsule: the entire string has the literal opening wrapper VER{, a lowercase ASCII routing label of 2 through 6 letters, colon, a body, colon, the exact same routing label and the literal closing wrapper }VER. The body has 1 through 40 Unicode code points, allows any characters including line breaks and colons, and must contain the lowercase substring released. Only the body counts toward its length limit; no other text is allowed.
+  regex: "/^VER\\{(?<route>[a-z]{2,6}):(?=.{1,40}:\\k<route>\\}VER$)(?=.{0,40}released.{0,40}:\\k<route>\\}VER$).*:\\k<route>\\}VER$(?![\\s\\S])/su"
+  match:
+    - "VER{aa:released:aa}VER"
+    - "VER{abcdef:areleased:abcdef}VER"
+    - "VER{tag:releasedb:tag}VER"
+    - "VER{route:\nreleased:route}VER"
+    - "VER{memo:released\n:memo}VER"
+    - "VER{ab:\treleased:ab}VER"
+    - "VER{zz:\U0001f600released:zz}VER"
+    - "VER{key:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxreleased:key}VER"
+    - "VER{xy:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600released:xy}VER"
+    - "VER{aa:prefix: released: suffix:aa}VER"
+  no_match:
+    - "VER{aa::aa}VER"
+    - "VER{aa:abc:aa}VER"
+    - "VER{aa:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxreleased:aa}VER"
+    - "VER{aa:released:ab}VER"
+    - "VER{a:released:a}VER"
+    - "VER{abcdefg:released:abcdefg}VER"
+    - "VER{AA:released:AA}VER"
+    - "VER{aa:RELEASED:aa}VER"
+    - "VER{aa:released:aa"
+    - "aa:released:aa}VER"
+    - "VER{aa:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600released:aa}VER"
+    - "!VER{aa:released:aa}VER"
+    - "VER{aa:released:aa}VER!"
+    - "VER{aa:released:aa}VER\n"
+    - "VER{aa:released:aa}VER\r"
+    - "VER{aa:released:aa}VER\r\n"
+    - "VER{aa:released:aa}VER\u2028"
+    - "VER{aa:released:aa}VER\u2029"
+    - " VER{aa:released:aa}VER"
+    - "VER{aa:released:aa}VER "
+  pitfall: >-
+    Repeat the routing label exactly, count only body code points including line breaks, and require the marker inside that body.
+- id: gpt-versions-18
+  difficulty: hard
+  status: ok
+  description: >-
+    An LF-only version receipt has version= and v plus major 1 to 99, dot and a minor digit, then copy= and the exact same tag on line two. No final LF, spaces or suffixes. Both values must be enclosed in matching ASCII single or double quotes, using the same quote character on both lines. The quotes are delimiters, not part of the value; no escapes are permitted.
+  regex: "/^version=(['\\\"])(v[1-9][0-9]?\\.[0-9])\\1\\ncopy=\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "version='v1.0'\ncopy='v1.0'"
+    - "version=\"v99.9\"\ncopy=\"v99.9\""
+    - "version='v10.2'\ncopy='v10.2'"
+    - "version=\"v9.3\"\ncopy=\"v9.3\""
+    - "version='v20.4'\ncopy='v20.4'"
+    - "version=\"v30.5\"\ncopy=\"v30.5\""
+    - "version='v40.6'\ncopy='v40.6'"
+    - "version=\"v50.7\"\ncopy=\"v50.7\""
+  no_match:
+    - "version='v1.0'\ncopy='v99.9'"
+    - "version='v1.0\r'\ncopy='v1.0'"
+    - "version=v1.0 copy=v1.0"
+    - "version=v1.0\nCopy=v1.0"
+    - "version='?'\ncopy='?'"
+    - "version='v1.0'\ncopy='v1.0 '"
+    - "version='!!!!'\ncopy='!!!!'"
+    - "version='v1.'\ncopy='v1.'"
+    - "version='v1.00'\ncopy='v1.00'"
+    - "version='vz.z'\ncopy='vz.z'"
+    - "version='01.0'\ncopy='01.0'"
+    - "version='v1.0\"\ncopy='v1.0'"
+    - "version='v1.0'\ncopy=\"v1.0\""
+    - "version=v1.0\ncopy=v1.0"
+    - "version='v1.0'\r\ncopy='v1.0'"
+    - "!version='v1.0'\ncopy='v1.0'"
+    - "version='v1.0'\ncopy='v1.0'!"
+    - "version='v1.0'\ncopy='v1.0'\n"
+    - "version='v1.0'\ncopy='v1.0'\r"
+    - "version='v1.0'\ncopy='v1.0'\r\n"
+    - "version='v1.0'\ncopy='v1.0'\u2028"
+    - "version='v1.0'\ncopy='v1.0'\u2029"
+    - " version='v1.0'\ncopy='v1.0'"
+    - "version='v1.0'\ncopy='v1.0' "
+  pitfall: >-
+    The exact value and quote convention must agree across LF-separated lines, in addition to the value policy.
+- id: gpt-versions-19
+  difficulty: hard
+  status: ok
+  description: >-
+    Acceptance criteria:
+    - A build tag is b followed by a canonical integer 1 through 99, a separator chosen from dot or hyphen, three lowercase ASCII letters, that same separator and the exact same integer. The three-letter channel must not be dev.
+    - Evaluate the input as supplied; do not trim or normalize it.
+  regex: "/^b([1-9][0-9]?)([.-])(?!dev[.-])[a-z]{3}\\2\\1$(?![\\s\\S])/"
+  match:
+    - "b1.abc.1"
+    - "b99-xyz-99"
+    - "b10.rca.10"
+    - "b9-exp-9"
+    - "b20.prd.20"
+    - "b30-can-30"
+    - "b40.sta.40"
+    - "b50-tst-50"
+  no_match:
+    - "b1.dev.1"
+    - "b1.abc-1"
+    - "b1.abc.2"
+    - "b0.abc.0"
+    - "b100.abc.100"
+    - "b01.abc.01"
+    - "b1.ab.1"
+    - "b1.ABC.1"
+    - "!b1.abc.1"
+    - "b1.abc.1!"
+    - "b1.abc.1\n"
+    - "b1.abc.1\r"
+    - "b1.abc.1\r\n"
+    - "b1.abc.1\u2028"
+    - "b1.abc.1\u2029"
+    - " b1.abc.1"
+    - "b1.abc.1 "
+  pitfall: >-
+    Channel exclusion, separator reuse and repeated serial interact.
+- id: gpt-versions-20
+  difficulty: hard
+  status: ok
+  description: >-
+    A release range is v followed by a major integer 1 through 24 and .0, two dots, and v followed by the same major and . followed by minor 1 through 9. No padding or extra components.
+  regex: "/^v([1-9]|1[0-9]|2[0-4])\\.0\\.\\.v\\1\\.[1-9]$(?![\\s\\S])/"
+  match:
+    - "v1.0..v1.1"
+    - "v24.0..v24.9"
+    - "v9.0..v9.2"
+    - "v10.0..v10.3"
+    - "v12.0..v12.4"
+    - "v20.0..v20.5"
+    - "v23.0..v23.8"
+    - "v2.0..v2.9"
+  no_match:
+    - "v1.0..v2.1"
+    - "v1.0..v1.0"
+    - "v0.0..v0.1"
+    - "v25.0..v25.1"
+    - "v01.0..v01.1"
+    - "v1.1..v1.2"
+    - "v1.0..v1.10"
+    - "v1x0..v1.1"
+    - "!v1.0..v1.1"
+    - "v1.0..v1.1!"
+    - "v1.0..v1.1\n"
+    - "v1.0..v1.1\r"
+    - "v1.0..v1.1\r\n"
+    - "v1.0..v1.1\u2028"
+    - "v1.0..v1.1\u2029"
+    - " v1.0..v1.1"
+    - "v1.0..v1.1 "
+  pitfall: >-
+    The lower minor is fixed while the upper minor is bounded and nonzero.

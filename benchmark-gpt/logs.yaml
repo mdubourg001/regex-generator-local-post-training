@@ -1,0 +1,697 @@
+# Benchmark GPT, catégorie logs. Format et contrôles : scripts/benchmark.py.
+- id: gpt-logs-01
+  difficulty: simple
+  status: ok
+  description: >-
+    A compact log event is EVT followed by colon and exactly six ASCII digits. No whitespace or message.
+  regex: "/^EVT:[0123456789]{6}$(?![\\s\\S])/"
+  match:
+    - "EVT:000000"
+    - "EVT:999999"
+    - "EVT:555555"
+    - "EVT:090909"
+    - "EVT:909090"
+    - "EVT:099999"
+    - "EVT:900000"
+    - "EVT:500000"
+  no_match:
+    - "EVT:00000"
+    - "EVT:0000000"
+    - "EVT:?00000"
+    - "EVT: 00000"
+    - "EVT:00000\u00e9"
+    - "EVT:000000\t"
+    - "EVT?000000"
+    - "!EVT:000000"
+    - "EVT:000000!"
+    - "EVT:000000\n"
+    - "EVT:000000\r"
+    - "EVT:000000\r\n"
+    - "EVT:000000\u2028"
+    - "EVT:000000\u2029"
+    - " EVT:000000"
+    - "EVT:000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-logs-02
+  difficulty: simple
+  status: ok
+  description: >-
+    The trace-only log record is TRACE plus one space and exactly eight lowercase hexadecimal characters.
+  regex: "/^TRACE\\ [0123456789abcdef]{8}$(?![\\s\\S])/"
+  match:
+    - "TRACE 00000000"
+    - "TRACE ffffffff"
+    - "TRACE 88888888"
+    - "TRACE 0f0f0f0f"
+    - "TRACE f0f0f0f0"
+    - "TRACE 0fffffff"
+    - "TRACE f0000000"
+    - "TRACE 80000000"
+  no_match:
+    - "TRACE 0000000"
+    - "TRACE 000000000"
+    - "TRACE ?0000000"
+    - "TRACE  0000000"
+    - "TRACE 0000000\u00e9"
+    - "TRACE 00000000\t"
+    - "TRACE?00000000"
+    - "TRACE A0000000"
+    - "!TRACE 00000000"
+    - "TRACE 00000000!"
+    - "TRACE 00000000\n"
+    - "TRACE 00000000\r"
+    - "TRACE 00000000\r\n"
+    - "TRACE 00000000\u2028"
+    - "TRACE 00000000\u2029"
+    - " TRACE 00000000"
+    - "TRACE 00000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-logs-03
+  difficulty: simple
+  status: ok
+  description: >-
+    A server boot marker is BOOT[ followed by four uppercase ASCII letters and ]. No other output.
+  regex: "/^BOOT\\[[ABCDEFGHIJKLMNOPQRSTUVWXYZ]{4}\\]$(?![\\s\\S])/"
+  match:
+    - "BOOT[AAAA]"
+    - "BOOT[ZZZZ]"
+    - "BOOT[NNNN]"
+    - "BOOT[AZAZ]"
+    - "BOOT[ZAZA]"
+    - "BOOT[AZZZ]"
+    - "BOOT[ZAAA]"
+    - "BOOT[NAAA]"
+  no_match:
+    - "BOOT[AAA]"
+    - "BOOT[AAAAA]"
+    - "BOOT[?AAA]"
+    - "BOOT[ AAA]"
+    - "BOOT[AAA\u00e9]"
+    - "BOOT[AAAA\t]"
+    - "BOOT?AAAA]"
+    - "BOOT[AAAA?"
+    - "BOOT[aAAA]"
+    - "!BOOT[AAAA]"
+    - "BOOT[AAAA]!"
+    - "BOOT[AAAA]\n"
+    - "BOOT[AAAA]\r"
+    - "BOOT[AAAA]\r\n"
+    - "BOOT[AAAA]\u2028"
+    - "BOOT[AAAA]\u2029"
+    - " BOOT[AAAA]"
+    - "BOOT[AAAA] "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-logs-04
+  difficulty: simple
+  status: ok
+  description: >-
+    A log shard key is log/ followed by exactly five ASCII digits and literal /ready.
+  regex: "/^log\\/[0123456789]{5}\\/ready$(?![\\s\\S])/"
+  match:
+    - "log/00000/ready"
+    - "log/99999/ready"
+    - "log/55555/ready"
+    - "log/09090/ready"
+    - "log/90909/ready"
+    - "log/09999/ready"
+    - "log/90000/ready"
+    - "log/50000/ready"
+  no_match:
+    - "log/0000/ready"
+    - "log/000000/ready"
+    - "log/?0000/ready"
+    - "log/ 0000/ready"
+    - "log/0000\u00e9/ready"
+    - "log/00000\t/ready"
+    - "log?00000/ready"
+    - "log/00000?ready"
+    - "!log/00000/ready"
+    - "log/00000/ready!"
+    - "log/00000/ready\n"
+    - "log/00000/ready\r"
+    - "log/00000/ready\r\n"
+    - "log/00000/ready\u2028"
+    - "log/00000/ready\u2029"
+    - " log/00000/ready"
+    - "log/00000/ready "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-logs-05
+  difficulty: simple
+  status: ok
+  description: >-
+    A process marker is pid= followed by exactly seven ASCII digits, including possible leading zeros.
+  regex: "/^pid=[0123456789]{7}$(?![\\s\\S])/"
+  match:
+    - "pid=0000000"
+    - "pid=9999999"
+    - "pid=5555555"
+    - "pid=0909090"
+    - "pid=9090909"
+    - "pid=0999999"
+    - "pid=9000000"
+    - "pid=5000000"
+  no_match:
+    - "pid=000000"
+    - "pid=00000000"
+    - "pid=?000000"
+    - "pid= 000000"
+    - "pid=000000\u00e9"
+    - "pid=0000000\t"
+    - "pid?0000000"
+    - "!pid=0000000"
+    - "pid=0000000!"
+    - "pid=0000000\n"
+    - "pid=0000000\r"
+    - "pid=0000000\r\n"
+    - "pid=0000000\u2028"
+    - "pid=0000000\u2029"
+    - " pid=0000000"
+    - "pid=0000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-logs-06
+  difficulty: medium
+  status: ok
+  description: >-
+    Form-validation ticket: A queue log line is depth= followed by a canonical integer from 0 through 63. No signs, spaces or other fields.
+  regex: "/^depth=(?:[0-9]|[1-5][0-9]|6[0-3])$(?![\\s\\S])/"
+  match:
+    - "depth=0"
+    - "depth=1"
+    - "depth=2"
+    - "depth=61"
+    - "depth=62"
+    - "depth=63"
+    - "depth=31"
+    - "depth=32"
+  no_match:
+    - "depth=-1"
+    - "depth=64"
+    - "depth=00"
+    - "depth=+0"
+    - "depth=0.0"
+    - "depth= 0"
+    - "depth=630"
+    - "!depth=0"
+    - "depth=0!"
+    - "depth=0\n"
+    - "depth=0\r"
+    - "depth=0\r\n"
+    - "depth=0\u2028"
+    - "depth=0\u2029"
+    - " depth=0"
+    - "depth=0 "
+  pitfall: >-
+    Endpoints and canonical decimal spelling must both be enforced.
+- id: gpt-logs-07
+  difficulty: medium
+  status: ok
+  description: >-
+    An HTTP log summary is HTTP plus one space, status 400 through 499, one space and exactly GET or POST, uppercase. No path or other fields.
+  regex: "/^HTTP 4[0-9]{2} (?:GET|POST)$(?![\\s\\S])/"
+  match:
+    - "HTTP 400 GET"
+    - "HTTP 499 POST"
+    - "HTTP 404 GET"
+    - "HTTP 403 POST"
+    - "HTTP 401 GET"
+    - "HTTP 405 POST"
+    - "HTTP 450 GET"
+    - "HTTP 498 POST"
+  no_match:
+    - "HTTP 399 GET"
+    - "HTTP 500 POST"
+    - "HTTP 40 GET"
+    - "HTTP 4000 GET"
+    - "HTTP 400 get"
+    - "HTTP 400 PUT"
+    - "HTTP 4a0 GET"
+    - "HTTP 400  GET"
+    - "!HTTP 400 GET"
+    - "HTTP 400 GET!"
+    - "HTTP 400 GET\n"
+    - "HTTP 400 GET\r"
+    - "HTTP 400 GET\r\n"
+    - "HTTP 400 GET\u2028"
+    - "HTTP 400 GET\u2029"
+    - " HTTP 400 GET"
+    - "HTTP 400 GET "
+  pitfall: >-
+    Status width and method alternatives are both restricted.
+- id: gpt-logs-08
+  difficulty: medium
+  status: ok
+  description: >-
+    A timestamped event is HH:MM:SS then one space and either WARN or ERROR. Padded 24-hour time: hour 00 to 23, minutes and seconds 00 to 59. No other fields.
+  regex: "/^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9] (?:WARN|ERROR)$(?![\\s\\S])/"
+  match:
+    - "00:00:00 WARN"
+    - "23:59:59 ERROR"
+    - "12:30:45 WARN"
+    - "01:01:01 ERROR"
+    - "09:59:00 WARN"
+    - "20:00:59 ERROR"
+    - "22:45:10 WARN"
+    - "10:10:10 ERROR"
+  no_match:
+    - "24:00:00 WARN"
+    - "23:60:00 WARN"
+    - "23:00:60 WARN"
+    - "1:00:00 WARN"
+    - "00:00:00 warn"
+    - "00:00:00 INFO"
+    - "00:00:00  WARN"
+    - "!00:00:00 WARN"
+    - "00:00:00 WARN!"
+    - "00:00:00 WARN\n"
+    - "00:00:00 WARN\r"
+    - "00:00:00 WARN\r\n"
+    - "00:00:00 WARN\u2028"
+    - "00:00:00 WARN\u2029"
+    - " 00:00:00 WARN"
+    - "00:00:00 WARN "
+  pitfall: >-
+    Every time component has its own range.
+- id: gpt-logs-09
+  difficulty: medium
+  status: ok
+  description: >-
+    A worker line is worker= plus a canonical integer 1 to 32, one space and state= followed by idle or busy, lowercase. Exact field order, no other text.
+  regex: "/^worker=(?:[1-9]|[12][0-9]|3[0-2]) state=(?:idle|busy)$(?![\\s\\S])/"
+  match:
+    - "worker=1 state=idle"
+    - "worker=32 state=busy"
+    - "worker=1 state=busy"
+    - "worker=32 state=idle"
+    - "worker=9 state=idle"
+    - "worker=10 state=busy"
+    - "worker=20 state=idle"
+    - "worker=31 state=busy"
+  no_match:
+    - "worker=0 state=idle"
+    - "worker=33 state=busy"
+    - "worker=01 state=idle"
+    - "worker=1 state=Idle"
+    - "worker=1 state=dead"
+    - "worker=1  state=idle"
+    - "state=idle worker=1"
+    - "!worker=1 state=idle"
+    - "worker=1 state=idle!"
+    - "worker=1 state=idle\n"
+    - "worker=1 state=idle\r"
+    - "worker=1 state=idle\r\n"
+    - "worker=1 state=idle\u2028"
+    - "worker=1 state=idle\u2029"
+    - " worker=1 state=idle"
+    - "worker=1 state=idle "
+  pitfall: >-
+    The state field is an exact enumeration.
+- id: gpt-logs-10
+  difficulty: medium
+  status: ok
+  description: >-
+    Import gate — reject any nonconforming input. An access log message is path= followed by slash and 1 to 12 lowercase ASCII letters, one space and bytes= followed by a canonical integer 0 to 999. No additional path components or fields.
+  regex: "/^path=\\/[a-z]{1,12} bytes=(?:0|[1-9][0-9]{0,2})$(?![\\s\\S])/"
+  match:
+    - "path=/a bytes=0"
+    - "path=/abcdefghijkl bytes=999"
+    - "path=/index bytes=1"
+    - "path=/status bytes=99"
+    - "path=/health bytes=100"
+    - "path=/data bytes=10"
+    - "path=/foo bytes=9"
+    - "path=/bar bytes=500"
+  no_match:
+    - "path=/ bytes=0"
+    - "path=/abcdefghijklm bytes=0"
+    - "path=/A bytes=0"
+    - "path=/a bytes=1000"
+    - "path=/a bytes=00"
+    - "path=/a  bytes=0"
+    - "path=/a/b bytes=0"
+    - "!path=/a bytes=0"
+    - "path=/a bytes=0!"
+    - "path=/a bytes=0\n"
+    - "path=/a bytes=0\r"
+    - "path=/a bytes=0\r\n"
+    - "path=/a bytes=0\u2028"
+    - "path=/a bytes=0\u2029"
+    - " path=/a bytes=0"
+    - "path=/a bytes=0 "
+  pitfall: >-
+    Path length and canonical byte counter are independent.
+- id: gpt-logs-11
+  difficulty: medium
+  status: ok
+  description: >-
+    Search filter, not whole-input validation. Search raw server output for a request number 1 through 64 immediately between lowercase req= and semicolon. Shortest ASCII decimal spelling; other output is unrestricted.
+  regex: "/(?<=req=)(?:[1-9]|[1-5][0-9]|6[0-4])(?=;)/"
+  match:
+    - "req=1;"
+    - "req=2;"
+    - "req=9;"
+    - "req=10;"
+    - "before req=20; after"
+    - "before req=50; after"
+    - "before req=63; after"
+    - "before req=64; after"
+  no_match:
+    - "req=0;"
+    - "req=65;"
+    - "req=01;"
+    - "req=+1;"
+    - "req=a;"
+    - "req=1.0;"
+    - "REQ=1;"
+    - "req=1 ;"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-logs-12
+  difficulty: medium
+  status: ok
+  description: >-
+    Find an eight-character uppercase hexadecimal fault code immediately between lowercase fault[ and ]. Search anywhere in output.
+  regex: "/(?<=fault\\[)[0-9A-F]{8}(?=\\])/"
+  match:
+    - "fault[00000000]"
+    - "fault[FFFFFFFF]"
+    - "fault[ABCDEF12]"
+    - "fault[12345678]"
+    - "before fault[DEADBEEF] after"
+    - "before fault[A0000001] after"
+    - "before fault[01234567] after"
+    - "before fault[99AABBCC] after"
+  no_match:
+    - "fault[0000000]"
+    - "fault[000000000]"
+    - "fault[abcdef12]"
+    - "fault[ABCDEFg1]"
+    - "fault[A000000!]"
+    - "fault[\u00e90000000]"
+    - "FAULT[00000000]"
+    - "fault[00000000 ]"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-logs-13
+  difficulty: medium
+  status: ok
+  description: >-
+    Search LF-separated output for an entire line ERROR followed by colon, one space and 1 to 20 lowercase ASCII letters or spaces. At least one letter is required. Other lines may be arbitrary; CR is not a line delimiter.
+  regex: "/(?:^|\\n)ERROR: (?=[a-z ]{1,20}(?:\\n|(?![\\s\\S])))[ ]*[a-z][a-z ]*(?=\\n|(?![\\s\\S]))/"
+  match:
+    - "ERROR: a"
+    - "ERROR: abcdefghijklmnopqrst"
+    - "x\nERROR: bad request\ny"
+    - "\nERROR: fail\n"
+    - "ERROR:  a"
+    - "ERROR: a "
+    - "ERROR:  bad "
+    - "x\nERROR: broken"
+  no_match:
+    - "ERROR: "
+    - "ERROR:  "
+    - "ERROR: abcdefghijklmnopqrstu"
+    - "ERROR: Fail"
+    - "x ERROR: fail"
+    - "ERROR: fail1"
+    - "ERROR: fail\r"
+    - "ERROR:\tfail"
+  pitfall: >-
+    Whole-line semantics and a nonblank body must both hold.
+- id: gpt-logs-14
+  difficulty: hard
+  status: ok
+  description: >-
+    A correlation summary is corr: and two identical eight-character lowercase hexadecimal IDs separated by slash. Nothing else is allowed. Each of the two values must be enclosed in matching ASCII single or double quotes; the same quote character must be used for both values. Quotes are not part of the value, and escapes are not permitted.
+  regex: "/^corr:(['\\\"])([0-9a-f]{8})\\1\\/\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "corr:'00000000'/'00000000'"
+    - "corr:\"ffffffff\"/\"ffffffff\""
+    - "corr:'abcdef12'/'abcdef12'"
+    - "corr:\"12345678\"/\"12345678\""
+    - "corr:'deadbeef'/'deadbeef'"
+    - "corr:\"a0000001\"/\"a0000001\""
+    - "corr:'01234567'/'01234567'"
+    - "corr:\"99aabbcc\"/\"99aabbcc\""
+  no_match:
+    - "corr:'00000000'/'ffffffff'"
+    - "corr:'00000000'/'0000000000000000'"
+    - "corr:'?'/'?'"
+    - "corr:'00000000 '/'00000000'"
+    - "corr:'00000000'/' 00000000'"
+    - "corr:'00000000'/'00000000/00000000'"
+    - "corr:'!!!!!!!!'/'!!!!!!!!'"
+    - "corr:'0000000'/'0000000'"
+    - "corr:'000000000'/'000000000'"
+    - "corr:'zzzzzzzz'/'zzzzzzzz'"
+    - "corr:'00000000\"/'00000000'"
+    - "corr:'00000000'/\"00000000\""
+    - "corr:00000000/00000000"
+    - "!corr:'00000000'/'00000000'"
+    - "corr:'00000000'/'00000000'!"
+    - "corr:'00000000'/'00000000'\n"
+    - "corr:'00000000'/'00000000'\r"
+    - "corr:'00000000'/'00000000'\r\n"
+    - "corr:'00000000'/'00000000'\u2028"
+    - "corr:'00000000'/'00000000'\u2029"
+    - " corr:'00000000'/'00000000'"
+    - "corr:'00000000'/'00000000' "
+  pitfall: >-
+    Quote style, both closing quotes, value policy and exact value repetition must all agree.
+- id: gpt-logs-15
+  difficulty: hard
+  status: ok
+  description: >-
+    Code review requirement: A paired operation log is OPEN followed by one space and a lowercase ASCII operation name 3 to 8 letters, one LF, then CLOSE plus one space and the exact same name. No final LF, CR, messages or other lines.
+  regex: "/^OPEN ([a-z]{3,8})\\nCLOSE \\1$(?![\\s\\S])/"
+  match:
+    - "OPEN abc\nCLOSE abc"
+    - "OPEN xyz\nCLOSE xyz"
+    - "OPEN abcdefgh\nCLOSE abcdefgh"
+    - "OPEN read\nCLOSE read"
+    - "OPEN write\nCLOSE write"
+    - "OPEN load\nCLOSE load"
+    - "OPEN parse\nCLOSE parse"
+    - "OPEN sample\nCLOSE sample"
+  no_match:
+    - "OPEN abc\nCLOSE xyz"
+    - "OPEN ab\nCLOSE ab"
+    - "OPEN abcdefghi\nCLOSE abcdefghi"
+    - "OPEN ABC\nCLOSE ABC"
+    - "OPEN abc\r\nCLOSE abc"
+    - "OPEN abc CLOSE abc"
+    - "OPEN  abc\nCLOSE abc"
+    - "!OPEN abc\nCLOSE abc"
+    - "OPEN abc\nCLOSE abc!"
+    - "OPEN abc\nCLOSE abc\n"
+    - "OPEN abc\nCLOSE abc\r"
+    - "OPEN abc\nCLOSE abc\r\n"
+    - "OPEN abc\nCLOSE abc\u2028"
+    - "OPEN abc\nCLOSE abc\u2029"
+    - " OPEN abc\nCLOSE abc"
+    - "OPEN abc\nCLOSE abc "
+  pitfall: >-
+    The closing operation must agree exactly across the LF boundary.
+- id: gpt-logs-16
+  difficulty: hard
+  status: ok
+  description: >-
+    A localized log source: the literal prefix src= followed by 2 through 12 Unicode letter clusters. Each cluster is a Unicode letter followed by zero to two Unicode combining marks. One optional ASCII hyphen may join two nonempty runs of clusters, but no edge hyphen or second hyphen is allowed. Length counts letter clusters, excluding the hyphen and any fixed prefix; spaces, digits and other characters are forbidden. No normalization is performed. Append the exact literal suffix ;ok after the name; its characters do not count toward the cluster limit.
+  regex: "/^src=(?=(?:\\p{L}\\p{M}{0,2}-?){2,12};ok$)(?:\\p{L}\\p{M}{0,2}){1,12}(?:-(?:\\p{L}\\p{M}{0,2}){1,12})?;ok$(?![\\s\\S])/u"
+  match:
+    - "src=ab;ok"
+    - "src=e\u0301x;ok"
+    - "src=a\u0301\u0308b;ok"
+    - "src=\u6771\u4eac-\u5927\u962a;ok"
+    - "src=\u0394\u03ad\u03bb\u03c4\u03b1;ok"
+    - "src=\u0645\u0631\u062d\u0628\u0627;ok"
+    - "src=\u0417\u0438\u043c\u0430;ok"
+    - "src=abcdefghijkl;ok"
+    - "src=e\u0301-e\u0308;ok"
+    - "src=A\u00e9;ok"
+  no_match:
+    - "src=a;ok"
+    - "src=abcdefghijklm;ok"
+    - "src=ab1;ok"
+    - "src=a_b;ok"
+    - "src=a b;ok"
+    - "src=e\u0301;ok"
+    - "src=\U0001f600a;ok"
+    - "src=\u0301ab;ok"
+    - "src=a\u0301\u0308\u0303b;ok"
+    - "src=-ab;ok"
+    - "src=ab-;ok"
+    - "src=a--b;ok"
+    - "src=ab-cd-ef;ok"
+    - "src=ab"
+    - "src=ab?ok"
+    - "src=ab;OK"
+    - "!src=ab;ok"
+    - "src=ab;ok!"
+    - "src=ab;ok\n"
+    - "src=ab;ok\r"
+    - "src=ab;ok\r\n"
+    - "src=ab;ok\u2028"
+    - "src=ab;ok\u2029"
+    - " src=ab;ok"
+    - "src=ab;ok "
+  pitfall: >-
+    Count base-letter clusters, attach bounded marks only after a letter, and limit the optional internal separator.
+- id: gpt-logs-17
+  difficulty: hard
+  status: ok
+  description: >-
+    A diagnostic block: the entire string has the literal opening wrapper LOG{, a lowercase ASCII routing label of 2 through 6 letters, colon, a body, colon, the exact same routing label and the literal closing wrapper }LOG. The body has 1 through 40 Unicode code points, allows any characters including line breaks and colons, and must contain the lowercase substring error. Only the body counts toward its length limit; no other text is allowed.
+  regex: "/^LOG\\{(?<route>[a-z]{2,6}):(?=.{1,40}:\\k<route>\\}LOG$)(?=.{0,40}error.{0,40}:\\k<route>\\}LOG$).*:\\k<route>\\}LOG$(?![\\s\\S])/su"
+  match:
+    - "LOG{aa:error:aa}LOG"
+    - "LOG{abcdef:aerror:abcdef}LOG"
+    - "LOG{tag:errorb:tag}LOG"
+    - "LOG{route:\nerror:route}LOG"
+    - "LOG{memo:error\n:memo}LOG"
+    - "LOG{ab:\terror:ab}LOG"
+    - "LOG{zz:\U0001f600error:zz}LOG"
+    - "LOG{key:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxerror:key}LOG"
+    - "LOG{xy:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600error:xy}LOG"
+    - "LOG{aa:prefix: error: suffix:aa}LOG"
+  no_match:
+    - "LOG{aa::aa}LOG"
+    - "LOG{aa:abc:aa}LOG"
+    - "LOG{aa:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxerror:aa}LOG"
+    - "LOG{aa:error:ab}LOG"
+    - "LOG{a:error:a}LOG"
+    - "LOG{abcdefg:error:abcdefg}LOG"
+    - "LOG{AA:error:AA}LOG"
+    - "LOG{aa:ERROR:aa}LOG"
+    - "LOG{aa:error:aa"
+    - "aa:error:aa}LOG"
+    - "LOG{aa:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600error:aa}LOG"
+    - "LOG{error:abc:error}LOG"
+    - "!LOG{aa:error:aa}LOG"
+    - "LOG{aa:error:aa}LOG!"
+    - "LOG{aa:error:aa}LOG\n"
+    - "LOG{aa:error:aa}LOG\r"
+    - "LOG{aa:error:aa}LOG\r\n"
+    - "LOG{aa:error:aa}LOG\u2028"
+    - "LOG{aa:error:aa}LOG\u2029"
+    - " LOG{aa:error:aa}LOG"
+    - "LOG{aa:error:aa}LOG "
+  pitfall: >-
+    Repeat the routing label exactly, count only body code points including line breaks, and require the marker inside that body.
+- id: gpt-logs-18
+  difficulty: hard
+  status: ok
+  description: >-
+    An LF-only log receipt has trace= followed by eight lowercase hexadecimal characters on line one, then copy= and the exact same trace on line two. No final LF or spaces. Both values must be enclosed in matching ASCII single or double quotes, using the same quote character on both lines. The quotes are delimiters, not part of the value; no escapes are permitted.
+  regex: "/^trace=(['\\\"])([0-9a-f]{8})\\1\\ncopy=\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "trace='00000000'\ncopy='00000000'"
+    - "trace=\"ffffffff\"\ncopy=\"ffffffff\""
+    - "trace='abcdef12'\ncopy='abcdef12'"
+    - "trace=\"12345678\"\ncopy=\"12345678\""
+    - "trace='deadbeef'\ncopy='deadbeef'"
+    - "trace=\"a0000001\"\ncopy=\"a0000001\""
+    - "trace='01234567'\ncopy='01234567'"
+    - "trace=\"99aabbcc\"\ncopy=\"99aabbcc\""
+  no_match:
+    - "trace='00000000'\ncopy='ffffffff'"
+    - "trace='00000000\r'\ncopy='00000000'"
+    - "trace=00000000 copy=00000000"
+    - "trace=00000000\nCopy=00000000"
+    - "trace='?'\ncopy='?'"
+    - "trace='00000000'\ncopy='00000000 '"
+    - "trace='!!!!!!!!'\ncopy='!!!!!!!!'"
+    - "trace='0000000'\ncopy='0000000'"
+    - "trace='000000000'\ncopy='000000000'"
+    - "trace='zzzzzzzz'\ncopy='zzzzzzzz'"
+    - "trace='00000000\"\ncopy='00000000'"
+    - "trace='00000000'\ncopy=\"00000000\""
+    - "trace=00000000\ncopy=00000000"
+    - "trace='00000000'\r\ncopy='00000000'"
+    - "!trace='00000000'\ncopy='00000000'"
+    - "trace='00000000'\ncopy='00000000'!"
+    - "trace='00000000'\ncopy='00000000'\n"
+    - "trace='00000000'\ncopy='00000000'\r"
+    - "trace='00000000'\ncopy='00000000'\r\n"
+    - "trace='00000000'\ncopy='00000000'\u2028"
+    - "trace='00000000'\ncopy='00000000'\u2029"
+    - " trace='00000000'\ncopy='00000000'"
+    - "trace='00000000'\ncopy='00000000' "
+  pitfall: >-
+    The exact value and quote convention must agree across LF-separated lines, in addition to the value policy.
+- id: gpt-logs-19
+  difficulty: hard
+  status: ok
+  description: >-
+    Acceptance criteria:
+    - An allocation log is take= and a canonical integer 1 through 99, semicolon, release= and the exact same integer, semicolon, free= and an integer 0 through 99 that differs from the taken value. No spaces or other fields.
+    - Evaluate the input as supplied; do not trim or normalize it.
+  regex: "/^take=([1-9][0-9]?);release=\\1;free=(?!\\1$)(?:0|[1-9][0-9]?)$(?![\\s\\S])/"
+  match:
+    - "take=1;release=1;free=0"
+    - "take=99;release=99;free=98"
+    - "take=10;release=10;free=1"
+    - "take=9;release=9;free=99"
+    - "take=20;release=20;free=30"
+    - "take=30;release=30;free=20"
+    - "take=50;release=50;free=0"
+    - "take=1;release=1;free=10"
+  no_match:
+    - "take=1;release=2;free=0"
+    - "take=1;release=1;free=1"
+    - "take=0;release=0;free=1"
+    - "take=100;release=100;free=1"
+    - "take=01;release=01;free=0"
+    - "take=1;release=1;free=100"
+    - "take=1;release=1;free=00"
+    - "!take=1;release=1;free=0"
+    - "take=1;release=1;free=0!"
+    - "take=1;release=1;free=0\n"
+    - "take=1;release=1;free=0\r"
+    - "take=1;release=1;free=0\r\n"
+    - "take=1;release=1;free=0\u2028"
+    - "take=1;release=1;free=0\u2029"
+    - " take=1;release=1;free=0"
+    - "take=1;release=1;free=0 "
+  pitfall: >-
+    The first equality and final inequality compare whole canonical values.
+- id: gpt-logs-20
+  difficulty: hard
+  status: ok
+  description: >-
+    A log transport marker is BEGIN, one ASCII space, a matching pair of single or double ASCII quotes around a lowercase ASCII label 3 to 8 letters, LF, then END plus one space and the same quote-label-quote spelling. The label cannot be tmp. No final LF.
+  regex: "/^BEGIN (['\\\"])(?!tmp\\1)([a-z]{3,8})\\1\\nEND \\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "BEGIN 'abc'\nEND 'abc'"
+    - "BEGIN \"xyz\"\nEND \"xyz\""
+    - "BEGIN 'abcdefgh'\nEND 'abcdefgh'"
+    - "BEGIN \"tmpx\"\nEND \"tmpx\""
+    - "BEGIN 'read'\nEND 'read'"
+    - "BEGIN \"write\"\nEND \"write\""
+    - "BEGIN 'load'\nEND 'load'"
+    - "BEGIN \"parse\"\nEND \"parse\""
+  no_match:
+    - "BEGIN 'tmp'\nEND 'tmp'"
+    - "BEGIN 'abc'\nEND 'xyz'"
+    - "BEGIN 'abc'\nEND \"abc\""
+    - "BEGIN 'abc\"\nEND 'abc'"
+    - "BEGIN 'ab'\nEND 'ab'"
+    - "BEGIN 'abcdefghi'\nEND 'abcdefghi'"
+    - "BEGIN 'abc'\r\nEND 'abc'"
+    - "!BEGIN 'abc'\nEND 'abc'"
+    - "BEGIN 'abc'\nEND 'abc'!"
+    - "BEGIN 'abc'\nEND 'abc'\n"
+    - "BEGIN 'abc'\nEND 'abc'\r"
+    - "BEGIN 'abc'\nEND 'abc'\r\n"
+    - "BEGIN 'abc'\nEND 'abc'\u2028"
+    - "BEGIN 'abc'\nEND 'abc'\u2029"
+    - " BEGIN 'abc'\nEND 'abc'"
+    - "BEGIN 'abc'\nEND 'abc' "
+    - "BEGIN ?abc?\nEND ?abc?"
+    - "BEGIN 'ab!'\nEND 'ab!'"
+  pitfall: >-
+    Quote equality and label equality both survive the line break.

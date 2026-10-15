@@ -98,6 +98,7 @@ partagé par toutes les étapes.
 | Train / valid      | Synthétiques : taxonomie → professeur **DeepSeek V4.1 Flash** (OpenRouter)          | ~10 000 exemples validés après filtrage                          |
 | Held-out (dev)     | Split des données synthétiques                                                      | Pour itérer vite. Même distribution que le train                 |
 | Benchmark          | ~210 cas **écrits à la main par Claude**, versionnés dans `benchmark/`               | Fait foi. Figé une fois constitué, décontaminé contre le train   |
+| Benchmark GPT      | 420 cas écrits par **GPT 6.1 Sol**, versionnés dans `benchmark-gpt/` (étape 10 bis)  | Indépendant du train (DeepSeek) et des données écrites par Claude |
 | DPO                | **Généré par nous** à partir du modèle SFT                                          | Données _on-policy_                                              |
 
 Le benchmark n'est pas produit par le professeur : sinon, il aurait la même distribution et le même style que le
@@ -784,6 +785,54 @@ uv run scripts/eval.py --name sft-1.7b-benchmark --data data/eval/benchmark.json
 - Suite : un RFT sur le 1.7B (la méthode la plus rentable sur le 0.6B), et un benchmark indépendant avant toute
   nouvelle génération de données difficiles.
 
+### Étape 10 bis : benchmark indépendant (GPT 6.1 Sol)
+
+- **Faire** : un second benchmark écrit par une troisième famille de modèles, qui n'a vu ni le train (DeepSeek), ni
+  le benchmark et les compléments écrits par Claude. Il juge sans biais de style toutes les données, y compris
+  celles des étapes 9 ter et 9 quater.
+- **Livrable** : `benchmark-gpt/` (420 cas, source de vérité) et `data/eval/benchmark-gpt.jsonl`.
+
+```sh
+# GPT 6.1 Sol (raisonnement high) dans OpenCode, avec le prompt de benchmark-gpt/PROMPT.md
+uv run scripts/benchmark.py check --dir benchmark-gpt
+uv run scripts/benchmark.py build --dir benchmark-gpt --output data/eval/benchmark-gpt.jsonl
+```
+
+**Construction** : 20 cas par catégorie (5 simples, 8 intermédiaires, 7 difficiles), des quotas de constructions
+rares, et des règles d'isolement (GPT ne lit que `benchmark.py`, `common.py`, `validate.py` et
+`configs/generation.yaml`, et n'écrit que dans `benchmark-gpt/`). GPT a écrit ses cas via de petits scripts
+(`benchmark-gpt/*.py`, conservés pour la traçabilité) et les a vérifiés avec ses propres contrôles plutôt qu'avec
+`benchmark.py`. Le contrôle officiel, relancé ensuite : **0 erreur**, aucun recoupement avec le train, 31
+avertissements « tests peu discriminants (classes élargies) », gardés. Plus de 10 000 chaînes de test, au moins 8 de
+chaque côté par cas. Couverture déclarée : lookahead 176 cas, backreferences 120, lookbehind 41, `m` ou lignes
+explicites 46, `s` 19, `\p{…}` 36, recherches non ancrées 45, plages numériques 75. Les backreferences (29 % des
+cas) sont surreprésentées par rapport à de vraies demandes : beaucoup de cas difficiles tiennent du casse-tête.
+
+**Plafond** : des agents Claude, qui n'ont pas écrit ce benchmark, répondent aux 420 prompts dans les mêmes
+conditions qu'à l'étape 9 quater : **420 / 420**, dont les 147 difficiles (4 réponses seulement identiques à la
+référence). Le benchmark n'est donc pas ambigu, et ses cas difficiles sont solubles par un modèle frontier qui
+raisonne (`results/ceiling-claude-benchmark-gpt.jsonl`).
+
+| Benchmark GPT (420 cas)       | Succès     | simples   | intermédiaires | difficiles | Mal formées | gagnés / perdus face au SFT 0.6B (p) |
+| ----------------------------- | ---------- | --------- | -------------- | ---------- | ----------- | ------------------------------------ |
+| Plafond Claude                | 100 %      | 105 / 105 | 168 / 168      | 147 / 147  | 0 %         |                                      |
+| SFT 0.6B                      | 17,4 %     | 56 / 105  | 17 / 168       | 0 / 147    | 6,7 %       |                                      |
+| RFT 0.6B                      | 18,3 %     | 58 / 105  | 19 / 168       | 0 / 147    | 6,7 %       | 8 / 4 (0,39)                         |
+| GRPO 0.6B, pas 500            | 18,1 %     | 56 / 105  | 20 / 168       | 0 / 147    | 6,4 %       | 10 / 7 (0,63)                        |
+| SFT 0.6B enrichi (9 ter)      | 20,2 %     | 66 / 105  | 19 / 168       | 0 / 147    | 4,8 %       | 24 / 12 (0,065)                      |
+| SFT 0.6B + pilote (9 quater)  | 19,1 %     | 60 / 105  | 19 / 168       | 1 / 147    | 10,0 %      | 17 / 10 (0,25)                       |
+| **SFT 1.7B**                  | **25,7 %** | 75 / 105  | 30 / 168       | 3 / 147    | 8,8 %       | **44 / 9 (< 0,001)**                 |
+
+- **Le diagnostic tient sur un juge indépendant** : RFT et GRPO n'apportent rien de mesurable, la taille beaucoup
+  (le 1.7B bat aussi l'enrichi : 40 / 17, p = 0,003).
+- **Les données écrites par Claude** : tendance positive pour l'étape 9 ter (+2,8 points, p = 0,065), sans
+  concentration sur les catégories visées (21 → 24 sur 120, 52 → 61 sur les autres). Le pilote difficile n'ajoute
+  rien (14 gagnés, 19 perdus face à l'enrichi) et augmente les sorties mal formées.
+- **Les cas difficiles sont hors de portée** : 0 à 3 sur 147 pour tous nos modèles, 147 / 147 pour un modèle
+  frontier qui raisonne. Ni la méthode, ni la taille jusqu'à 1.7B, ni des données difficiles en plus ne les
+  débloquent. Hypothèse : ils demandent de raisonner avant de répondre, ce que nos modèles ne font pas (mode
+  _thinking_ de Qwen3 désactivé pour la latence).
+
 ### Plus tard (hors de ce repo pour l'instant)
 
 - Comparaison avec des modèles frontier (qualité, latence, coût par requête).
@@ -813,6 +862,7 @@ uv run scripts/eval.py --name sft-1.7b-benchmark --data data/eval/benchmark.json
 │   ├── grpo.py            # entraînement GRPO (étape 9)
 │   └── reward.py          # fonction de récompense GRPO
 ├── benchmark/        # benchmark écrit à la main, un YAML par catégorie
+├── benchmark-gpt/    # benchmark indépendant écrit par GPT 6.1 Sol (PROMPT.md, YAML, scripts d'écriture)
 ├── tests/            # tests du harnais (pytest) et cas écrits à la main (fixtures/)
 ├── adapters/         # adapters LoRA entraînés (sft/, dpo/, grpo/)
 └── results/          # scores et bilan

@@ -1,0 +1,690 @@
+# Benchmark GPT, catégorie phone-numbers. Format et contrôles : scripts/benchmark.py.
+- id: gpt-phone-numbers-01
+  difficulty: simple
+  status: ok
+  description: >-
+    The legacy extension field is ext. followed by exactly four ASCII digits with no space. Leading zeros are allowed.
+  regex: "/^ext\\.[0123456789]{4}$(?![\\s\\S])/"
+  match:
+    - "ext.0000"
+    - "ext.9999"
+    - "ext.5555"
+    - "ext.0909"
+    - "ext.9090"
+    - "ext.0999"
+    - "ext.9000"
+    - "ext.5000"
+  no_match:
+    - "ext.000"
+    - "ext.00000"
+    - "ext.?000"
+    - "ext. 000"
+    - "ext.000\u00e9"
+    - "ext.0000\t"
+    - "ext?0000"
+    - "!ext.0000"
+    - "ext.0000!"
+    - "ext.0000\n"
+    - "ext.0000\r"
+    - "ext.0000\r\n"
+    - "ext.0000\u2028"
+    - "ext.0000\u2029"
+    - " ext.0000"
+    - "ext.0000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-phone-numbers-02
+  difficulty: simple
+  status: ok
+  description: >-
+    A local dial token starts # and has exactly seven ASCII digits after it. No other punctuation or spaces.
+  regex: "/^\\#[0123456789]{7}$(?![\\s\\S])/"
+  match:
+    - "#0000000"
+    - "#9999999"
+    - "#5555555"
+    - "#0909090"
+    - "#9090909"
+    - "#0999999"
+    - "#9000000"
+    - "#5000000"
+  no_match:
+    - "#000000"
+    - "#00000000"
+    - "#?000000"
+    - "# 000000"
+    - "#000000\u00e9"
+    - "#0000000\t"
+    - "?0000000"
+    - "!#0000000"
+    - "#0000000!"
+    - "#0000000\n"
+    - "#0000000\r"
+    - "#0000000\r\n"
+    - "#0000000\u2028"
+    - "#0000000\u2029"
+    - " #0000000"
+    - "#0000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-phone-numbers-03
+  difficulty: simple
+  status: ok
+  description: >-
+    The radio handset code is R followed by exactly six ASCII digits and suffix /voice.
+  regex: "/^R[0123456789]{6}\\/voice$(?![\\s\\S])/"
+  match:
+    - "R000000/voice"
+    - "R999999/voice"
+    - "R555555/voice"
+    - "R090909/voice"
+    - "R909090/voice"
+    - "R099999/voice"
+    - "R900000/voice"
+    - "R500000/voice"
+  no_match:
+    - "R00000/voice"
+    - "R0000000/voice"
+    - "R?00000/voice"
+    - "R 00000/voice"
+    - "R00000\u00e9/voice"
+    - "R000000\t/voice"
+    - "?000000/voice"
+    - "R000000?voice"
+    - "!R000000/voice"
+    - "R000000/voice!"
+    - "R000000/voice\n"
+    - "R000000/voice\r"
+    - "R000000/voice\r\n"
+    - "R000000/voice\u2028"
+    - "R000000/voice\u2029"
+    - " R000000/voice"
+    - "R000000/voice "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-phone-numbers-04
+  difficulty: simple
+  status: ok
+  description: >-
+    A test phone is the literal +999 followed immediately by exactly eight ASCII digits. Format only; do not validate real country allocation.
+  regex: "/^\\+999[0123456789]{8}$(?![\\s\\S])/"
+  match:
+    - "+99900000000"
+    - "+99999999999"
+    - "+99955555555"
+    - "+99909090909"
+    - "+99990909090"
+    - "+99909999999"
+    - "+99990000000"
+    - "+99950000000"
+  no_match:
+    - "+9990000000"
+    - "+999000000000"
+    - "+999?0000000"
+    - "+999 0000000"
+    - "+9990000000\u00e9"
+    - "+99900000000\t"
+    - "+99?00000000"
+    - "!+99900000000"
+    - "+99900000000!"
+    - "+99900000000\n"
+    - "+99900000000\r"
+    - "+99900000000\r\n"
+    - "+99900000000\u2028"
+    - "+99900000000\u2029"
+    - " +99900000000"
+    - "+99900000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-phone-numbers-05
+  difficulty: simple
+  status: ok
+  description: >-
+    A PBX route is sip: followed by exactly five ASCII digits and literal @pbx.test. No real SIP parsing beyond this format.
+  regex: "/^sip:[0123456789]{5}@pbx\\.test$(?![\\s\\S])/"
+  match:
+    - "sip:00000@pbx.test"
+    - "sip:99999@pbx.test"
+    - "sip:55555@pbx.test"
+    - "sip:09090@pbx.test"
+    - "sip:90909@pbx.test"
+    - "sip:09999@pbx.test"
+    - "sip:90000@pbx.test"
+    - "sip:50000@pbx.test"
+  no_match:
+    - "sip:0000@pbx.test"
+    - "sip:000000@pbx.test"
+    - "sip:?0000@pbx.test"
+    - "sip: 0000@pbx.test"
+    - "sip:0000\u00e9@pbx.test"
+    - "sip:00000\t@pbx.test"
+    - "sip?00000@pbx.test"
+    - "sip:00000?pbx.test"
+    - "!sip:00000@pbx.test"
+    - "sip:00000@pbx.test!"
+    - "sip:00000@pbx.test\n"
+    - "sip:00000@pbx.test\r"
+    - "sip:00000@pbx.test\r\n"
+    - "sip:00000@pbx.test\u2028"
+    - "sip:00000@pbx.test\u2029"
+    - " sip:00000@pbx.test"
+    - "sip:00000@pbx.test "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-phone-numbers-06
+  difficulty: medium
+  status: ok
+  description: >-
+    Form-validation ticket: The internal extension is x followed by an integer from 200 through 349, no leading zeros or separators.
+  regex: "/^x(?:2[0-9]{2}|3[0-4][0-9])$(?![\\s\\S])/"
+  match:
+    - "x200"
+    - "x201"
+    - "x202"
+    - "x347"
+    - "x348"
+    - "x349"
+    - "x274"
+    - "x275"
+  no_match:
+    - "x199"
+    - "x350"
+    - "x0200"
+    - "x+200"
+    - "x200.0"
+    - "x 200"
+    - "x3490"
+    - "!x200"
+    - "x200!"
+    - "x200\n"
+    - "x200\r"
+    - "x200\r\n"
+    - "x200\u2028"
+    - "x200\u2029"
+    - " x200"
+    - "x200 "
+    - "x2000"
+  pitfall: >-
+    Endpoints and canonical decimal spelling must both be enforced.
+- id: gpt-phone-numbers-07
+  difficulty: medium
+  status: ok
+  description: >-
+    A French mobile entry is 06 or 07, then four groups of two ASCII digits with one ASCII space between every group, including after the initial pair. No country code or extra spaces.
+  regex: "/^0[67](?: [0-9]{2}){4}$(?![\\s\\S])/"
+  match:
+    - "06 00 00 00 00"
+    - "07 99 99 99 99"
+    - "06 12 34 56 78"
+    - "07 12 34 56 78"
+    - "06 01 02 03 04"
+    - "07 10 20 30 40"
+    - "06 99 00 99 00"
+    - "07 55 66 77 88"
+  no_match:
+    - "05 12 34 56 78"
+    - "08 12 34 56 78"
+    - "06 12 34 56"
+    - "06 12 34 56 78 90"
+    - "0612345678"
+    - "06  12 34 56 78"
+    - "06 1a 34 56 78"
+    - "!06 00 00 00 00"
+    - "06 00 00 00 00!"
+    - "06 00 00 00 00\n"
+    - "06 00 00 00 00\r"
+    - "06 00 00 00 00\r\n"
+    - "06 00 00 00 00\u2028"
+    - "06 00 00 00 00\u2029"
+    - " 06 00 00 00 00"
+    - "06 00 00 00 00 "
+  pitfall: >-
+    Pair grouping is required, not merely removable decoration.
+- id: gpt-phone-numbers-08
+  difficulty: medium
+  status: ok
+  description: >-
+    A North American test number is exactly +1 ( then a three-digit area code whose first digit is 2 through 9, then ) space, a three-digit exchange whose first digit is 2 through 9, hyphen, four ASCII digits. Format only; no allocation lookup.
+  regex: "/^\\+1 \\([2-9][0-9]{2}\\) [2-9][0-9]{2}-[0-9]{4}$(?![\\s\\S])/"
+  match:
+    - "+1 (200) 200-0000"
+    - "+1 (999) 999-9999"
+    - "+1 (212) 555-1234"
+    - "+1 (305) 234-0001"
+    - "+1 (800) 900-1234"
+    - "+1 (234) 567-8901"
+    - "+1 (987) 654-3210"
+    - "+1 (222) 333-4444"
+  no_match:
+    - "+1 (199) 200-0000"
+    - "+1 (200) 199-0000"
+    - "+1 (20) 200-0000"
+    - "+1 (200) 200-000"
+    - "+1(200) 200-0000"
+    - "+1 (200) 200 0000"
+    - "+1 (2a0) 200-0000"
+    - "!+1 (200) 200-0000"
+    - "+1 (200) 200-0000!"
+    - "+1 (200) 200-0000\n"
+    - "+1 (200) 200-0000\r"
+    - "+1 (200) 200-0000\r\n"
+    - "+1 (200) 200-0000\u2028"
+    - "+1 (200) 200-0000\u2029"
+    - " +1 (200) 200-0000"
+    - "+1 (200) 200-0000 "
+  pitfall: >-
+    Area and exchange starts are independently constrained.
+- id: gpt-phone-numbers-09
+  difficulty: medium
+  status: ok
+  description: >-
+    An international dial field is plus, a country code of 1 to 3 ASCII digits starting 1 through 9, one space, and a subscriber number of 6 to 10 ASCII digits starting 1 through 9. No other separators; format only.
+  regex: "/^\\+[1-9][0-9]{0,2} [1-9][0-9]{5,9}$(?![\\s\\S])/"
+  match:
+    - "+1 100000"
+    - "+999 9999999999"
+    - "+44 12345678"
+    - "+33 612345678"
+    - "+7 999999"
+    - "+81 1234567890"
+    - "+123 123456"
+    - "+9 123456789"
+  no_match:
+    - "+0 123456"
+    - "+01 123456"
+    - "+1000 123456"
+    - "+1 012345"
+    - "+1 12345"
+    - "+1 12345678901"
+    - "+1  123456"
+    - "+a 123456"
+    - "!+1 100000"
+    - "+1 100000!"
+    - "+1 100000\n"
+    - "+1 100000\r"
+    - "+1 100000\r\n"
+    - "+1 100000\u2028"
+    - "+1 100000\u2029"
+    - " +1 100000"
+    - "+1 100000 "
+  pitfall: >-
+    The two fields have separate widths and cannot start zero.
+- id: gpt-phone-numbers-10
+  difficulty: medium
+  status: ok
+  description: >-
+    Import gate — reject any nonconforming input. A domestic hotline label is call: followed by 0800, a hyphen and exactly six ASCII digits, optionally followed by space x and an extension of 1 to 3 digits starting nonzero.
+  regex: "/^call:0800-[0-9]{6}(?: x[1-9][0-9]{0,2})?$(?![\\s\\S])/"
+  match:
+    - "call:0800-000000"
+    - "call:0800-999999"
+    - "call:0800-123456 x1"
+    - "call:0800-123456 x999"
+    - "call:0800-123456 x10"
+    - "call:0800-654321"
+    - "call:0800-111111 x99"
+    - "call:0800-222222 x2"
+  no_match:
+    - "call:0800-12345"
+    - "call:0800-1234567"
+    - "call:0800-123456 x0"
+    - "call:0800-123456 x01"
+    - "call:0800-123456 x1000"
+    - "call:0800-123456x1"
+    - "call:0800-12a456"
+    - "!call:0800-000000"
+    - "call:0800-000000!"
+    - "call:0800-000000\n"
+    - "call:0800-000000\r"
+    - "call:0800-000000\r\n"
+    - "call:0800-000000\u2028"
+    - "call:0800-000000\u2029"
+    - " call:0800-000000"
+    - "call:0800-000000 "
+  pitfall: >-
+    An optional extension cannot be empty or zero-prefixed.
+- id: gpt-phone-numbers-11
+  difficulty: medium
+  status: ok
+  description: >-
+    Search filter, not whole-input validation. Search a contact note for an extension 10 through 79 in shortest decimal spelling immediately after lowercase ext= and before semicolon. Any surrounding text is allowed.
+  regex: "/(?<=ext=)[1-7][0-9](?=;)/"
+  match:
+    - "ext=10;"
+    - "ext=11;"
+    - "ext=19;"
+    - "ext=20;"
+    - "before ext=50; after"
+    - "before ext=70; after"
+    - "before ext=78; after"
+    - "before ext=79; after"
+  no_match:
+    - "ext=9;"
+    - "ext=80;"
+    - "ext=010;"
+    - "ext=+10;"
+    - "ext=1a;"
+    - "ext=100;"
+    - "EXT=10;"
+    - "ext=10 ;"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-phone-numbers-12
+  difficulty: medium
+  status: ok
+  description: >-
+    Find exactly seven ASCII digits immediately after lowercase dial[ and before ]. This is a contains search, with unrestricted surrounding text.
+  regex: "/(?<=dial\\[)[0-9]{7}(?=\\])/"
+  match:
+    - "dial[0000000]"
+    - "dial[9999999]"
+    - "dial[1234567]"
+    - "dial[7654321]"
+    - "before dial[1000000] after"
+    - "before dial[0000001] after"
+    - "before dial[5551234] after"
+    - "before dial[9876543] after"
+  no_match:
+    - "dial[000000]"
+    - "dial[00000000]"
+    - "dial[abcdefg]"
+    - "dial[123456a]"
+    - "dial[\uff11\uff12\uff13\uff14\uff15\uff16\uff17]"
+    - "dial[123 567]"
+    - "DIAL[0000000]"
+    - "dial[0000000 ]"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-phone-numbers-13
+  difficulty: medium
+  status: ok
+  description: >-
+    A phone display consists of three ASCII digits, a separator that is either one space or hyphen, three digits, and the same separator followed by four digits. No parentheses or country prefix.
+  regex: "/^[0-9]{3}([ -])[0-9]{3}\\1[0-9]{4}$(?![\\s\\S])/"
+  match:
+    - "000-000-0000"
+    - "999 999 9999"
+    - "123-456-7890"
+    - "123 456 7890"
+    - "555-123-4567"
+    - "555 123 4567"
+    - "987-654-3210"
+    - "987 654 3210"
+  no_match:
+    - "123-456 7890"
+    - "123 456-7890"
+    - "12-456-7890"
+    - "123-45-7890"
+    - "123-456-789"
+    - "123--456-7890"
+    - "12a-456-7890"
+    - "!000-000-0000"
+    - "000-000-0000!"
+    - "000-000-0000\n"
+    - "000-000-0000\r"
+    - "000-000-0000\r\n"
+    - "000-000-0000\u2028"
+    - "000-000-0000\u2029"
+    - " 000-000-0000"
+    - "000-000-0000 "
+  pitfall: >-
+    The separator must be consistent across both positions.
+- id: gpt-phone-numbers-14
+  difficulty: hard
+  status: ok
+  description: >-
+    A PBX confirmation is dial: followed by two identical four-digit ASCII extensions separated by slash. Extension digits may include leading zeros; no spaces. Each of the two values must be enclosed in matching ASCII single or double quotes; the same quote character must be used for both values. Quotes are not part of the value, and escapes are not permitted.
+  regex: "/^dial:(['\\\"])([0-9]{4})\\1\\/\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "dial:'0000'/'0000'"
+    - "dial:\"9999\"/\"9999\""
+    - "dial:'1234'/'1234'"
+    - "dial:\"4321\"/\"4321\""
+    - "dial:'1000'/'1000'"
+    - "dial:\"0001\"/\"0001\""
+    - "dial:'5555'/'5555'"
+    - "dial:\"9876\"/\"9876\""
+  no_match:
+    - "dial:'0000'/'9999'"
+    - "dial:'0000'/'00000000'"
+    - "dial:'?'/'?'"
+    - "dial:'0000 '/'0000'"
+    - "dial:'0000'/' 0000'"
+    - "dial:'0000'/'0000/0000'"
+    - "dial:'!!!!'/'!!!!'"
+    - "dial:'000'/'000'"
+    - "dial:'00000'/'00000'"
+    - "dial:'zzzz'/'zzzz'"
+    - "dial:'0000\"/'0000'"
+    - "dial:'0000'/\"0000\""
+    - "dial:0000/0000"
+    - "!dial:'0000'/'0000'"
+    - "dial:'0000'/'0000'!"
+    - "dial:'0000'/'0000'\n"
+    - "dial:'0000'/'0000'\r"
+    - "dial:'0000'/'0000'\r\n"
+    - "dial:'0000'/'0000'\u2028"
+    - "dial:'0000'/'0000'\u2029"
+    - " dial:'0000'/'0000'"
+    - "dial:'0000'/'0000' "
+  pitfall: >-
+    Quote style, both closing quotes, value policy and exact value repetition must all agree.
+- id: gpt-phone-numbers-15
+  difficulty: hard
+  status: ok
+  description: >-
+    Code review requirement: A short-code request is * then a canonical integer 1 through 99, another *, exactly four ASCII PIN digits, another *, the exact same short-code integer, and #. No whitespace.
+  regex: "/^\\*([1-9][0-9]?)\\*[0-9]{4}\\*\\1#$(?![\\s\\S])/"
+  match:
+    - "*1*0000*1#"
+    - "*99*9999*99#"
+    - "*10*1234*10#"
+    - "*9*4321*9#"
+    - "*20*1111*20#"
+    - "*30*2222*30#"
+    - "*40*3333*40#"
+    - "*50*4444*50#"
+  no_match:
+    - "*1*0000*2#"
+    - "*0*0000*0#"
+    - "*01*0000*01#"
+    - "*100*0000*100#"
+    - "*1*000*1#"
+    - "*1*00000*1#"
+    - "*1*00a0*1#"
+    - "!*1*0000*1#"
+    - "*1*0000*1#!"
+    - "*1*0000*1#\n"
+    - "*1*0000*1#\r"
+    - "*1*0000*1#\r\n"
+    - "*1*0000*1#\u2028"
+    - "*1*0000*1#\u2029"
+    - " *1*0000*1#"
+    - "*1*0000*1# "
+  pitfall: >-
+    The repeated service code and independent PIN width both matter.
+- id: gpt-phone-numbers-16
+  difficulty: hard
+  status: ok
+  description: >-
+    A dial prefix name: 2 through 12 Unicode letter clusters. Each cluster is a Unicode letter followed by zero to two Unicode combining marks. One optional ASCII hyphen may join two nonempty runs of clusters, but no edge hyphen or second hyphen is allowed. Length counts letter clusters, excluding the hyphen and any fixed prefix; spaces, digits and other characters are forbidden. No normalization is performed. Append the exact literal suffix :0000 after the name; its characters do not count toward the cluster limit.
+  regex: "/^(?=(?:\\p{L}\\p{M}{0,2}-?){2,12}:0000$)(?:\\p{L}\\p{M}{0,2}){1,12}(?:-(?:\\p{L}\\p{M}{0,2}){1,12})?:0000$(?![\\s\\S])/u"
+  match:
+    - "ab:0000"
+    - "e\u0301x:0000"
+    - "a\u0301\u0308b:0000"
+    - "\u6771\u4eac-\u5927\u962a:0000"
+    - "\u0394\u03ad\u03bb\u03c4\u03b1:0000"
+    - "\u0645\u0631\u062d\u0628\u0627:0000"
+    - "\u0417\u0438\u043c\u0430:0000"
+    - "abcdefghijkl:0000"
+    - "e\u0301-e\u0308:0000"
+    - "A\u00e9:0000"
+  no_match:
+    - "a:0000"
+    - "abcdefghijklm:0000"
+    - "ab1:0000"
+    - "a_b:0000"
+    - "a b:0000"
+    - "e\u0301:0000"
+    - "\U0001f600a:0000"
+    - "\u0301ab:0000"
+    - "a\u0301\u0308\u0303b:0000"
+    - "-ab:0000"
+    - "ab-:0000"
+    - "a--b:0000"
+    - "ab-cd-ef:0000"
+    - "ab"
+    - "ab?0000"
+    - "!ab:0000"
+    - "ab:0000!"
+    - "ab:0000\n"
+    - "ab:0000\r"
+    - "ab:0000\r\n"
+    - "ab:0000\u2028"
+    - "ab:0000\u2029"
+    - " ab:0000"
+    - "ab:0000 "
+  pitfall: >-
+    Count base-letter clusters, attach bounded marks only after a letter, and limit the optional internal separator.
+- id: gpt-phone-numbers-17
+  difficulty: hard
+  status: ok
+  description: >-
+    Search an LF-separated call transcript for an entire line of the form CALL plus one space and eight ASCII digits. Other lines may be arbitrary. Match LF lines only; carriage returns are content, not delimiters.
+  regex: "/(?:^|\\n)CALL [0-9]{8}(?=\\n|(?![\\s\\S]))/"
+  match:
+    - "CALL 00000000"
+    - "CALL 99999999"
+    - "x\nCALL 12345678\ny"
+    - "\nCALL 87654321\n"
+    - "CALL 11111111\nx"
+    - "x\nCALL 22222222"
+    - "a\nb\nCALL 33333333\nz"
+    - "CALL 44444444"
+  no_match:
+    - "CALL 1234567"
+    - "CALL 123456789"
+    - "call 12345678"
+    - "CALL 12a45678"
+    - "x CALL 12345678"
+    - "CALL 12345678 x"
+    - "CALL 12345678\r"
+    - "CALL\t12345678"
+  pitfall: >-
+    Search complete LF-delimited lines without treating a CR as optional whitespace.
+- id: gpt-phone-numbers-18
+  difficulty: hard
+  status: ok
+  description: >-
+    An LF-only phone receipt has phone= and exactly seven ASCII digits on line one, then copy= and the exact same seven digits on line two. Leading zeros are allowed; no final LF. Both values must be enclosed in matching ASCII single or double quotes, using the same quote character on both lines. The quotes are delimiters, not part of the value; no escapes are permitted.
+  regex: "/^phone=(['\\\"])([0-9]{7})\\1\\ncopy=\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "phone='0000000'\ncopy='0000000'"
+    - "phone=\"9999999\"\ncopy=\"9999999\""
+    - "phone='1234567'\ncopy='1234567'"
+    - "phone=\"7654321\"\ncopy=\"7654321\""
+    - "phone='1000000'\ncopy='1000000'"
+    - "phone=\"0000001\"\ncopy=\"0000001\""
+    - "phone='5551234'\ncopy='5551234'"
+    - "phone=\"9876543\"\ncopy=\"9876543\""
+  no_match:
+    - "phone='0000000'\ncopy='9999999'"
+    - "phone='0000000\r'\ncopy='0000000'"
+    - "phone=0000000 copy=0000000"
+    - "phone=0000000\nCopy=0000000"
+    - "phone='?'\ncopy='?'"
+    - "phone='0000000'\ncopy='0000000 '"
+    - "phone='!!!!!!!'\ncopy='!!!!!!!'"
+    - "phone='000000'\ncopy='000000'"
+    - "phone='00000000'\ncopy='00000000'"
+    - "phone='zzzzzzz'\ncopy='zzzzzzz'"
+    - "phone='0000000\"\ncopy='0000000'"
+    - "phone='0000000'\ncopy=\"0000000\""
+    - "phone=0000000\ncopy=0000000"
+    - "phone='0000000'\r\ncopy='0000000'"
+    - "!phone='0000000'\ncopy='0000000'"
+    - "phone='0000000'\ncopy='0000000'!"
+    - "phone='0000000'\ncopy='0000000'\n"
+    - "phone='0000000'\ncopy='0000000'\r"
+    - "phone='0000000'\ncopy='0000000'\r\n"
+    - "phone='0000000'\ncopy='0000000'\u2028"
+    - "phone='0000000'\ncopy='0000000'\u2029"
+    - " phone='0000000'\ncopy='0000000'"
+    - "phone='0000000'\ncopy='0000000' "
+  pitfall: >-
+    The exact value and quote convention must agree across LF-separated lines, in addition to the value policy.
+- id: gpt-phone-numbers-19
+  difficulty: hard
+  status: ok
+  description: >-
+    Acceptance criteria:
+    - A four-digit phone lock code uses only ASCII digits, cannot start zero, cannot have any adjacent repeated digits, and cannot equal 1234 or 4321.
+    - Evaluate the input as supplied; do not trim or normalize it.
+  regex: "/^(?!1234$|4321$)(?![0-9]*([0-9])\\1)[1-9][0-9]{3}$(?![\\s\\S])/"
+  match:
+    - "1023"
+    - "9876"
+    - "1010"
+    - "9090"
+    - "2468"
+    - "1357"
+    - "1203"
+    - "5432"
+  no_match:
+    - "0123"
+    - "1123"
+    - "1223"
+    - "1233"
+    - "1234"
+    - "4321"
+    - "123"
+    - "12345"
+    - "12a3"
+    - "!1023"
+    - "1023!"
+    - "1023\n"
+    - "1023\r"
+    - "1023\r\n"
+    - "1023\u2028"
+    - "1023\u2029"
+    - " 1023"
+    - "1023 "
+  pitfall: >-
+    Reserved sequences and repeated neighbors are independent exclusions.
+- id: gpt-phone-numbers-20
+  difficulty: hard
+  status: ok
+  description: >-
+    A transfer string has from= and a four-digit ASCII extension 1000 through 1999, then ;to= and another extension in that range. The two extensions must differ. No whitespace or additional fields.
+  regex: "/^from=(1[0-9]{3});to=(?!\\1$)1[0-9]{3}$(?![\\s\\S])/"
+  match:
+    - "from=1000;to=1001"
+    - "from=1999;to=1998"
+    - "from=1001;to=1000"
+    - "from=1234;to=1567"
+    - "from=1100;to=1200"
+    - "from=1900;to=1800"
+    - "from=1500;to=1501"
+    - "from=1700;to=1701"
+  no_match:
+    - "from=1000;to=1000"
+    - "from=1999;to=1999"
+    - "from=0999;to=1000"
+    - "from=1000;to=2000"
+    - "from=1000; to=1001"
+    - "from=1000;to=01001"
+    - "from=1a00;to=1001"
+    - "!from=1000;to=1001"
+    - "from=1000;to=1001!"
+    - "from=1000;to=1001\n"
+    - "from=1000;to=1001\r"
+    - "from=1000;to=1001\r\n"
+    - "from=1000;to=1001\u2028"
+    - "from=1000;to=1001\u2029"
+    - " from=1000;to=1001"
+    - "from=1000;to=1001 "
+    - "from=10000;to=1001"
+    - "from=1000;to=10001"
+  pitfall: >-
+    Compare full extensions and enforce the range on both fields.

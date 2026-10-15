@@ -1,0 +1,703 @@
+# Benchmark GPT, catégorie text. Format et contrôles : scripts/benchmark.py.
+- id: gpt-text-01
+  difficulty: simple
+  status: ok
+  description: >-
+    A short survey answer is exactly eight lowercase ASCII letters; no spaces or punctuation.
+  regex: "/^[abcdefghijklmnopqrstuvwxyz]{8}$(?![\\s\\S])/"
+  match:
+    - "aaaaaaaa"
+    - "zzzzzzzz"
+    - "nnnnnnnn"
+    - "azazazaz"
+    - "zazazaza"
+    - "azzzzzzz"
+    - "zaaaaaaa"
+    - "naaaaaaa"
+  no_match:
+    - "aaaaaaa"
+    - "aaaaaaaaa"
+    - "?aaaaaaa"
+    - " aaaaaaa"
+    - "aaaaaaa\u00e9"
+    - "aaaaaaaa\t"
+    - "Aaaaaaaa"
+    - "!aaaaaaaa"
+    - "aaaaaaaa!"
+    - "aaaaaaaa\n"
+    - "aaaaaaaa\r"
+    - "aaaaaaaa\r\n"
+    - "aaaaaaaa\u2028"
+    - "aaaaaaaa\u2029"
+    - " aaaaaaaa"
+    - "aaaaaaaa "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-text-02
+  difficulty: simple
+  status: ok
+  description: >-
+    A vote record is YES: followed by exactly four uppercase ASCII letters, no spaces.
+  regex: "/^YES:[ABCDEFGHIJKLMNOPQRSTUVWXYZ]{4}$(?![\\s\\S])/"
+  match:
+    - "YES:AAAA"
+    - "YES:ZZZZ"
+    - "YES:NNNN"
+    - "YES:AZAZ"
+    - "YES:ZAZA"
+    - "YES:AZZZ"
+    - "YES:ZAAA"
+    - "YES:NAAA"
+  no_match:
+    - "YES:AAA"
+    - "YES:AAAAA"
+    - "YES:?AAA"
+    - "YES: AAA"
+    - "YES:AAA\u00e9"
+    - "YES:AAAA\t"
+    - "YES?AAAA"
+    - "YES:aAAA"
+    - "!YES:AAAA"
+    - "YES:AAAA!"
+    - "YES:AAAA\n"
+    - "YES:AAAA\r"
+    - "YES:AAAA\r\n"
+    - "YES:AAAA\u2028"
+    - "YES:AAAA\u2029"
+    - " YES:AAAA"
+    - "YES:AAAA "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-text-03
+  difficulty: simple
+  status: ok
+  description: >-
+    A document marker is exactly five ASCII digits in square brackets. Leading zeros are permitted.
+  regex: "/^\\[[0123456789]{5}\\]$(?![\\s\\S])/"
+  match:
+    - "[00000]"
+    - "[99999]"
+    - "[55555]"
+    - "[09090]"
+    - "[90909]"
+    - "[09999]"
+    - "[90000]"
+    - "[50000]"
+  no_match:
+    - "[0000]"
+    - "[000000]"
+    - "[?0000]"
+    - "[ 0000]"
+    - "[0000\u00e9]"
+    - "[00000\t]"
+    - "?00000]"
+    - "[00000?"
+    - "![00000]"
+    - "[00000]!"
+    - "[00000]\n"
+    - "[00000]\r"
+    - "[00000]\r\n"
+    - "[00000]\u2028"
+    - "[00000]\u2029"
+    - " [00000]"
+    - "[00000] "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-text-04
+  difficulty: simple
+  status: ok
+  description: >-
+    The censor field contains exactly six characters each chosen from ASCII asterisk or hash, followed by literal /redacted. Nothing else.
+  regex: "/^[*#]{6}\\/redacted$(?![\\s\\S])/"
+  match:
+    - "******/redacted"
+    - "######/redacted"
+    - "*#*#*#/redacted"
+    - "#*#*#*/redacted"
+    - "*#####/redacted"
+    - "#*****/redacted"
+    - "*****#/redacted"
+    - "****#*/redacted"
+  no_match:
+    - "*****/redacted"
+    - "*******/redacted"
+    - "?*****/redacted"
+    - " *****/redacted"
+    - "*****\u00e9/redacted"
+    - "******\t/redacted"
+    - "******?redacted"
+    - "!******/redacted"
+    - "******/redacted!"
+    - "******/redacted\n"
+    - "******/redacted\r"
+    - "******/redacted\r\n"
+    - "******/redacted\u2028"
+    - "******/redacted\u2029"
+    - " ******/redacted"
+    - "******/redacted "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-text-05
+  difficulty: simple
+  status: ok
+  description: >-
+    A heading label is H: followed by exactly six uppercase ASCII letters and a period.
+  regex: "/^H:[ABCDEFGHIJKLMNOPQRSTUVWXYZ]{6}\\.$(?![\\s\\S])/"
+  match:
+    - "H:AAAAAA."
+    - "H:ZZZZZZ."
+    - "H:NNNNNN."
+    - "H:AZAZAZ."
+    - "H:ZAZAZA."
+    - "H:AZZZZZ."
+    - "H:ZAAAAA."
+    - "H:NAAAAA."
+  no_match:
+    - "H:AAAAA."
+    - "H:AAAAAAA."
+    - "H:?AAAAA."
+    - "H: AAAAA."
+    - "H:AAAAA\u00e9."
+    - "H:AAAAAA\t."
+    - "H?AAAAAA."
+    - "H:AAAAAA?"
+    - "H:aAAAAA."
+    - "!H:AAAAAA."
+    - "H:AAAAAA.!"
+    - "H:AAAAAA.\n"
+    - "H:AAAAAA.\r"
+    - "H:AAAAAA.\r\n"
+    - "H:AAAAAA.\u2028"
+    - "H:AAAAAA.\u2029"
+    - " H:AAAAAA."
+    - "H:AAAAAA. "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-text-06
+  difficulty: medium
+  status: ok
+  description: >-
+    Form-validation ticket: A sentence fragment has 2 to 5 lowercase ASCII words, each 1 to 8 letters, separated by single spaces, followed by one period. No other punctuation or whitespace.
+  regex: "/^[a-z]{1,8}(?: [a-z]{1,8}){1,4}\\.$(?![\\s\\S])/"
+  match:
+    - "a b."
+    - "abcdefgh ijklmnop."
+    - "one two three."
+    - "a b c d e."
+    - "hello world."
+    - "red green blue."
+    - "cat dog."
+    - "one two three four."
+  no_match:
+    - "a."
+    - "a b c d e f."
+    - "abcdefghi b."
+    - "a  b."
+    - "A b."
+    - "a b!"
+    - "a b"
+    - "a b1."
+    - "!a b."
+    - "a b.!"
+    - "a b.\n"
+    - "a b.\r"
+    - "a b.\r\n"
+    - "a b.\u2028"
+    - "a b.\u2029"
+    - " a b."
+    - "a b. "
+  pitfall: >-
+    Word count, width and final punctuation are separately constrained.
+- id: gpt-text-07
+  difficulty: medium
+  status: ok
+  description: >-
+    A status note is exactly pending, approved or rejected, optionally followed by one space and a canonical integer 1 through 99 in parentheses. Lowercase only, no other text.
+  regex: "/^(?:pending|approved|rejected)(?: \\([1-9][0-9]?\\))?$(?![\\s\\S])/"
+  match:
+    - "pending"
+    - "approved"
+    - "rejected"
+    - "pending (1)"
+    - "approved (99)"
+    - "rejected (10)"
+    - "pending (9)"
+    - "approved (20)"
+  no_match:
+    - "Pending"
+    - "accept"
+    - "pending (0)"
+    - "approved (100)"
+    - "pending (01)"
+    - "pending(1)"
+    - "pending (1"
+    - "pending  (1)"
+    - "!pending"
+    - "pending!"
+    - "pending\n"
+    - "pending\r"
+    - "pending\r\n"
+    - "pending\u2028"
+    - "pending\u2029"
+    - " pending"
+    - "pending "
+  pitfall: >-
+    Optional annotations must be complete and properly bounded.
+- id: gpt-text-08
+  difficulty: medium
+  status: ok
+  description: >-
+    A pagination label is page followed by one space and an integer from 1 through 64, in shortest ASCII decimal spelling.
+  regex: "/^page\\ (?:[1-9]|[1-5][0-9]|6[0-4])$(?![\\s\\S])/"
+  match:
+    - "page 1"
+    - "page 2"
+    - "page 3"
+    - "page 62"
+    - "page 63"
+    - "page 64"
+    - "page 32"
+    - "page 33"
+  no_match:
+    - "page 0"
+    - "page 65"
+    - "page 01"
+    - "page +1"
+    - "page 1.0"
+    - "page  1"
+    - "page 640"
+    - "!page 1"
+    - "page 1!"
+    - "page 1\n"
+    - "page 1\r"
+    - "page 1\r\n"
+    - "page 1\u2028"
+    - "page 1\u2029"
+    - " page 1"
+    - "page 1 "
+  pitfall: >-
+    Endpoints and canonical decimal spelling must both be enforced.
+- id: gpt-text-09
+  difficulty: medium
+  status: ok
+  description: >-
+    A headline is 5 through 20 ASCII letters or spaces, begins and ends with a letter, and may not contain two adjacent spaces. No punctuation or digits.
+  regex: "/^(?=[A-Za-z ]{5,20}$)(?!.*  )[A-Za-z](?:[A-Za-z ]*[A-Za-z])$(?![\\s\\S])/"
+  match:
+    - "hello"
+    - "Hello world"
+    - "abcdefghijklmnopqrst"
+    - "a b c"
+    - "One two"
+    - "Draft title"
+    - "AaaaZ"
+    - "Read me"
+  no_match:
+    - "hell"
+    - "abcdefghijklmnopqrstu"
+    - " hello"
+    - "hello "
+    - "hello  world"
+    - "hell0"
+    - "hello!"
+    - "!hello"
+    - "hello\n"
+    - "hello\r"
+    - "hello\r\n"
+    - "hello\u2028"
+    - "hello\u2029"
+  pitfall: >-
+    Length includes internal spaces; endpoints and adjacency still matter.
+- id: gpt-text-10
+  difficulty: medium
+  status: ok
+  description: >-
+    Import gate — reject any nonconforming input. A list item is lowercase ASCII words 2 through 6 letters each, with 1 to 4 words separated by comma and one ASCII space. No terminal comma, other punctuation or leading/trailing spaces.
+  regex: "/^[a-z]{2,6}(?:, [a-z]{2,6}){0,3}$(?![\\s\\S])/"
+  match:
+    - "ab"
+    - "abcdef"
+    - "red, blue"
+    - "aa, bb, cc, dd"
+    - "one, two, three"
+    - "cat, dog"
+    - "foo, bar, baz"
+    - "green, yellow"
+  no_match:
+    - "a"
+    - "abcdefg"
+    - "aa, bb, cc, dd, ee"
+    - "aa,bb"
+    - "aa,  bb"
+    - "aa, "
+    - "Aa"
+    - "aa; bb"
+    - "!ab"
+    - "ab!"
+    - "ab\n"
+    - "ab\r"
+    - "ab\r\n"
+    - "ab\u2028"
+    - "ab\u2029"
+    - " ab"
+    - "ab "
+  pitfall: >-
+    The separator is a two-character unit and word widths are bounded.
+- id: gpt-text-11
+  difficulty: medium
+  status: ok
+  description: >-
+    Search filter, not whole-input validation. Search prose for a lowercase ASCII label 3 to 8 letters immediately between label= and semicolon. Surrounding prose is unrestricted.
+  regex: "/(?<=label=)[a-z]{3,8}(?=;)/"
+  match:
+    - "label=abc;"
+    - "label=xyz;"
+    - "label=abcdefgh;"
+    - "label=hello;"
+    - "before label=world; after"
+    - "before label=draft; after"
+    - "before label=sample; after"
+    - "before label=title; after"
+  no_match:
+    - "label=ab;"
+    - "label=abcdefghi;"
+    - "label=ABC;"
+    - "label=ab1;"
+    - "label=ab_;"
+    - "label=ab\u00e9;"
+    - "LABEL=abc;"
+    - "label=abc ;"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-text-12
+  difficulty: medium
+  status: ok
+  description: >-
+    Search arbitrary text for the lowercase whole ASCII-letter word urgent. A boundary is start/end or any character other than an ASCII letter, so adjacent digits and underscores are acceptable.
+  regex: "/(?<![A-Za-z])urgent(?![A-Za-z])/"
+  match:
+    - "urgent"
+    - "this is urgent now"
+    - "(urgent)"
+    - "urgent1"
+    - "2urgent"
+    - "_urgent_"
+    - "\nurgent\n"
+    - "urgent!"
+  no_match:
+    - "Urgent"
+    - "urgently"
+    - "xurgent"
+    - "urgenta"
+    - "ur gent"
+    - "URGent"
+    - "urgnt"
+    - "noturgenty"
+  pitfall: >-
+    Whole ASCII-letter words differ from generic word-boundary conventions.
+- id: gpt-text-13
+  difficulty: medium
+  status: ok
+  description: >-
+    A title has one uppercase ASCII initial followed by 2 to 11 lowercase ASCII letters, optionally one space and a second word with the same rule. No other characters.
+  regex: "/^[A-Z][a-z]{2,11}(?: [A-Z][a-z]{2,11})?$(?![\\s\\S])/"
+  match:
+    - "Abc"
+    - "Abcdefghijkl"
+    - "Hello World"
+    - "One Two"
+    - "Draft Title"
+    - "Sample"
+    - "Red Green"
+    - "Abcdefghijkl Mnopqrstuvwx"
+  no_match:
+    - "Ab"
+    - "Abcdefghijklm"
+    - "abc"
+    - "ABC"
+    - "Hello world"
+    - "Hello  World"
+    - "Hello World Again"
+    - "Abc1"
+    - "!Abc"
+    - "Abc!"
+    - "Abc\n"
+    - "Abc\r"
+    - "Abc\r\n"
+    - "Abc\u2028"
+    - "Abc\u2029"
+    - " Abc"
+    - "Abc "
+  pitfall: >-
+    Each title-cased word has its own length rule.
+- id: gpt-text-14
+  difficulty: hard
+  status: ok
+  description: >-
+    An echo label starts echo: and contains two identical lowercase ASCII words of 3 to 8 letters separated by slash. No spaces. Each of the two values must be enclosed in matching ASCII single or double quotes; the same quote character must be used for both values. Quotes are not part of the value, and escapes are not permitted.
+  regex: "/^echo:(['\\\"])([a-z]{3,8})\\1\\/\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "echo:'abc'/'abc'"
+    - "echo:\"xyz\"/\"xyz\""
+    - "echo:'abcdefgh'/'abcdefgh'"
+    - "echo:\"hello\"/\"hello\""
+    - "echo:'world'/'world'"
+    - "echo:\"draft\"/\"draft\""
+    - "echo:'sample'/'sample'"
+    - "echo:\"title\"/\"title\""
+  no_match:
+    - "echo:'abc'/'xyz'"
+    - "echo:'abc'/'abcabc'"
+    - "echo:'?'/'?'"
+    - "echo:'abc '/'abc'"
+    - "echo:'abc'/' abc'"
+    - "echo:'abc'/'abc/abc'"
+    - "echo:'!!!'/'!!!'"
+    - "echo:'ab'/'ab'"
+    - "echo:'abc0'/'abc0'"
+    - "echo:'000'/'000'"
+    - "echo:'abc\"/'abc'"
+    - "echo:'abc'/\"abc\""
+    - "echo:abc/abc"
+    - "!echo:'abc'/'abc'"
+    - "echo:'abc'/'abc'!"
+    - "echo:'abc'/'abc'\n"
+    - "echo:'abc'/'abc'\r"
+    - "echo:'abc'/'abc'\r\n"
+    - "echo:'abc'/'abc'\u2028"
+    - "echo:'abc'/'abc'\u2029"
+    - " echo:'abc'/'abc'"
+    - "echo:'abc'/'abc' "
+  pitfall: >-
+    Quote style, both closing quotes, value policy and exact value repetition must all agree.
+- id: gpt-text-15
+  difficulty: hard
+  status: ok
+  description: >-
+    Code review requirement: A quoted note consists of a matching pair of single or double ASCII quotes around 1 through 20 ASCII letters or spaces. At least one letter is required. No escapes, newlines or quotes inside the body.
+  regex: "/^(['\\\"])(?=[A-Za-z ]{1,20}\\1$)[ ]*[A-Za-z][A-Za-z ]*\\1$(?![\\s\\S])/"
+  match:
+    - "'a'"
+    - "\"ABCDEFGHIJKLMNOPQRST\""
+    - "'hello world'"
+    - "\" a \""
+    - "'Hello'"
+    - "\"note\""
+    - "'x '"
+    - "\" y\""
+  no_match:
+    - "''"
+    - "' '"
+    - "\"  \""
+    - "'ABCDEFGHIJKLMNOPQRSTU'"
+    - "'hello\""
+    - "'hello1'"
+    - "'a\nb'"
+    - "\"a'b\""
+    - "!'a'"
+    - "'a'!"
+    - "'a'\n"
+    - "'a'\r"
+    - "'a'\r\n"
+    - "'a'\u2028"
+    - "'a'\u2029"
+    - " 'a'"
+    - "'a' "
+  pitfall: >-
+    The quote pair and nonblank bounded body must agree.
+- id: gpt-text-16
+  difficulty: hard
+  status: ok
+  description: >-
+    An international single-word label: 2 through 12 Unicode letter clusters. Each cluster is a Unicode letter followed by zero to two Unicode combining marks. One optional ASCII hyphen may join two nonempty runs of clusters, but no edge hyphen or second hyphen is allowed. Length counts letter clusters, excluding the hyphen and any fixed prefix; spaces, digits and other characters are forbidden. No normalization is performed.
+  regex: "/^(?=(?:\\p{L}\\p{M}{0,2}-?){2,12}$)(?:\\p{L}\\p{M}{0,2}){1,12}(?:-(?:\\p{L}\\p{M}{0,2}){1,12})?$(?![\\s\\S])/u"
+  match:
+    - "ab"
+    - "e\u0301x"
+    - "a\u0301\u0308b"
+    - "\u6771\u4eac-\u5927\u962a"
+    - "\u0394\u03ad\u03bb\u03c4\u03b1"
+    - "\u0645\u0631\u062d\u0628\u0627"
+    - "\u0417\u0438\u043c\u0430"
+    - "abcdefghijkl"
+    - "e\u0301-e\u0308"
+    - "A\u00e9"
+  no_match:
+    - "a"
+    - "abcdefghijklm"
+    - "ab1"
+    - "a_b"
+    - "a b"
+    - "e\u0301"
+    - "\U0001f600a"
+    - "\u0301ab"
+    - "a\u0301\u0308\u0303b"
+    - "-ab"
+    - "ab-"
+    - "a--b"
+    - "ab-cd-ef"
+    - "!ab"
+    - "ab!"
+    - "ab\n"
+    - "ab\r"
+    - "ab\r\n"
+    - "ab\u2028"
+    - "ab\u2029"
+    - " ab"
+    - "ab "
+  pitfall: >-
+    Count base-letter clusters, attach bounded marks only after a letter, and limit the optional internal separator.
+- id: gpt-text-17
+  difficulty: hard
+  status: ok
+  description: >-
+    A editorial note capsule: the entire string has the literal opening wrapper NOTE{, a lowercase ASCII routing label of 2 through 6 letters, colon, a body, colon, the exact same routing label and the literal closing wrapper }NOTE. The body has 1 through 40 Unicode code points, allows any characters including line breaks and colons, and must contain the lowercase substring draft. Only the body counts toward its length limit; no other text is allowed.
+  regex: "/^NOTE\\{(?<route>[a-z]{2,6}):(?=.{1,40}:\\k<route>\\}NOTE$)(?=.{0,40}draft.{0,40}:\\k<route>\\}NOTE$).*:\\k<route>\\}NOTE$(?![\\s\\S])/su"
+  match:
+    - "NOTE{aa:draft:aa}NOTE"
+    - "NOTE{abcdef:adraft:abcdef}NOTE"
+    - "NOTE{tag:draftb:tag}NOTE"
+    - "NOTE{route:\ndraft:route}NOTE"
+    - "NOTE{memo:draft\n:memo}NOTE"
+    - "NOTE{ab:\tdraft:ab}NOTE"
+    - "NOTE{zz:\U0001f600draft:zz}NOTE"
+    - "NOTE{key:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxdraft:key}NOTE"
+    - "NOTE{xy:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600draft:xy}NOTE"
+    - "NOTE{aa:prefix: draft: suffix:aa}NOTE"
+  no_match:
+    - "NOTE{aa::aa}NOTE"
+    - "NOTE{aa:abc:aa}NOTE"
+    - "NOTE{aa:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxdraft:aa}NOTE"
+    - "NOTE{aa:draft:ab}NOTE"
+    - "NOTE{a:draft:a}NOTE"
+    - "NOTE{abcdefg:draft:abcdefg}NOTE"
+    - "NOTE{AA:draft:AA}NOTE"
+    - "NOTE{aa:DRAFT:aa}NOTE"
+    - "NOTE{aa:draft:aa"
+    - "aa:draft:aa}NOTE"
+    - "NOTE{aa:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600draft:aa}NOTE"
+    - "NOTE{draft:abc:draft}NOTE"
+    - "!NOTE{aa:draft:aa}NOTE"
+    - "NOTE{aa:draft:aa}NOTE!"
+    - "NOTE{aa:draft:aa}NOTE\n"
+    - "NOTE{aa:draft:aa}NOTE\r"
+    - "NOTE{aa:draft:aa}NOTE\r\n"
+    - "NOTE{aa:draft:aa}NOTE\u2028"
+    - "NOTE{aa:draft:aa}NOTE\u2029"
+    - " NOTE{aa:draft:aa}NOTE"
+    - "NOTE{aa:draft:aa}NOTE "
+  pitfall: >-
+    Repeat the routing label exactly, count only body code points including line breaks, and require the marker inside that body.
+- id: gpt-text-18
+  difficulty: hard
+  status: ok
+  description: >-
+    An LF-only echo receipt is word= followed by a lowercase ASCII word 3 to 8 letters, then copy= and the exact same word on line two. No final LF or spaces. Both values must be enclosed in matching ASCII single or double quotes, using the same quote character on both lines. The quotes are delimiters, not part of the value; no escapes are permitted.
+  regex: "/^word=(['\\\"])([a-z]{3,8})\\1\\ncopy=\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "word='abc'\ncopy='abc'"
+    - "word=\"xyz\"\ncopy=\"xyz\""
+    - "word='abcdefgh'\ncopy='abcdefgh'"
+    - "word=\"hello\"\ncopy=\"hello\""
+    - "word='world'\ncopy='world'"
+    - "word=\"draft\"\ncopy=\"draft\""
+    - "word='sample'\ncopy='sample'"
+    - "word=\"title\"\ncopy=\"title\""
+  no_match:
+    - "word='abc'\ncopy='xyz'"
+    - "word='abc\r'\ncopy='abc'"
+    - "word=abc copy=abc"
+    - "word=abc\nCopy=abc"
+    - "word='?'\ncopy='?'"
+    - "word='abc'\ncopy='abc '"
+    - "word='!!!'\ncopy='!!!'"
+    - "word='ab'\ncopy='ab'"
+    - "word='abc0'\ncopy='abc0'"
+    - "word='000'\ncopy='000'"
+    - "word='abc\"\ncopy='abc'"
+    - "word='abc'\ncopy=\"abc\""
+    - "word=abc\ncopy=abc"
+    - "word='abc'\r\ncopy='abc'"
+    - "!word='abc'\ncopy='abc'"
+    - "word='abc'\ncopy='abc'!"
+    - "word='abc'\ncopy='abc'\n"
+    - "word='abc'\ncopy='abc'\r"
+    - "word='abc'\ncopy='abc'\r\n"
+    - "word='abc'\ncopy='abc'\u2028"
+    - "word='abc'\ncopy='abc'\u2029"
+    - " word='abc'\ncopy='abc'"
+    - "word='abc'\ncopy='abc' "
+  pitfall: >-
+    The exact value and quote convention must agree across LF-separated lines, in addition to the value policy.
+- id: gpt-text-19
+  difficulty: hard
+  status: ok
+  description: >-
+    Acceptance criteria:
+    - A three-word slogan consists of lowercase ASCII words 3 through 8 letters, separated by single spaces. The first and third words are identical and the middle word differs. No punctuation.
+    - Evaluate the input as supplied; do not trim or normalize it.
+  regex: "/^([a-z]{3,8}) (?!\\1 )([a-z]{3,8}) \\1$(?![\\s\\S])/"
+  match:
+    - "one two one"
+    - "red blue red"
+    - "abcdefgh hello abcdefgh"
+    - "foo bar foo"
+    - "north south north"
+    - "left right left"
+    - "hello world hello"
+    - "abc xyz abc"
+  no_match:
+    - "one one one"
+    - "one two three"
+    - "on two on"
+    - "one tw one"
+    - "abcdefghi two abcdefghi"
+    - "One two One"
+    - "one  two one"
+    - "!one two one"
+    - "one two one!"
+    - "one two one\n"
+    - "one two one\r"
+    - "one two one\r\n"
+    - "one two one\u2028"
+    - "one two one\u2029"
+    - " one two one"
+    - "one two one "
+  pitfall: >-
+    Endpoint equality and middle inequality compare entire words.
+- id: gpt-text-20
+  difficulty: hard
+  status: ok
+  description: >-
+    A text token has 6 through 16 lowercase ASCII letters, must contain exactly one of the substrings cat or dog, and that selected substring must occur exactly once. Substrings are counted by starting position, with no word-boundary requirement.
+  regex: "/^(?=[a-z]{6,16}$)(?:(?!.*dog)(?!.*cat.*cat)[a-z]*cat[a-z]*|(?!.*cat)(?!.*dog.*dog)[a-z]*dog[a-z]*)$(?![\\s\\S])/"
+  match:
+    - "bigcat"
+    - "hotdog"
+    - "catnap"
+    - "doghouse"
+    - "bobcat"
+    - "underdog"
+    - "catabc"
+    - "abcdog"
+  no_match:
+    - "catdog"
+    - "dogcat"
+    - "catcat"
+    - "dogdog"
+    - "abcdef"
+    - "acatb"
+    - "abcdefghijklcatxx"
+    - "Catabc"
+    - "cat_ab"
+    - "!bigcat"
+    - "bigcat!"
+    - "bigcat\n"
+    - "bigcat\r"
+    - "bigcat\r\n"
+    - "bigcat\u2028"
+    - "bigcat\u2029"
+    - " bigcat"
+    - "bigcat "
+  pitfall: >-
+    Exclude the other animal and repeated occurrences without imposing word boundaries.

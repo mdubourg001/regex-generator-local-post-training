@@ -1,0 +1,60 @@
+{
+  "source": "21 category YAML files, 20 independently authored cases per category",
+  "output": "benchmark-gpt/benchmark-gpt.jsonl",
+  "cases": 420,
+  "difficulties": {
+    "simple": 105,
+    "medium": 168,
+    "hard": 147
+  },
+  "statuses": {
+    "ok": 420
+  },
+  "coverage": {
+    "lookahead": 176,
+    "backreference": 120,
+    "lookbehind": 41,
+    "multiline_or_explicit_lines": 46,
+    "dotall": 19,
+    "unicode_property": 36,
+    "contains": 45,
+    "numeric_range_alternation": 75
+  },
+  "checks": {
+    "node": "v22.23.3",
+    "errors": [],
+    "mutation_warnings": [],
+    "tests": 10343,
+    "spec_assertions": 1088,
+    "extra_spec_probes": 1207,
+    "examples": 137,
+    "minimum_tests_per_side": 8,
+    "minimum_hidden_tests_per_side": 5
+  },
+  "coverage_notes": [
+    "Counts are numbers of cases, not numbers of occurrences.",
+    "Lookahead excludes the universal strict-end guard.",
+    "Numeric ranges use the conservative manually enumerated case inventory in audit-report.json, not the checker's approximate 89-case heuristic.",
+    "Contains counts exclude the ^...$ /m line search; including that expressly line-local search gives 46 cases.",
+    "m or explicit line handling counts only syntax that actually represents line boundaries, not a dot-all body's ability to contain LF."
+  ],
+  "independence": {
+    "read_project_files": [
+      "scripts/benchmark.py",
+      "scripts/common.py",
+      "scripts/validate.py",
+      "configs/generation.yaml"
+    ],
+    "forbidden_content_read": false,
+    "official_commands_run": false,
+    "overlap_checks": "Unavailable under the user's confirmed strict-isolation choice; neither training nor other-model benchmark read.",
+    "writes": "benchmark-gpt/ only; pre-existing PROMPT.md left unread and untouched"
+  },
+  "review": "All 147 hard cases reread against descriptions; ambiguous wording corrected. Shared Unicode cluster and capsule formats additionally checked by non-regex procedural predicates.",
+  "commands": [
+    "python3 benchmark-gpt/rebuild.py",
+    "python3 benchmark-gpt/check.py",
+    "python3 benchmark-gpt/check.py build",
+    "python3 benchmark-gpt/audit.py"
+  ]
+}

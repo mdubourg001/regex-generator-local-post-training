@@ -1,0 +1,704 @@
+# Benchmark GPT, catégorie postal-official. Format et contrôles : scripts/benchmark.py.
+- id: gpt-postal-official-01
+  difficulty: simple
+  status: ok
+  description: >-
+    An internal postal routing key is POST- followed by exactly five ASCII digits. No geographic lookup is required.
+  regex: "/^POST\\-[0123456789]{5}$(?![\\s\\S])/"
+  match:
+    - "POST-00000"
+    - "POST-99999"
+    - "POST-55555"
+    - "POST-09090"
+    - "POST-90909"
+    - "POST-09999"
+    - "POST-90000"
+    - "POST-50000"
+  no_match:
+    - "POST-0000"
+    - "POST-000000"
+    - "POST-?0000"
+    - "POST- 0000"
+    - "POST-0000\u00e9"
+    - "POST-00000\t"
+    - "POST?00000"
+    - "!POST-00000"
+    - "POST-00000!"
+    - "POST-00000\n"
+    - "POST-00000\r"
+    - "POST-00000\r\n"
+    - "POST-00000\u2028"
+    - "POST-00000\u2029"
+    - " POST-00000"
+    - "POST-00000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-postal-official-02
+  difficulty: simple
+  status: ok
+  description: >-
+    A permit display code is P/ followed by exactly eight uppercase ASCII letters. Format only, no checksum.
+  regex: "/^P\\/[ABCDEFGHIJKLMNOPQRSTUVWXYZ]{8}$(?![\\s\\S])/"
+  match:
+    - "P/AAAAAAAA"
+    - "P/ZZZZZZZZ"
+    - "P/NNNNNNNN"
+    - "P/AZAZAZAZ"
+    - "P/ZAZAZAZA"
+    - "P/AZZZZZZZ"
+    - "P/ZAAAAAAA"
+    - "P/NAAAAAAA"
+  no_match:
+    - "P/AAAAAAA"
+    - "P/AAAAAAAAA"
+    - "P/?AAAAAAA"
+    - "P/ AAAAAAA"
+    - "P/AAAAAAA\u00e9"
+    - "P/AAAAAAAA\t"
+    - "P?AAAAAAAA"
+    - "P/aAAAAAAA"
+    - "!P/AAAAAAAA"
+    - "P/AAAAAAAA!"
+    - "P/AAAAAAAA\n"
+    - "P/AAAAAAAA\r"
+    - "P/AAAAAAAA\r\n"
+    - "P/AAAAAAAA\u2028"
+    - "P/AAAAAAAA\u2029"
+    - " P/AAAAAAAA"
+    - "P/AAAAAAAA "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-postal-official-03
+  difficulty: simple
+  status: ok
+  description: >-
+    A registry receipt is reg: followed by exactly ten ASCII digits. Leading zeros are allowed; do not compute a checksum.
+  regex: "/^reg:[0123456789]{10}$(?![\\s\\S])/"
+  match:
+    - "reg:0000000000"
+    - "reg:9999999999"
+    - "reg:5555555555"
+    - "reg:0909090909"
+    - "reg:9090909090"
+    - "reg:0999999999"
+    - "reg:9000000000"
+    - "reg:5000000000"
+  no_match:
+    - "reg:000000000"
+    - "reg:00000000000"
+    - "reg:?000000000"
+    - "reg: 000000000"
+    - "reg:000000000\u00e9"
+    - "reg:0000000000\t"
+    - "reg?0000000000"
+    - "!reg:0000000000"
+    - "reg:0000000000!"
+    - "reg:0000000000\n"
+    - "reg:0000000000\r"
+    - "reg:0000000000\r\n"
+    - "reg:0000000000\u2028"
+    - "reg:0000000000\u2029"
+    - " reg:0000000000"
+    - "reg:0000000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-postal-official-04
+  difficulty: simple
+  status: ok
+  description: >-
+    An official form number is F- followed by exactly six uppercase hexadecimal characters. No checksum or allocation checks.
+  regex: "/^F\\-[0123456789ABCDEF]{6}$(?![\\s\\S])/"
+  match:
+    - "F-000000"
+    - "F-FFFFFF"
+    - "F-888888"
+    - "F-0F0F0F"
+    - "F-F0F0F0"
+    - "F-0FFFFF"
+    - "F-F00000"
+    - "F-800000"
+  no_match:
+    - "F-00000"
+    - "F-0000000"
+    - "F-?00000"
+    - "F- 00000"
+    - "F-00000\u00e9"
+    - "F-000000\t"
+    - "F?000000"
+    - "F-a00000"
+    - "!F-000000"
+    - "F-000000!"
+    - "F-000000\n"
+    - "F-000000\r"
+    - "F-000000\r\n"
+    - "F-000000\u2028"
+    - "F-000000\u2029"
+    - " F-000000"
+    - "F-000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-postal-official-05
+  difficulty: simple
+  status: ok
+  description: >-
+    A district alias is exactly four uppercase ASCII letters followed by /DIST. Nothing else.
+  regex: "/^[ABCDEFGHIJKLMNOPQRSTUVWXYZ]{4}\\/DIST$(?![\\s\\S])/"
+  match:
+    - "AAAA/DIST"
+    - "ZZZZ/DIST"
+    - "NNNN/DIST"
+    - "AZAZ/DIST"
+    - "ZAZA/DIST"
+    - "AZZZ/DIST"
+    - "ZAAA/DIST"
+    - "NAAA/DIST"
+  no_match:
+    - "AAA/DIST"
+    - "AAAAA/DIST"
+    - "?AAA/DIST"
+    - " AAA/DIST"
+    - "AAA\u00e9/DIST"
+    - "AAAA\t/DIST"
+    - "AAAA?DIST"
+    - "aAAA/DIST"
+    - "!AAAA/DIST"
+    - "AAAA/DIST!"
+    - "AAAA/DIST\n"
+    - "AAAA/DIST\r"
+    - "AAAA/DIST\r\n"
+    - "AAAA/DIST\u2028"
+    - "AAAA/DIST\u2029"
+    - " AAAA/DIST"
+    - "AAAA/DIST "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-postal-official-06
+  difficulty: medium
+  status: ok
+  description: >-
+    Form-validation ticket: A filing office code is OF- followed by an integer from 1 through 72 inclusive, shortest decimal spelling. No checksum or allocation checks.
+  regex: "/^OF\\-(?:[1-9]|[1-6][0-9]|7[0-2])$(?![\\s\\S])/"
+  match:
+    - "OF-1"
+    - "OF-2"
+    - "OF-3"
+    - "OF-70"
+    - "OF-71"
+    - "OF-72"
+    - "OF-36"
+    - "OF-37"
+  no_match:
+    - "OF-0"
+    - "OF-73"
+    - "OF-01"
+    - "OF-+1"
+    - "OF-1.0"
+    - "OF- 1"
+    - "OF-720"
+    - "!OF-1"
+    - "OF-1!"
+    - "OF-1\n"
+    - "OF-1\r"
+    - "OF-1\r\n"
+    - "OF-1\u2028"
+    - "OF-1\u2029"
+    - " OF-1"
+    - "OF-1 "
+  pitfall: >-
+    Endpoints and canonical decimal spelling must both be enforced.
+- id: gpt-postal-official-07
+  difficulty: medium
+  status: ok
+  description: >-
+    Accept a US postal display starting ZIP:, then five ASCII digits, optionally hyphen and exactly four more digits. No spaces; format only, no geographic validation.
+  regex: "/^ZIP:[0-9]{5}(?:-[0-9]{4})?$(?![\\s\\S])/"
+  match:
+    - "ZIP:00000"
+    - "ZIP:99999"
+    - "ZIP:00000-0000"
+    - "ZIP:99999-9999"
+    - "ZIP:12345"
+    - "ZIP:12345-6789"
+    - "ZIP:90210"
+    - "ZIP:10001-1234"
+  no_match:
+    - "ZIP:1234"
+    - "ZIP:123456"
+    - "ZIP:12345-123"
+    - "ZIP:12345-12345"
+    - "ZIP:12345 1234"
+    - "zip:12345"
+    - "ZIP:1234a"
+    - "!ZIP:00000"
+    - "ZIP:00000!"
+    - "ZIP:00000\n"
+    - "ZIP:00000\r"
+    - "ZIP:00000\r\n"
+    - "ZIP:00000\u2028"
+    - "ZIP:00000\u2029"
+    - " ZIP:00000"
+    - "ZIP:00000 "
+  pitfall: >-
+    The optional suffix is all or nothing.
+- id: gpt-postal-official-08
+  difficulty: medium
+  status: ok
+  description: >-
+    A Canadian postal display is CA: then uppercase letter, ASCII digit, uppercase letter, one space, ASCII digit, uppercase letter, ASCII digit. Letters D F I O Q U are forbidden everywhere, and W Z are also forbidden in the first position. Format only, no allocation check.
+  regex: "/^CA:[ABCEGHJ-NPRSTVXY][0-9][ABCEGHJ-NPRSTVWXYZ] [0-9][ABCEGHJ-NPRSTVWXYZ][0-9]$(?![\\s\\S])/"
+  match:
+    - "CA:A0A 0A0"
+    - "CA:Y9Z 9W9"
+    - "CA:K1A 0B1"
+    - "CA:M5V 3L9"
+    - "CA:H2X 1Y4"
+    - "CA:B0W 2Z3"
+    - "CA:X1C 4E5"
+    - "CA:T9R 8S7"
+  no_match:
+    - "CA:W0A 0A0"
+    - "CA:Z0A 0A0"
+    - "CA:A0D 0A0"
+    - "CA:A0A 0U0"
+    - "CA:a0A 0A0"
+    - "CA:A0A0A0"
+    - "CA:A0A  0A0"
+    - "!CA:A0A 0A0"
+    - "CA:A0A 0A0!"
+    - "CA:A0A 0A0\n"
+    - "CA:A0A 0A0\r"
+    - "CA:A0A 0A0\r\n"
+    - "CA:A0A 0A0\u2028"
+    - "CA:A0A 0A0\u2029"
+    - " CA:A0A 0A0"
+    - "CA:A0A 0A0 "
+  pitfall: >-
+    Position-specific excluded letters are not a uniform alphabet.
+- id: gpt-postal-official-09
+  difficulty: medium
+  status: ok
+  description: >-
+    A filing date code is DOC/ followed by four ASCII year digits, slash, month 01 through 12, slash, day 01 through 31. Format only, no real calendar validation or checksum.
+  regex: "/^DOC\\/[0-9]{4}\\/(?:0[1-9]|1[0-2])\\/(?:0[1-9]|[12][0-9]|3[01])$(?![\\s\\S])/"
+  match:
+    - "DOC/0000/01/01"
+    - "DOC/9999/12/31"
+    - "DOC/2026/02/31"
+    - "DOC/2024/02/29"
+    - "DOC/1234/09/09"
+    - "DOC/2000/10/10"
+    - "DOC/2020/06/30"
+    - "DOC/0001/03/15"
+  no_match:
+    - "DOC/2026/00/01"
+    - "DOC/2026/13/01"
+    - "DOC/2026/01/00"
+    - "DOC/2026/01/32"
+    - "DOC/2026/1/01"
+    - "DOC/202/01/01"
+    - "DOC/2026-01/01"
+    - "!DOC/0000/01/01"
+    - "DOC/0000/01/01!"
+    - "DOC/0000/01/01\n"
+    - "DOC/0000/01/01\r"
+    - "DOC/0000/01/01\r\n"
+    - "DOC/0000/01/01\u2028"
+    - "DOC/0000/01/01\u2029"
+    - " DOC/0000/01/01"
+    - "DOC/0000/01/01 "
+  pitfall: >-
+    Calendar-impossible dates are intentionally valid.
+- id: gpt-postal-official-10
+  difficulty: medium
+  status: ok
+  description: >-
+    Import gate — reject any nonconforming input. A passport-format field is PP: then two uppercase ASCII letters and seven ASCII digits; the digit part cannot be all zeros. No country-specific allocation or checksum checks.
+  regex: "/^PP:[A-Z]{2}(?!0000000$)[0-9]{7}$(?![\\s\\S])/"
+  match:
+    - "PP:AB0000001"
+    - "PP:ZZ9999999"
+    - "PP:XY1234567"
+    - "PP:AA1000000"
+    - "PP:BB0100000"
+    - "PP:CC0010000"
+    - "PP:DD0001000"
+    - "PP:EF7654321"
+  no_match:
+    - "PP:AB0000000"
+    - "PP:ab1234567"
+    - "PP:A1234567"
+    - "PP:ABC1234567"
+    - "PP:AB123456"
+    - "PP:AB12345678"
+    - "PP:AB123456a"
+    - "!PP:AB0000001"
+    - "PP:AB0000001!"
+    - "PP:AB0000001\n"
+    - "PP:AB0000001\r"
+    - "PP:AB0000001\r\n"
+    - "PP:AB0000001\u2028"
+    - "PP:AB0000001\u2029"
+    - " PP:AB0000001"
+    - "PP:AB0000001 "
+  pitfall: >-
+    Format-only does not remove the explicit zero-serial prohibition.
+- id: gpt-postal-official-11
+  difficulty: medium
+  status: ok
+  description: >-
+    Search filter, not whole-input validation. Find an office number from 10 through 49 in shortest ASCII decimal spelling immediately after lowercase office= and before semicolon. Surrounding text is allowed.
+  regex: "/(?<=office=)[1-4][0-9](?=;)/"
+  match:
+    - "office=10;"
+    - "office=11;"
+    - "office=19;"
+    - "office=20;"
+    - "before office=30; after"
+    - "before office=40; after"
+    - "before office=48; after"
+    - "before office=49; after"
+  no_match:
+    - "office=9;"
+    - "office=50;"
+    - "office=010;"
+    - "office=+10;"
+    - "office=1a;"
+    - "office=100;"
+    - "OFFICE=10;"
+    - "office=10 ;"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-postal-official-12
+  difficulty: medium
+  status: ok
+  description: >-
+    Search for a six-digit ASCII registry number immediately between lowercase registry[ and ]. No checksum; surrounding text is unrestricted.
+  regex: "/(?<=registry\\[)[0-9]{6}(?=\\])/"
+  match:
+    - "registry[000000]"
+    - "registry[999999]"
+    - "registry[123456]"
+    - "registry[654321]"
+    - "before registry[100000] after"
+    - "before registry[000001] after"
+    - "before registry[555555] after"
+    - "before registry[987654] after"
+  no_match:
+    - "registry[00000]"
+    - "registry[0000000]"
+    - "registry[abcdef]"
+    - "registry[\uff11\uff12\uff13\uff14\uff15\uff16]"
+    - "registry[12345a]"
+    - "registry[123 56]"
+    - "REGISTRY[000000]"
+    - "registry[000000 ]"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-postal-official-13
+  difficulty: medium
+  status: ok
+  description: >-
+    A form revision uses FORM- and two uppercase ASCII letters, hyphen, a canonical integer 1 through 24, and optionally lowercase suffix a or b. No spaces or checksum.
+  regex: "/^FORM-[A-Z]{2}-(?:[1-9]|1[0-9]|2[0-4])[ab]?$(?![\\s\\S])/"
+  match:
+    - "FORM-AA-1"
+    - "FORM-ZZ-24"
+    - "FORM-XY-1a"
+    - "FORM-XY-24b"
+    - "FORM-AB-10"
+    - "FORM-CD-9b"
+    - "FORM-EF-20a"
+    - "FORM-GH-23"
+  no_match:
+    - "FORM-AA-0"
+    - "FORM-AA-25"
+    - "FORM-AA-01"
+    - "FORM-AA-1c"
+    - "FORM-AA-1A"
+    - "FORM-aa-1"
+    - "FORM-A-1"
+    - "!FORM-AA-1"
+    - "FORM-AA-1!"
+    - "FORM-AA-1\n"
+    - "FORM-AA-1\r"
+    - "FORM-AA-1\r\n"
+    - "FORM-AA-1\u2028"
+    - "FORM-AA-1\u2029"
+    - " FORM-AA-1"
+    - "FORM-AA-1 "
+  pitfall: >-
+    Revision bounds and optional suffix case are independent.
+- id: gpt-postal-official-14
+  difficulty: hard
+  status: ok
+  description: >-
+    A registry confirmation is check: then two identical official codes separated by slash. Each code is two uppercase ASCII letters and four ASCII digits. Format only, no checksum or spaces. Each of the two values must be enclosed in matching ASCII single or double quotes; the same quote character must be used for both values. Quotes are not part of the value, and escapes are not permitted.
+  regex: "/^check:(['\\\"])([A-Z]{2}[0-9]{4})\\1\\/\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "check:'AA0000'/'AA0000'"
+    - "check:\"ZZ9999\"/\"ZZ9999\""
+    - "check:'AB1234'/'AB1234'"
+    - "check:\"XY4321\"/\"XY4321\""
+    - "check:'PP1000'/'PP1000'"
+    - "check:\"EF0001\"/\"EF0001\""
+    - "check:'GH5555'/'GH5555'"
+    - "check:\"IJ9876\"/\"IJ9876\""
+  no_match:
+    - "check:'AA0000'/'ZZ9999'"
+    - "check:'AA0000'/'AA0000AA0000'"
+    - "check:'?'/'?'"
+    - "check:'AA0000 '/'AA0000'"
+    - "check:'AA0000'/' AA0000'"
+    - "check:'AA0000'/'AA0000/AA0000'"
+    - "check:'!!!!!!'/'!!!!!!'"
+    - "check:'AA000'/'AA000'"
+    - "check:'AA00000'/'AA00000'"
+    - "check:'AAzzzz'/'AAzzzz'"
+    - "check:'000000'/'000000'"
+    - "check:'AA0000\"/'AA0000'"
+    - "check:'AA0000'/\"AA0000\""
+    - "check:AA0000/AA0000"
+    - "!check:'AA0000'/'AA0000'"
+    - "check:'AA0000'/'AA0000'!"
+    - "check:'AA0000'/'AA0000'\n"
+    - "check:'AA0000'/'AA0000'\r"
+    - "check:'AA0000'/'AA0000'\r\n"
+    - "check:'AA0000'/'AA0000'\u2028"
+    - "check:'AA0000'/'AA0000'\u2029"
+    - " check:'AA0000'/'AA0000'"
+    - "check:'AA0000'/'AA0000' "
+  pitfall: >-
+    Quote style, both closing quotes, value policy and exact value repetition must all agree.
+- id: gpt-postal-official-15
+  difficulty: hard
+  status: ok
+  description: >-
+    Code review requirement: A paired permit code is two uppercase ASCII letters, hyphen, four ASCII digits, slash, the same two letters and the same four digits without a hyphen. The letters must differ from each other; digits may repeat. Format only, no checksum.
+  regex: "/^((?!([A-Z])\\2)[A-Z]{2})-([0-9]{4})\\/\\1\\3$(?![\\s\\S])/"
+  match:
+    - "AB-0000/AB0000"
+    - "ZY-9999/ZY9999"
+    - "XY-1234/XY1234"
+    - "PQ-4321/PQ4321"
+    - "EF-1000/EF1000"
+    - "GH-0001/GH0001"
+    - "IJ-5555/IJ5555"
+    - "KL-9876/KL9876"
+  no_match:
+    - "AA-1234/AA1234"
+    - "AB-1234/AC1234"
+    - "AB-1234/AB1235"
+    - "ab-1234/ab1234"
+    - "AB-123/AB123"
+    - "AB-12345/AB12345"
+    - "AB-12a4/AB12a4"
+    - "!AB-0000/AB0000"
+    - "AB-0000/AB0000!"
+    - "AB-0000/AB0000\n"
+    - "AB-0000/AB0000\r"
+    - "AB-0000/AB0000\r\n"
+    - "AB-0000/AB0000\u2028"
+    - "AB-0000/AB0000\u2029"
+    - " AB-0000/AB0000"
+    - "AB-0000/AB0000 "
+  pitfall: >-
+    Two repeated fields and a letter-distinctness rule must be tracked.
+- id: gpt-postal-official-16
+  difficulty: hard
+  status: ok
+  description: >-
+    An office display label: 2 through 12 Unicode letter clusters. Each cluster is a Unicode letter followed by zero to two Unicode combining marks. One optional ASCII hyphen may join two nonempty runs of clusters, but no edge hyphen or second hyphen is allowed. Length counts letter clusters, excluding the hyphen and any fixed prefix; spaces, digits and other characters are forbidden. No normalization is performed.
+  regex: "/^(?=(?:\\p{L}\\p{M}{0,2}-?){2,12}$)(?:\\p{L}\\p{M}{0,2}){1,12}(?:-(?:\\p{L}\\p{M}{0,2}){1,12})?$(?![\\s\\S])/u"
+  match:
+    - "ab"
+    - "e\u0301x"
+    - "a\u0301\u0308b"
+    - "\u6771\u4eac-\u5927\u962a"
+    - "\u0394\u03ad\u03bb\u03c4\u03b1"
+    - "\u0645\u0631\u062d\u0628\u0627"
+    - "\u0417\u0438\u043c\u0430"
+    - "abcdefghijkl"
+    - "e\u0301-e\u0308"
+    - "A\u00e9"
+  no_match:
+    - "a"
+    - "abcdefghijklm"
+    - "ab1"
+    - "a_b"
+    - "a b"
+    - "e\u0301"
+    - "\U0001f600a"
+    - "\u0301ab"
+    - "a\u0301\u0308\u0303b"
+    - "-ab"
+    - "ab-"
+    - "a--b"
+    - "ab-cd-ef"
+    - "!ab"
+    - "ab!"
+    - "ab\n"
+    - "ab\r"
+    - "ab\r\n"
+    - "ab\u2028"
+    - "ab\u2029"
+    - " ab"
+    - "ab "
+  pitfall: >-
+    Count base-letter clusters, attach bounded marks only after a letter, and limit the optional internal separator.
+- id: gpt-postal-official-17
+  difficulty: hard
+  status: ok
+  description: >-
+    An official record memo: the entire string has the literal opening wrapper DOC{, a lowercase ASCII routing label of 2 through 6 letters, colon, a body, colon, the exact same routing label and the literal closing wrapper }DOC. The body has 1 through 40 Unicode code points, allows any characters including line breaks and colons, and must contain the lowercase substring filed. Only the body counts toward its length limit; no other text is allowed.
+  regex: "/^DOC\\{(?<route>[a-z]{2,6}):(?=.{1,40}:\\k<route>\\}DOC$)(?=.{0,40}filed.{0,40}:\\k<route>\\}DOC$).*:\\k<route>\\}DOC$(?![\\s\\S])/su"
+  match:
+    - "DOC{aa:filed:aa}DOC"
+    - "DOC{abcdef:afiled:abcdef}DOC"
+    - "DOC{tag:filedb:tag}DOC"
+    - "DOC{route:\nfiled:route}DOC"
+    - "DOC{memo:filed\n:memo}DOC"
+    - "DOC{ab:\tfiled:ab}DOC"
+    - "DOC{zz:\U0001f600filed:zz}DOC"
+    - "DOC{key:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxfiled:key}DOC"
+    - "DOC{xy:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600filed:xy}DOC"
+    - "DOC{aa:prefix: filed: suffix:aa}DOC"
+  no_match:
+    - "DOC{aa::aa}DOC"
+    - "DOC{aa:abc:aa}DOC"
+    - "DOC{aa:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxfiled:aa}DOC"
+    - "DOC{aa:filed:ab}DOC"
+    - "DOC{a:filed:a}DOC"
+    - "DOC{abcdefg:filed:abcdefg}DOC"
+    - "DOC{AA:filed:AA}DOC"
+    - "DOC{aa:FILED:aa}DOC"
+    - "DOC{aa:filed:aa"
+    - "aa:filed:aa}DOC"
+    - "DOC{aa:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600filed:aa}DOC"
+    - "DOC{filed:abc:filed}DOC"
+    - "!DOC{aa:filed:aa}DOC"
+    - "DOC{aa:filed:aa}DOC!"
+    - "DOC{aa:filed:aa}DOC\n"
+    - "DOC{aa:filed:aa}DOC\r"
+    - "DOC{aa:filed:aa}DOC\r\n"
+    - "DOC{aa:filed:aa}DOC\u2028"
+    - "DOC{aa:filed:aa}DOC\u2029"
+    - " DOC{aa:filed:aa}DOC"
+    - "DOC{aa:filed:aa}DOC "
+  pitfall: >-
+    Repeat the routing label exactly, count only body code points including line breaks, and require the marker inside that body.
+- id: gpt-postal-official-18
+  difficulty: hard
+  status: ok
+  description: >-
+    An LF-only permit receipt has permit= followed by two uppercase ASCII letters and four ASCII digits, then copy= followed by the identical code on line two. No final LF, spaces or checksum. Both values must be enclosed in matching ASCII single or double quotes, using the same quote character on both lines. The quotes are delimiters, not part of the value; no escapes are permitted.
+  regex: "/^permit=(['\\\"])([A-Z]{2}[0-9]{4})\\1\\ncopy=\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "permit='AA0000'\ncopy='AA0000'"
+    - "permit=\"ZZ9999\"\ncopy=\"ZZ9999\""
+    - "permit='AB1234'\ncopy='AB1234'"
+    - "permit=\"XY4321\"\ncopy=\"XY4321\""
+    - "permit='PP1000'\ncopy='PP1000'"
+    - "permit=\"EF0001\"\ncopy=\"EF0001\""
+    - "permit='GH5555'\ncopy='GH5555'"
+    - "permit=\"IJ9876\"\ncopy=\"IJ9876\""
+  no_match:
+    - "permit='AA0000'\ncopy='ZZ9999'"
+    - "permit='AA0000\r'\ncopy='AA0000'"
+    - "permit=AA0000 copy=AA0000"
+    - "permit=AA0000\nCopy=AA0000"
+    - "permit='?'\ncopy='?'"
+    - "permit='AA0000'\ncopy='AA0000 '"
+    - "permit='!!!!!!'\ncopy='!!!!!!'"
+    - "permit='AA000'\ncopy='AA000'"
+    - "permit='AA00000'\ncopy='AA00000'"
+    - "permit='AAzzzz'\ncopy='AAzzzz'"
+    - "permit='000000'\ncopy='000000'"
+    - "permit='AA0000\"\ncopy='AA0000'"
+    - "permit='AA0000'\ncopy=\"AA0000\""
+    - "permit=AA0000\ncopy=AA0000"
+    - "permit='AA0000'\r\ncopy='AA0000'"
+    - "!permit='AA0000'\ncopy='AA0000'"
+    - "permit='AA0000'\ncopy='AA0000'!"
+    - "permit='AA0000'\ncopy='AA0000'\n"
+    - "permit='AA0000'\ncopy='AA0000'\r"
+    - "permit='AA0000'\ncopy='AA0000'\r\n"
+    - "permit='AA0000'\ncopy='AA0000'\u2028"
+    - "permit='AA0000'\ncopy='AA0000'\u2029"
+    - " permit='AA0000'\ncopy='AA0000'"
+    - "permit='AA0000'\ncopy='AA0000' "
+  pitfall: >-
+    The exact value and quote convention must agree across LF-separated lines, in addition to the value policy.
+- id: gpt-postal-official-19
+  difficulty: hard
+  status: ok
+  description: >-
+    Acceptance criteria:
+    - A routing pair is region AA through ZZ using two uppercase ASCII letters, colon, padded district 01 through 24, slash, the same region and colon with a different district in that range. No checksum or spaces.
+    - Evaluate the input as supplied; do not trim or normalize it.
+  regex: "/^([A-Z]{2}):(0[1-9]|1[0-9]|2[0-4])\\/\\1:(?!\\2$)(?:0[1-9]|1[0-9]|2[0-4])$(?![\\s\\S])/"
+  match:
+    - "AA:01/AA:02"
+    - "ZZ:24/ZZ:23"
+    - "XY:01/XY:24"
+    - "AB:10/AB:11"
+    - "CD:09/CD:10"
+    - "EF:20/EF:01"
+    - "GH:12/GH:13"
+    - "IJ:22/IJ:21"
+  no_match:
+    - "AA:01/AA:01"
+    - "AA:01/BB:02"
+    - "AA:00/AA:01"
+    - "AA:01/AA:25"
+    - "AA:1/AA:02"
+    - "aa:01/aa:02"
+    - "AA:01/AA:2"
+    - "!AA:01/AA:02"
+    - "AA:01/AA:02!"
+    - "AA:01/AA:02\n"
+    - "AA:01/AA:02\r"
+    - "AA:01/AA:02\r\n"
+    - "AA:01/AA:02\u2028"
+    - "AA:01/AA:02\u2029"
+    - " AA:01/AA:02"
+    - "AA:01/AA:02 "
+    - "AAA:01/AAA:02"
+    - "AA:01/AA:022"
+  pitfall: >-
+    Region equality and district inequality coexist with padded ranges.
+- id: gpt-postal-official-20
+  difficulty: hard
+  status: ok
+  description: >-
+    An application code is APP- followed by eight ASCII digits. It cannot be all zeros, cannot contain three identical consecutive digits anywhere, and must end in an even digit. Format only: no checksum is performed.
+  regex: "/^APP-(?!00000000$)(?![0-9]*([0-9])\\1\\1)[0-9]{7}[02468]$(?![\\s\\S])/"
+  match:
+    - "APP-12345678"
+    - "APP-10101010"
+    - "APP-98765432"
+    - "APP-00123456"
+    - "APP-11223344"
+    - "APP-90909090"
+    - "APP-24682468"
+    - "APP-13579102"
+  no_match:
+    - "APP-00000000"
+    - "APP-11123456"
+    - "APP-12344456"
+    - "APP-12345679"
+    - "APP-1234567"
+    - "APP-123456789"
+    - "APP-123456a8"
+    - "!APP-12345678"
+    - "APP-12345678!"
+    - "APP-12345678\n"
+    - "APP-12345678\r"
+    - "APP-12345678\r\n"
+    - "APP-12345678\u2028"
+    - "APP-12345678\u2029"
+    - " APP-12345678"
+    - "APP-12345678 "
+    - "APP-123456"
+    - "APP-1234567890"
+  pitfall: >-
+    Triple repeats are excluded, but pairs are allowed.

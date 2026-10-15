@@ -1,0 +1,697 @@
+# Benchmark GPT, catégorie web. Format et contrôles : scripts/benchmark.py.
+- id: gpt-web-01
+  difficulty: simple
+  status: ok
+  description: >-
+    An internal CDN route is /asset/ followed by exactly eight lowercase hexadecimal digits and .webp. No query, fragment or other text.
+  regex: "/^\\/asset\\/[0123456789abcdef]{8}\\.webp$(?![\\s\\S])/"
+  match:
+    - "/asset/00000000.webp"
+    - "/asset/ffffffff.webp"
+    - "/asset/88888888.webp"
+    - "/asset/0f0f0f0f.webp"
+    - "/asset/f0f0f0f0.webp"
+    - "/asset/0fffffff.webp"
+    - "/asset/f0000000.webp"
+    - "/asset/80000000.webp"
+  no_match:
+    - "/asset/0000000.webp"
+    - "/asset/000000000.webp"
+    - "/asset/?0000000.webp"
+    - "/asset/ 0000000.webp"
+    - "/asset/0000000\u00e9.webp"
+    - "/asset/00000000\t.webp"
+    - "/asset?00000000.webp"
+    - "/asset/00000000?webp"
+    - "/asset/A0000000.webp"
+    - "!/asset/00000000.webp"
+    - "/asset/00000000.webp!"
+    - "/asset/00000000.webp\n"
+    - "/asset/00000000.webp\r"
+    - "/asset/00000000.webp\r\n"
+    - "/asset/00000000.webp\u2028"
+    - "/asset/00000000.webp\u2029"
+    - " /asset/00000000.webp"
+    - "/asset/00000000.webp "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-web-02
+  difficulty: simple
+  status: ok
+  description: >-
+    A CSS color field is the hash sign followed by exactly eight uppercase hexadecimal digits; shorthand and lowercase are not accepted.
+  regex: "/^\\#[0123456789ABCDEF]{8}$(?![\\s\\S])/"
+  match:
+    - "#00000000"
+    - "#FFFFFFFF"
+    - "#88888888"
+    - "#0F0F0F0F"
+    - "#F0F0F0F0"
+    - "#0FFFFFFF"
+    - "#F0000000"
+    - "#80000000"
+  no_match:
+    - "#0000000"
+    - "#000000000"
+    - "#?0000000"
+    - "# 0000000"
+    - "#0000000\u00e9"
+    - "#00000000\t"
+    - "?00000000"
+    - "#a0000000"
+    - "!#00000000"
+    - "#00000000!"
+    - "#00000000\n"
+    - "#00000000\r"
+    - "#00000000\r\n"
+    - "#00000000\u2028"
+    - "#00000000\u2029"
+    - " #00000000"
+    - "#00000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-web-03
+  difficulty: simple
+  status: ok
+  description: >-
+    The landing-page slug is /p/ followed by exactly six lowercase ASCII letters. No trailing slash.
+  regex: "/^\\/p\\/[abcdefghijklmnopqrstuvwxyz]{6}$(?![\\s\\S])/"
+  match:
+    - "/p/aaaaaa"
+    - "/p/zzzzzz"
+    - "/p/nnnnnn"
+    - "/p/azazaz"
+    - "/p/zazaza"
+    - "/p/azzzzz"
+    - "/p/zaaaaa"
+    - "/p/naaaaa"
+  no_match:
+    - "/p/aaaaa"
+    - "/p/aaaaaaa"
+    - "/p/?aaaaa"
+    - "/p/ aaaaa"
+    - "/p/aaaaa\u00e9"
+    - "/p/aaaaaa\t"
+    - "/p?aaaaaa"
+    - "/p/Aaaaaa"
+    - "!/p/aaaaaa"
+    - "/p/aaaaaa!"
+    - "/p/aaaaaa\n"
+    - "/p/aaaaaa\r"
+    - "/p/aaaaaa\r\n"
+    - "/p/aaaaaa\u2028"
+    - "/p/aaaaaa\u2029"
+    - " /p/aaaaaa"
+    - "/p/aaaaaa "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-web-04
+  difficulty: simple
+  status: ok
+  description: >-
+    An HTML data key starts data-x- and ends with exactly four lowercase ASCII letters. Nothing else.
+  regex: "/^data\\-x\\-[abcdefghijklmnopqrstuvwxyz]{4}$(?![\\s\\S])/"
+  match:
+    - "data-x-aaaa"
+    - "data-x-zzzz"
+    - "data-x-nnnn"
+    - "data-x-azaz"
+    - "data-x-zaza"
+    - "data-x-azzz"
+    - "data-x-zaaa"
+    - "data-x-naaa"
+  no_match:
+    - "data-x-aaa"
+    - "data-x-aaaaa"
+    - "data-x-?aaa"
+    - "data-x- aaa"
+    - "data-x-aaa\u00e9"
+    - "data-x-aaaa\t"
+    - "data-x?aaaa"
+    - "data-x-Aaaa"
+    - "!data-x-aaaa"
+    - "data-x-aaaa!"
+    - "data-x-aaaa\n"
+    - "data-x-aaaa\r"
+    - "data-x-aaaa\r\n"
+    - "data-x-aaaa\u2028"
+    - "data-x-aaaa\u2029"
+    - " data-x-aaaa"
+    - "data-x-aaaa "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-web-05
+  difficulty: simple
+  status: ok
+  description: >-
+    A cache query is ?v= followed by exactly seven ASCII digits; leading zeros are allowed. No additional parameters.
+  regex: "/^\\?v=[0123456789]{7}$(?![\\s\\S])/"
+  match:
+    - "?v=0000000"
+    - "?v=9999999"
+    - "?v=5555555"
+    - "?v=0909090"
+    - "?v=9090909"
+    - "?v=0999999"
+    - "?v=9000000"
+    - "?v=5000000"
+  no_match:
+    - "?v=000000"
+    - "?v=00000000"
+    - "?v=?000000"
+    - "?v= 000000"
+    - "?v=000000\u00e9"
+    - "?v=0000000\t"
+    - "?v?0000000"
+    - "!?v=0000000"
+    - "?v=0000000!"
+    - "?v=0000000\n"
+    - "?v=0000000\r"
+    - "?v=0000000\r\n"
+    - "?v=0000000\u2028"
+    - "?v=0000000\u2029"
+    - " ?v=0000000"
+    - "?v=0000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-web-06
+  difficulty: medium
+  status: ok
+  description: >-
+    Form-validation ticket: A local preview URL is exactly http://preview.local: followed by a port 8000 through 8099, then slash. Use four ASCII digits, no other URL components.
+  regex: "/^http:\\/\\/preview\\.local:80[0-9]{2}\\/$(?![\\s\\S])/"
+  match:
+    - "http://preview.local:8000/"
+    - "http://preview.local:8001/"
+    - "http://preview.local:8002/"
+    - "http://preview.local:8097/"
+    - "http://preview.local:8098/"
+    - "http://preview.local:8099/"
+    - "http://preview.local:8049/"
+    - "http://preview.local:8050/"
+  no_match:
+    - "http://preview.local:7999/"
+    - "http://preview.local:8100/"
+    - "http://preview.local:08000/"
+    - "http://preview.local:+8000/"
+    - "http://preview.local:8000.0/"
+    - "http://preview.local: 8000/"
+    - "http://preview.local:80990/"
+    - "!http://preview.local:8000/"
+    - "http://preview.local:8000/!"
+    - "http://preview.local:8000/\n"
+    - "http://preview.local:8000/\r"
+    - "http://preview.local:8000/\r\n"
+    - "http://preview.local:8000/\u2028"
+    - "http://preview.local:8000/\u2029"
+    - " http://preview.local:8000/"
+    - "http://preview.local:8000/ "
+    - "http://preview.local:80xx/"
+  pitfall: >-
+    Endpoints and canonical decimal spelling must both be enforced.
+- id: gpt-web-07
+  difficulty: medium
+  status: ok
+  description: >-
+    An image source is /img/ then 1 to 12 lowercase ASCII letters, then .png or .avif. No slash, query or whitespace in the basename.
+  regex: "/^\\/img\\/[a-z]{1,12}\\.(?:png|avif)$(?![\\s\\S])/"
+  match:
+    - "/img/a.png"
+    - "/img/a.avif"
+    - "/img/abcdefghijkl.png"
+    - "/img/abcdefghijkl.avif"
+    - "/img/logo.png"
+    - "/img/icon.avif"
+    - "/img/banner.png"
+    - "/img/thumb.avif"
+  no_match:
+    - "/img/.png"
+    - "/img/abcdefghijklm.png"
+    - "/img/A.png"
+    - "/img/a.jpg"
+    - "/img/aXpng"
+    - "/img/a.png?x"
+    - "!/img/a.png"
+    - "/img/a.png!"
+    - "/img/a.png\n"
+    - "/img/a.png\r"
+    - "/img/a.png\r\n"
+    - "/img/a.png\u2028"
+    - "/img/a.png\u2029"
+    - " /img/a.png"
+    - "/img/a.png "
+  pitfall: >-
+    Escape the extension separator and enforce basename length.
+- id: gpt-web-08
+  difficulty: medium
+  status: ok
+  description: >-
+    Validate the fragment for a tab: #tab- then an integer 1 through 32 with no leading zeros. No spaces or other text.
+  regex: "/^#tab-(?:[1-9]|[12][0-9]|3[0-2])$(?![\\s\\S])/"
+  match:
+    - "#tab-1"
+    - "#tab-2"
+    - "#tab-9"
+    - "#tab-10"
+    - "#tab-20"
+    - "#tab-30"
+    - "#tab-31"
+    - "#tab-32"
+  no_match:
+    - "#tab-0"
+    - "#tab-33"
+    - "#tab-01"
+    - "#tab-+1"
+    - "#Tab-1"
+    - "#tab-1.0"
+    - "!#tab-1"
+    - "#tab-1!"
+    - "#tab-1\n"
+    - "#tab-1\r"
+    - "#tab-1\r\n"
+    - "#tab-1\u2028"
+    - "#tab-1\u2029"
+    - " #tab-1"
+    - "#tab-1 "
+  pitfall: >-
+    A numeric fragment still has a bounded range.
+- id: gpt-web-09
+  difficulty: medium
+  status: ok
+  description: >-
+    An internal host consists of a lowercase ASCII label 1 to 10 letters long followed by .test, optionally followed by :443. No scheme, slash, hyphens or other ports.
+  regex: "/^[a-z]{1,10}\\.test(?::443)?$(?![\\s\\S])/"
+  match:
+    - "a.test"
+    - "a.test:443"
+    - "abcdefghij.test"
+    - "abcdefghij.test:443"
+    - "api.test"
+    - "api.test:443"
+    - "cdn.test"
+    - "cdn.test:443"
+  no_match:
+    - ".test"
+    - "abcdefghijk.test"
+    - "A.test"
+    - "aXtest"
+    - "a.test:80"
+    - "https://a.test"
+    - "a-.test"
+    - "!a.test"
+    - "a.test!"
+    - "a.test\n"
+    - "a.test\r"
+    - "a.test\r\n"
+    - "a.test\u2028"
+    - "a.test\u2029"
+    - " a.test"
+    - "a.test "
+  pitfall: >-
+    Only the explicit port is optional; the dot remains literal.
+- id: gpt-web-10
+  difficulty: medium
+  status: ok
+  description: >-
+    Import gate — reject any nonconforming input. The upload accept field is a comma-separated list of 1 to 4 lowercase extensions chosen from .png, .jpg and .webp. No spaces; repeated extensions are allowed.
+  regex: "/^\\.(?:png|jpg|webp)(?:,\\.(?:png|jpg|webp)){0,3}$(?![\\s\\S])/"
+  match:
+    - ".png"
+    - ".jpg"
+    - ".webp"
+    - ".png,.jpg"
+    - ".webp,.png,.jpg"
+    - ".png,.png,.png,.png"
+    - ".jpg,.webp"
+    - ".webp,.webp,.webp,.webp"
+  no_match:
+    - ""
+    - ".PNG"
+    - "png"
+    - ".gif"
+    - ".png, .jpg"
+    - ".png,.png,.png,.png,.png"
+    - ".png,"
+    - "!.png"
+    - ".png!"
+    - ".png\n"
+    - ".png\r"
+    - ".png\r\n"
+    - ".png\u2028"
+    - ".png\u2029"
+    - " .png"
+    - ".png "
+  pitfall: >-
+    Count list entries and require every leading dot.
+- id: gpt-web-11
+  difficulty: medium
+  status: ok
+  description: >-
+    Search filter, not whole-input validation. Search arbitrary text for a lowercase six-letter route key immediately after route= and before ampersand. Other URL text is unrestricted.
+  regex: "/(?<=route=)[a-z]{6}(?=\\&)/"
+  match:
+    - "route=aaaaaa&"
+    - "route=zzzzzz&"
+    - "route=abcdef&"
+    - "route=router&"
+    - "before route=foobar& after"
+    - "before route=qwerty& after"
+    - "before route=sample& after"
+    - "before route=widget& after"
+  no_match:
+    - "route=aaaaa&"
+    - "route=aaaaaaa&"
+    - "route=AAAAAA&"
+    - "route=abcde1&"
+    - "route=abcde_&"
+    - "route=abcde\u00e9&"
+    - "ROUTE=aaaaaa&"
+    - "route=aaaaaa &"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-web-12
+  difficulty: medium
+  status: ok
+  description: >-
+    Find a response status from 200 through 299 immediately between the lowercase marker status[ and ]. This is a contains search, not full input validation.
+  regex: "/(?<=status\\[)2[0-9]{2}(?=\\])/"
+  match:
+    - "status[200]"
+    - "status[201]"
+    - "status[204]"
+    - "status[206]"
+    - "before status[220] after"
+    - "before status[250] after"
+    - "before status[298] after"
+    - "before status[299] after"
+  no_match:
+    - "status[199]"
+    - "status[300]"
+    - "status[20]"
+    - "status[2000]"
+    - "status[2a0]"
+    - "status[+200]"
+    - "STATUS[200]"
+    - "status[200 ]"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-web-13
+  difficulty: medium
+  status: ok
+  description: >-
+    A download URL is exactly https://dl.test/ followed by a canonical integer 1 to 99 and either .zip or .tar.gz. No query, fragment, port or credentials.
+  regex: "/^https:\\/\\/dl\\.test\\/[1-9][0-9]?\\.(?:zip|tar\\.gz)$(?![\\s\\S])/"
+  match:
+    - "https://dl.test/1.zip"
+    - "https://dl.test/1.tar.gz"
+    - "https://dl.test/99.zip"
+    - "https://dl.test/99.tar.gz"
+    - "https://dl.test/10.zip"
+    - "https://dl.test/20.tar.gz"
+    - "https://dl.test/9.zip"
+    - "https://dl.test/50.tar.gz"
+  no_match:
+    - "http://dl.test/1.zip"
+    - "https://dlXtest/1.zip"
+    - "https://dl.test/0.zip"
+    - "https://dl.test/100.zip"
+    - "https://dl.test/01.zip"
+    - "https://dl.test/1.tarXgz"
+    - "https://dl.test/1.ZIP"
+    - "!https://dl.test/1.zip"
+    - "https://dl.test/1.zip!"
+    - "https://dl.test/1.zip\n"
+    - "https://dl.test/1.zip\r"
+    - "https://dl.test/1.zip\r\n"
+    - "https://dl.test/1.zip\u2028"
+    - "https://dl.test/1.zip\u2029"
+    - " https://dl.test/1.zip"
+    - "https://dl.test/1.zip "
+  pitfall: >-
+    Treat multi-part extensions as literal components.
+- id: gpt-web-14
+  difficulty: hard
+  status: ok
+  description: >-
+    A route-alias record starts /alias/ and contains two identical lowercase ASCII slugs of 3 to 8 letters separated by slash. No trailing slash or spaces. Each of the two values must be enclosed in matching ASCII single or double quotes; the same quote character must be used for both values. Quotes are not part of the value, and escapes are not permitted.
+  regex: "/^\\/alias\\/(['\\\"])([a-z]{3,8})\\1\\/\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "/alias/'abc'/'abc'"
+    - "/alias/\"xyz\"/\"xyz\""
+    - "/alias/'abcdefgh'/'abcdefgh'"
+    - "/alias/\"alias\"/\"alias\""
+    - "/alias/'widget'/'widget'"
+    - "/alias/\"foo\"/\"foo\""
+    - "/alias/'router'/'router'"
+    - "/alias/\"sample\"/\"sample\""
+  no_match:
+    - "/alias/'abc'/'xyz'"
+    - "/alias/'abc'/'abcabc'"
+    - "/alias/'?'/'?'"
+    - "/alias/'abc '/'abc'"
+    - "/alias/'abc'/' abc'"
+    - "/alias/'abc'/'abc/abc'"
+    - "/alias/'!!!'/'!!!'"
+    - "/alias/'ab'/'ab'"
+    - "/alias/'abc0'/'abc0'"
+    - "/alias/'000'/'000'"
+    - "/alias/'abc\"/'abc'"
+    - "/alias/'abc'/\"abc\""
+    - "/alias/abc/abc"
+    - "!/alias/'abc'/'abc'"
+    - "/alias/'abc'/'abc'!"
+    - "/alias/'abc'/'abc'\n"
+    - "/alias/'abc'/'abc'\r"
+    - "/alias/'abc'/'abc'\r\n"
+    - "/alias/'abc'/'abc'\u2028"
+    - "/alias/'abc'/'abc'\u2029"
+    - " /alias/'abc'/'abc'"
+    - "/alias/'abc'/'abc' "
+  pitfall: >-
+    Quote style, both closing quotes, value policy and exact value repetition must all agree.
+- id: gpt-web-15
+  difficulty: hard
+  status: ok
+  description: >-
+    Code review requirement: A simplified HTML tag pair is an opening tag with a lowercase ASCII name 1 through 8 letters, then 1 through 20 ASCII letters or spaces, then a closing tag with the exact same name. No attributes, nesting or newlines.
+  regex: "/^<([a-z]{1,8})>[A-Za-z ]{1,20}<\\/\\1>$(?![\\s\\S])/"
+  match:
+    - "<a>x</a>"
+    - "<div>Hello</div>"
+    - "<span>a b</span>"
+    - "<abcdefgh>ABCDEFGHIJKLMNOPQRST</abcdefgh>"
+    - "<p> </p>"
+    - "<x>abc</x>"
+    - "<article>Note</article>"
+    - "<b>Bold</b>"
+  no_match:
+    - "<a></a>"
+    - "<a>ABCDEFGHIJKLMNOPQRSTU</a>"
+    - "<abcdefghi>x</abcdefghi>"
+    - "<a>x</b>"
+    - "<A>x</A>"
+    - "<a>1</a>"
+    - "<a>x\ny</a>"
+    - "!<a>x</a>"
+    - "<a>x</a>!"
+    - "<a>x</a>\n"
+    - "<a>x</a>\r"
+    - "<a>x</a>\r\n"
+    - "<a>x</a>\u2028"
+    - "<a>x</a>\u2029"
+    - " <a>x</a>"
+    - "<a>x</a> "
+  pitfall: >-
+    Opening and closing names must agree, and body constraints are independent.
+- id: gpt-web-16
+  difficulty: hard
+  status: ok
+  description: >-
+    A front-end translation label: the literal prefix ui: followed by 2 through 12 Unicode letter clusters. Each cluster is a Unicode letter followed by zero to two Unicode combining marks. One optional ASCII hyphen may join two nonempty runs of clusters, but no edge hyphen or second hyphen is allowed. Length counts letter clusters, excluding the hyphen and any fixed prefix; spaces, digits and other characters are forbidden. No normalization is performed.
+  regex: "/^ui:(?=(?:\\p{L}\\p{M}{0,2}-?){2,12}$)(?:\\p{L}\\p{M}{0,2}){1,12}(?:-(?:\\p{L}\\p{M}{0,2}){1,12})?$(?![\\s\\S])/u"
+  match:
+    - "ui:ab"
+    - "ui:e\u0301x"
+    - "ui:a\u0301\u0308b"
+    - "ui:\u6771\u4eac-\u5927\u962a"
+    - "ui:\u0394\u03ad\u03bb\u03c4\u03b1"
+    - "ui:\u0645\u0631\u062d\u0628\u0627"
+    - "ui:\u0417\u0438\u043c\u0430"
+    - "ui:abcdefghijkl"
+    - "ui:e\u0301-e\u0308"
+    - "ui:A\u00e9"
+  no_match:
+    - "ui:a"
+    - "ui:abcdefghijklm"
+    - "ui:ab1"
+    - "ui:a_b"
+    - "ui:a b"
+    - "ui:e\u0301"
+    - "ui:\U0001f600a"
+    - "ui:\u0301ab"
+    - "ui:a\u0301\u0308\u0303b"
+    - "ui:-ab"
+    - "ui:ab-"
+    - "ui:a--b"
+    - "ui:ab-cd-ef"
+    - "!ui:ab"
+    - "ui:ab!"
+    - "ui:ab\n"
+    - "ui:ab\r"
+    - "ui:ab\r\n"
+    - "ui:ab\u2028"
+    - "ui:ab\u2029"
+    - " ui:ab"
+    - "ui:ab "
+  pitfall: >-
+    Count base-letter clusters, attach bounded marks only after a letter, and limit the optional internal separator.
+- id: gpt-web-17
+  difficulty: hard
+  status: ok
+  description: >-
+    A captured web preview: the entire string has the literal opening wrapper WEB{, a lowercase ASCII routing label of 2 through 6 letters, colon, a body, colon, the exact same routing label and the literal closing wrapper }WEB. The body has 1 through 40 Unicode code points, allows any characters including line breaks and colons, and must contain the lowercase substring html. Only the body counts toward its length limit; no other text is allowed.
+  regex: "/^WEB\\{(?<route>[a-z]{2,6}):(?=.{1,40}:\\k<route>\\}WEB$)(?=.{0,40}html.{0,40}:\\k<route>\\}WEB$).*:\\k<route>\\}WEB$(?![\\s\\S])/su"
+  match:
+    - "WEB{aa:html:aa}WEB"
+    - "WEB{abcdef:ahtml:abcdef}WEB"
+    - "WEB{tag:htmlb:tag}WEB"
+    - "WEB{route:\nhtml:route}WEB"
+    - "WEB{memo:html\n:memo}WEB"
+    - "WEB{ab:\thtml:ab}WEB"
+    - "WEB{zz:\U0001f600html:zz}WEB"
+    - "WEB{key:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxhtml:key}WEB"
+    - "WEB{xy:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600html:xy}WEB"
+    - "WEB{aa:prefix: html: suffix:aa}WEB"
+  no_match:
+    - "WEB{aa::aa}WEB"
+    - "WEB{aa:abc:aa}WEB"
+    - "WEB{aa:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxhtml:aa}WEB"
+    - "WEB{aa:html:ab}WEB"
+    - "WEB{a:html:a}WEB"
+    - "WEB{abcdefg:html:abcdefg}WEB"
+    - "WEB{AA:html:AA}WEB"
+    - "WEB{aa:HTML:aa}WEB"
+    - "WEB{aa:html:aa"
+    - "aa:html:aa}WEB"
+    - "WEB{aa:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600html:aa}WEB"
+    - "WEB{html:abc:html}WEB"
+    - "!WEB{aa:html:aa}WEB"
+    - "WEB{aa:html:aa}WEB!"
+    - "WEB{aa:html:aa}WEB\n"
+    - "WEB{aa:html:aa}WEB\r"
+    - "WEB{aa:html:aa}WEB\r\n"
+    - "WEB{aa:html:aa}WEB\u2028"
+    - "WEB{aa:html:aa}WEB\u2029"
+    - " WEB{aa:html:aa}WEB"
+    - "WEB{aa:html:aa}WEB "
+  pitfall: >-
+    Repeat the routing label exactly, count only body code points including line breaks, and require the marker inside that body.
+- id: gpt-web-18
+  difficulty: hard
+  status: ok
+  description: >-
+    An LF-only route receipt has route= plus a lowercase ASCII slug of 3 to 8 letters on line one, and copy= plus the same slug on line two. No final LF or other content. Both values must be enclosed in matching ASCII single or double quotes, using the same quote character on both lines. The quotes are delimiters, not part of the value; no escapes are permitted.
+  regex: "/^route=(['\\\"])([a-z]{3,8})\\1\\ncopy=\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "route='abc'\ncopy='abc'"
+    - "route=\"xyz\"\ncopy=\"xyz\""
+    - "route='abcdefgh'\ncopy='abcdefgh'"
+    - "route=\"route\"\ncopy=\"route\""
+    - "route='widget'\ncopy='widget'"
+    - "route=\"foo\"\ncopy=\"foo\""
+    - "route='router'\ncopy='router'"
+    - "route=\"sample\"\ncopy=\"sample\""
+  no_match:
+    - "route='abc'\ncopy='xyz'"
+    - "route='abc\r'\ncopy='abc'"
+    - "route=abc copy=abc"
+    - "route=abc\nCopy=abc"
+    - "route='?'\ncopy='?'"
+    - "route='abc'\ncopy='abc '"
+    - "route='!!!'\ncopy='!!!'"
+    - "route='ab'\ncopy='ab'"
+    - "route='abc0'\ncopy='abc0'"
+    - "route='000'\ncopy='000'"
+    - "route='abc\"\ncopy='abc'"
+    - "route='abc'\ncopy=\"abc\""
+    - "route=abc\ncopy=abc"
+    - "route='abc'\r\ncopy='abc'"
+    - "!route='abc'\ncopy='abc'"
+    - "route='abc'\ncopy='abc'!"
+    - "route='abc'\ncopy='abc'\n"
+    - "route='abc'\ncopy='abc'\r"
+    - "route='abc'\ncopy='abc'\r\n"
+    - "route='abc'\ncopy='abc'\u2028"
+    - "route='abc'\ncopy='abc'\u2029"
+    - " route='abc'\ncopy='abc'"
+    - "route='abc'\ncopy='abc' "
+  pitfall: >-
+    The exact value and quote convention must agree across LF-separated lines, in addition to the value policy.
+- id: gpt-web-19
+  difficulty: hard
+  status: ok
+  description: >-
+    Acceptance criteria:
+    - Validate exactly /tenant/<name>/mirror/<name>, where both names are the same lowercase ASCII slug of 3 to 8 letters. The reserved names admin and root are forbidden; no other components or trailing slash.
+    - Evaluate the input as supplied; do not trim or normalize it.
+  regex: "/^\\/tenant\\/(?!admin\\/|root\\/)([a-z]{3,8})\\/mirror\\/\\1$(?![\\s\\S])/"
+  match:
+    - "/tenant/abc/mirror/abc"
+    - "/tenant/xyz/mirror/xyz"
+    - "/tenant/abcdefgh/mirror/abcdefgh"
+    - "/tenant/adminx/mirror/adminx"
+    - "/tenant/roots/mirror/roots"
+    - "/tenant/foo/mirror/foo"
+    - "/tenant/team/mirror/team"
+    - "/tenant/widget/mirror/widget"
+  no_match:
+    - "/tenant/admin/mirror/admin"
+    - "/tenant/root/mirror/root"
+    - "/tenant/abc/mirror/xyz"
+    - "/tenant/ab/mirror/ab"
+    - "/tenant/abcdefghi/mirror/abcdefghi"
+    - "/tenant/ABC/mirror/ABC"
+    - "!/tenant/abc/mirror/abc"
+    - "/tenant/abc/mirror/abc!"
+    - "/tenant/abc/mirror/abc\n"
+    - "/tenant/abc/mirror/abc\r"
+    - "/tenant/abc/mirror/abc\r\n"
+    - "/tenant/abc/mirror/abc\u2028"
+    - "/tenant/abc/mirror/abc\u2029"
+    - " /tenant/abc/mirror/abc"
+    - "/tenant/abc/mirror/abc "
+  pitfall: >-
+    Exclude exact reserved names, not their prefixes.
+- id: gpt-web-20
+  difficulty: hard
+  status: ok
+  description: >-
+    A two-parameter query is ?left= and a canonical integer 1 to 99, then &right= and another such integer. Values must differ; parameter order is fixed and no extra parameter is allowed.
+  regex: "/^\\?left=([1-9][0-9]?)&right=(?!\\1$)[1-9][0-9]?$(?![\\s\\S])/"
+  match:
+    - "?left=1&right=2"
+    - "?left=99&right=98"
+    - "?left=1&right=10"
+    - "?left=10&right=1"
+    - "?left=20&right=30"
+    - "?left=9&right=99"
+    - "?left=5&right=50"
+    - "?left=50&right=5"
+  no_match:
+    - "?left=1&right=1"
+    - "?left=99&right=99"
+    - "?left=0&right=1"
+    - "?left=1&right=100"
+    - "?left=01&right=2"
+    - "?right=2&left=1"
+    - "!?left=1&right=2"
+    - "?left=1&right=2!"
+    - "?left=1&right=2\n"
+    - "?left=1&right=2\r"
+    - "?left=1&right=2\r\n"
+    - "?left=1&right=2\u2028"
+    - "?left=1&right=2\u2029"
+    - " ?left=1&right=2"
+    - "?left=1&right=2 "
+  pitfall: >-
+    Inequality compares whole values, not prefixes.

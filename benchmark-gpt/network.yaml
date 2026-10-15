@@ -1,0 +1,698 @@
+# Benchmark GPT, catégorie network. Format et contrôles : scripts/benchmark.py.
+- id: gpt-network-01
+  difficulty: simple
+  status: ok
+  description: >-
+    The packet label is pkt: followed by exactly eight uppercase hexadecimal characters.
+  regex: "/^pkt:[0123456789ABCDEF]{8}$(?![\\s\\S])/"
+  match:
+    - "pkt:00000000"
+    - "pkt:FFFFFFFF"
+    - "pkt:88888888"
+    - "pkt:0F0F0F0F"
+    - "pkt:F0F0F0F0"
+    - "pkt:0FFFFFFF"
+    - "pkt:F0000000"
+    - "pkt:80000000"
+  no_match:
+    - "pkt:0000000"
+    - "pkt:000000000"
+    - "pkt:?0000000"
+    - "pkt: 0000000"
+    - "pkt:0000000\u00e9"
+    - "pkt:00000000\t"
+    - "pkt?00000000"
+    - "pkt:a0000000"
+    - "!pkt:00000000"
+    - "pkt:00000000!"
+    - "pkt:00000000\n"
+    - "pkt:00000000\r"
+    - "pkt:00000000\r\n"
+    - "pkt:00000000\u2028"
+    - "pkt:00000000\u2029"
+    - " pkt:00000000"
+    - "pkt:00000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-network-02
+  difficulty: simple
+  status: ok
+  description: >-
+    A switch nickname is sw- followed by exactly four lowercase ASCII letters. No digits or spaces.
+  regex: "/^sw\\-[abcdefghijklmnopqrstuvwxyz]{4}$(?![\\s\\S])/"
+  match:
+    - "sw-aaaa"
+    - "sw-zzzz"
+    - "sw-nnnn"
+    - "sw-azaz"
+    - "sw-zaza"
+    - "sw-azzz"
+    - "sw-zaaa"
+    - "sw-naaa"
+  no_match:
+    - "sw-aaa"
+    - "sw-aaaaa"
+    - "sw-?aaa"
+    - "sw- aaa"
+    - "sw-aaa\u00e9"
+    - "sw-aaaa\t"
+    - "sw?aaaa"
+    - "sw-Aaaa"
+    - "!sw-aaaa"
+    - "sw-aaaa!"
+    - "sw-aaaa\n"
+    - "sw-aaaa\r"
+    - "sw-aaaa\r\n"
+    - "sw-aaaa\u2028"
+    - "sw-aaaa\u2029"
+    - " sw-aaaa"
+    - "sw-aaaa "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-network-03
+  difficulty: simple
+  status: ok
+  description: >-
+    A frame counter field is RX= followed by exactly six ASCII digits, with leading zeros allowed.
+  regex: "/^RX=[0123456789]{6}$(?![\\s\\S])/"
+  match:
+    - "RX=000000"
+    - "RX=999999"
+    - "RX=555555"
+    - "RX=090909"
+    - "RX=909090"
+    - "RX=099999"
+    - "RX=900000"
+    - "RX=500000"
+  no_match:
+    - "RX=00000"
+    - "RX=0000000"
+    - "RX=?00000"
+    - "RX= 00000"
+    - "RX=00000\u00e9"
+    - "RX=000000\t"
+    - "RX?000000"
+    - "!RX=000000"
+    - "RX=000000!"
+    - "RX=000000\n"
+    - "RX=000000\r"
+    - "RX=000000\r\n"
+    - "RX=000000\u2028"
+    - "RX=000000\u2029"
+    - " RX=000000"
+    - "RX=000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-network-04
+  difficulty: simple
+  status: ok
+  description: >-
+    A vendor prefix is exactly six lowercase hexadecimal characters followed by literal /vendor. No separators within the prefix.
+  regex: "/^[0123456789abcdef]{6}\\/vendor$(?![\\s\\S])/"
+  match:
+    - "000000/vendor"
+    - "ffffff/vendor"
+    - "888888/vendor"
+    - "0f0f0f/vendor"
+    - "f0f0f0/vendor"
+    - "0fffff/vendor"
+    - "f00000/vendor"
+    - "800000/vendor"
+  no_match:
+    - "00000/vendor"
+    - "0000000/vendor"
+    - "?00000/vendor"
+    - " 00000/vendor"
+    - "00000\u00e9/vendor"
+    - "000000\t/vendor"
+    - "000000?vendor"
+    - "A00000/vendor"
+    - "!000000/vendor"
+    - "000000/vendor!"
+    - "000000/vendor\n"
+    - "000000/vendor\r"
+    - "000000/vendor\r\n"
+    - "000000/vendor\u2028"
+    - "000000/vendor\u2029"
+    - " 000000/vendor"
+    - "000000/vendor "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-network-05
+  difficulty: simple
+  status: ok
+  description: >-
+    A VLAN alias is uppercase V followed by exactly five uppercase ASCII letters.
+  regex: "/^V[ABCDEFGHIJKLMNOPQRSTUVWXYZ]{5}$(?![\\s\\S])/"
+  match:
+    - "VAAAAA"
+    - "VZZZZZ"
+    - "VNNNNN"
+    - "VAZAZA"
+    - "VZAZAZ"
+    - "VAZZZZ"
+    - "VZAAAA"
+    - "VNAAAA"
+  no_match:
+    - "VAAAA"
+    - "VAAAAAA"
+    - "V?AAAA"
+    - "V AAAA"
+    - "VAAAA\u00e9"
+    - "VAAAAA\t"
+    - "?AAAAA"
+    - "VaAAAA"
+    - "!VAAAAA"
+    - "VAAAAA!"
+    - "VAAAAA\n"
+    - "VAAAAA\r"
+    - "VAAAAA\r\n"
+    - "VAAAAA\u2028"
+    - "VAAAAA\u2029"
+    - " VAAAAA"
+    - "VAAAAA "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-network-06
+  difficulty: medium
+  status: ok
+  description: >-
+    Form-validation ticket: The lab subnet suffix is exactly 10.7.9. followed by a host number 1 through 62 in shortest decimal spelling. No port or whitespace.
+  regex: "/^10\\.7\\.9\\.(?:[1-9]|[1-5][0-9]|6[0-2])$(?![\\s\\S])/"
+  match:
+    - "10.7.9.1"
+    - "10.7.9.2"
+    - "10.7.9.3"
+    - "10.7.9.60"
+    - "10.7.9.61"
+    - "10.7.9.62"
+    - "10.7.9.31"
+    - "10.7.9.32"
+  no_match:
+    - "10.7.9.0"
+    - "10.7.9.63"
+    - "10.7.9.01"
+    - "10.7.9.+1"
+    - "10.7.9.1.0"
+    - "10.7.9. 1"
+    - "10.7.9.620"
+    - "!10.7.9.1"
+    - "10.7.9.1!"
+    - "10.7.9.1\n"
+    - "10.7.9.1\r"
+    - "10.7.9.1\r\n"
+    - "10.7.9.1\u2028"
+    - "10.7.9.1\u2029"
+    - " 10.7.9.1"
+    - "10.7.9.1 "
+  pitfall: >-
+    Endpoints and canonical decimal spelling must both be enforced.
+- id: gpt-network-07
+  difficulty: medium
+  status: ok
+  description: >-
+    A MAC-like inventory address is six pairs of uppercase hexadecimal digits separated by colons, followed by /L2. Only format is checked.
+  regex: "/^(?:[0-9A-F]{2}:){5}[0-9A-F]{2}\\/L2$(?![\\s\\S])/"
+  match:
+    - "00:00:00:00:00:00/L2"
+    - "FF:FF:FF:FF:FF:FF/L2"
+    - "01:23:45:67:89:AB/L2"
+    - "AB:CD:EF:01:23:45/L2"
+    - "10:20:30:40:50:60/L2"
+    - "AA:BB:CC:DD:EE:FF/L2"
+    - "12:34:56:78:90:AB/L2"
+    - "F0:0F:A0:0A:B0:0B/L2"
+  no_match:
+    - "00:00:00:00:00/L2"
+    - "00:00:00:00:00:00:00/L2"
+    - "aa:BB:CC:DD:EE:FF/L2"
+    - "GG:00:00:00:00:00/L2"
+    - "00-00-00-00-00-00/L2"
+    - "0:00:00:00:00:00/L2"
+    - "!00:00:00:00:00:00/L2"
+    - "00:00:00:00:00:00/L2!"
+    - "00:00:00:00:00:00/L2\n"
+    - "00:00:00:00:00:00/L2\r"
+    - "00:00:00:00:00:00/L2\r\n"
+    - "00:00:00:00:00:00/L2\u2028"
+    - "00:00:00:00:00:00/L2\u2029"
+    - " 00:00:00:00:00:00/L2"
+    - "00:00:00:00:00:00/L2 "
+  pitfall: >-
+    Pair width and repeated separator count both matter.
+- id: gpt-network-08
+  difficulty: medium
+  status: ok
+  description: >-
+    An allowed VLAN field is vlan= and an integer 10 through 64 inclusive, no leading zeros or sign.
+  regex: "/^vlan=(?:[1-5][0-9]|6[0-4])$(?![\\s\\S])/"
+  match:
+    - "vlan=10"
+    - "vlan=11"
+    - "vlan=12"
+    - "vlan=62"
+    - "vlan=63"
+    - "vlan=64"
+    - "vlan=37"
+    - "vlan=38"
+  no_match:
+    - "vlan=9"
+    - "vlan=65"
+    - "vlan=010"
+    - "vlan=+10"
+    - "vlan=10.0"
+    - "vlan= 10"
+    - "vlan=640"
+    - "!vlan=10"
+    - "vlan=10!"
+    - "vlan=10\n"
+    - "vlan=10\r"
+    - "vlan=10\r\n"
+    - "vlan=10\u2028"
+    - "vlan=10\u2029"
+    - " vlan=10"
+    - "vlan=10 "
+  pitfall: >-
+    Endpoints and canonical decimal spelling must both be enforced.
+- id: gpt-network-09
+  difficulty: medium
+  status: ok
+  description: >-
+    An interface name is eth followed by an integer 0 through 15 without leading zeros, optionally dot and a VLAN 1 through 99 without leading zeros.
+  regex: "/^eth(?:[0-9]|1[0-5])(?:\\.[1-9][0-9]?)?$(?![\\s\\S])/"
+  match:
+    - "eth0"
+    - "eth15"
+    - "eth0.1"
+    - "eth15.99"
+    - "eth9"
+    - "eth10.10"
+    - "eth1.9"
+    - "eth14.50"
+  no_match:
+    - "eth16"
+    - "eth00"
+    - "eth1.0"
+    - "eth1.100"
+    - "eth1.01"
+    - "Eth1"
+    - "eth1x1"
+    - "!eth0"
+    - "eth0!"
+    - "eth0\n"
+    - "eth0\r"
+    - "eth0\r\n"
+    - "eth0\u2028"
+    - "eth0\u2029"
+    - " eth0"
+    - "eth0 "
+  pitfall: >-
+    The base interface and optional VLAN use different lower bounds.
+- id: gpt-network-10
+  difficulty: medium
+  status: ok
+  description: >-
+    Import gate — reject any nonconforming input. A local endpoint is exactly tcp://node.test: followed by a port from 9000 through 9099. No path or spaces.
+  regex: "/^tcp:\\/\\/node\\.test:90[0-9]{2}$(?![\\s\\S])/"
+  match:
+    - "tcp://node.test:9000"
+    - "tcp://node.test:9001"
+    - "tcp://node.test:9009"
+    - "tcp://node.test:9010"
+    - "tcp://node.test:9050"
+    - "tcp://node.test:9097"
+    - "tcp://node.test:9098"
+    - "tcp://node.test:9099"
+  no_match:
+    - "tcp://node.test:8999"
+    - "tcp://node.test:9100"
+    - "tcp://node.test:900"
+    - "tcp://node.test:90000"
+    - "udp://node.test:9000"
+    - "tcp://nodeXtest:9000"
+    - "!tcp://node.test:9000"
+    - "tcp://node.test:9000!"
+    - "tcp://node.test:9000\n"
+    - "tcp://node.test:9000\r"
+    - "tcp://node.test:9000\r\n"
+    - "tcp://node.test:9000\u2028"
+    - "tcp://node.test:9000\u2029"
+    - " tcp://node.test:9000"
+    - "tcp://node.test:9000 "
+    - "tcp://node.test:90xx"
+  pitfall: >-
+    A fixed port band is stricter than generic valid ports.
+- id: gpt-network-11
+  difficulty: medium
+  status: ok
+  description: >-
+    Search filter, not whole-input validation. Search for a TTL number from 1 through 64 in shortest decimal spelling, immediately after lowercase ttl= and before semicolon, anywhere in the text.
+  regex: "/(?<=ttl=)(?:[1-9]|[1-5][0-9]|6[0-4])(?=;)/"
+  match:
+    - "ttl=1;"
+    - "ttl=2;"
+    - "ttl=9;"
+    - "ttl=10;"
+    - "before ttl=20; after"
+    - "before ttl=50; after"
+    - "before ttl=63; after"
+    - "before ttl=64; after"
+  no_match:
+    - "ttl=0;"
+    - "ttl=65;"
+    - "ttl=01;"
+    - "ttl=+1;"
+    - "ttl=1.0;"
+    - "ttl=a;"
+    - "TTL=1;"
+    - "ttl=1 ;"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-network-12
+  difficulty: medium
+  status: ok
+  description: >-
+    Find a four-character uppercase hexadecimal protocol code between proto[ and ]. Surrounding text is unrestricted and the marker is case sensitive.
+  regex: "/(?<=proto\\[)[0-9A-F]{4}(?=\\])/"
+  match:
+    - "proto[0000]"
+    - "proto[FFFF]"
+    - "proto[ABCD]"
+    - "proto[1234]"
+    - "before proto[00FF] after"
+    - "before proto[FF00] after"
+    - "before proto[A001] after"
+    - "before proto[99AA] after"
+  no_match:
+    - "proto[000]"
+    - "proto[00000]"
+    - "proto[abcd]"
+    - "proto[G000]"
+    - "proto[a000]"
+    - "proto[!000]"
+    - "PROTO[0000]"
+    - "proto[0000 ]"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-network-13
+  difficulty: medium
+  status: ok
+  description: >-
+    An IPv6 hextet display is exactly eight uppercase hexadecimal groups, each four characters, separated by colons, prefixed with ip6:. Compression and lowercase are forbidden; format only.
+  regex: "/^ip6:(?:[0-9A-F]{4}:){7}[0-9A-F]{4}$(?![\\s\\S])/"
+  match:
+    - "ip6:0000:0000:0000:0000:0000:0000:0000:0000"
+    - "ip6:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF"
+    - "ip6:0001:0002:0003:0004:0005:0006:0007:0008"
+    - "ip6:ABCD:1234:5678:90AB:CDEF:0000:0001:0002"
+    - "ip6:AAAA:BBBB:CCCC:DDDD:EEEE:FFFF:0000:1111"
+    - "ip6:1000:2000:3000:4000:5000:6000:7000:8000"
+    - "ip6:0000:0000:0000:0000:0000:0000:0000:0001"
+    - "ip6:FE80:0000:0000:0000:0000:0000:0000:0001"
+  no_match:
+    - "ip6:0:0000:0000:0000:0000:0000:0000:0000"
+    - "ip6:0000:0000:0000:0000:0000:0000:0000"
+    - "ip6:0000:0000:0000:0000:0000:0000:0000:0000:0000"
+    - "ip6:fe80:0000:0000:0000:0000:0000:0000:0001"
+    - "ip6:GGGG:0000:0000:0000:0000:0000:0000:0000"
+    - "ip6:::1"
+    - "!ip6:0000:0000:0000:0000:0000:0000:0000:0000"
+    - "ip6:0000:0000:0000:0000:0000:0000:0000:0000!"
+    - "ip6:0000:0000:0000:0000:0000:0000:0000:0000\n"
+    - "ip6:0000:0000:0000:0000:0000:0000:0000:0000\r"
+    - "ip6:0000:0000:0000:0000:0000:0000:0000:0000\r\n"
+    - "ip6:0000:0000:0000:0000:0000:0000:0000:0000\u2028"
+    - "ip6:0000:0000:0000:0000:0000:0000:0000:0000\u2029"
+    - " ip6:0000:0000:0000:0000:0000:0000:0000:0000"
+    - "ip6:0000:0000:0000:0000:0000:0000:0000:0000 "
+  pitfall: >-
+    Fixed expanded groups deliberately exclude otherwise valid IPv6 forms.
+- id: gpt-network-14
+  difficulty: hard
+  status: ok
+  description: >-
+    A link check starts peer: and has two identical lowercase ASCII host labels 3 through 8 letters long, separated by slash. No domain suffix or spaces. Each of the two values must be enclosed in matching ASCII single or double quotes; the same quote character must be used for both values. Quotes are not part of the value, and escapes are not permitted.
+  regex: "/^peer:(['\\\"])([a-z]{3,8})\\1\\/\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "peer:'abc'/'abc'"
+    - "peer:\"xyz\"/\"xyz\""
+    - "peer:'abcdefgh'/'abcdefgh'"
+    - "peer:\"router\"/\"router\""
+    - "peer:'switch'/'switch'"
+    - "peer:\"node\"/\"node\""
+    - "peer:'proxy'/'proxy'"
+    - "peer:\"sample\"/\"sample\""
+  no_match:
+    - "peer:'abc'/'xyz'"
+    - "peer:'abc'/'abcabc'"
+    - "peer:'?'/'?'"
+    - "peer:'abc '/'abc'"
+    - "peer:'abc'/' abc'"
+    - "peer:'abc'/'abc/abc'"
+    - "peer:'!!!'/'!!!'"
+    - "peer:'ab'/'ab'"
+    - "peer:'abc0'/'abc0'"
+    - "peer:'000'/'000'"
+    - "peer:'abc\"/'abc'"
+    - "peer:'abc'/\"abc\""
+    - "peer:abc/abc"
+    - "!peer:'abc'/'abc'"
+    - "peer:'abc'/'abc'!"
+    - "peer:'abc'/'abc'\n"
+    - "peer:'abc'/'abc'\r"
+    - "peer:'abc'/'abc'\r\n"
+    - "peer:'abc'/'abc'\u2028"
+    - "peer:'abc'/'abc'\u2029"
+    - " peer:'abc'/'abc'"
+    - "peer:'abc'/'abc' "
+  pitfall: >-
+    Quote style, both closing quotes, value policy and exact value repetition must all agree.
+- id: gpt-network-15
+  difficulty: hard
+  status: ok
+  description: >-
+    Code review requirement: A unicast lab address is exactly 192.168.4. followed by a canonical decimal host 1 through 254 and slash prefix length 24 through 30. No leading zeros in either variable field.
+  regex: "/^192\\.168\\.4\\.(?:[1-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-4])\\/(?:2[4-9]|30)$(?![\\s\\S])/"
+  match:
+    - "192.168.4.1/24"
+    - "192.168.4.254/30"
+    - "192.168.4.9/25"
+    - "192.168.4.10/26"
+    - "192.168.4.99/27"
+    - "192.168.4.100/28"
+    - "192.168.4.249/29"
+    - "192.168.4.250/30"
+  no_match:
+    - "192.168.4.0/24"
+    - "192.168.4.255/24"
+    - "192.168.4.01/24"
+    - "192.168.4.1/23"
+    - "192.168.4.1/31"
+    - "192.168.5.1/24"
+    - "192X168.4.1/24"
+    - "!192.168.4.1/24"
+    - "192.168.4.1/24!"
+    - "192.168.4.1/24\n"
+    - "192.168.4.1/24\r"
+    - "192.168.4.1/24\r\n"
+    - "192.168.4.1/24\u2028"
+    - "192.168.4.1/24\u2029"
+    - " 192.168.4.1/24"
+    - "192.168.4.1/24 "
+    - "192.168.4.1000/24"
+  pitfall: >-
+    Host and prefix ranges are independent and dots are literal.
+- id: gpt-network-16
+  difficulty: hard
+  status: ok
+  description: >-
+    A network display alias: the literal prefix net: followed by 2 through 12 Unicode letter clusters. Each cluster is a Unicode letter followed by zero to two Unicode combining marks. One optional ASCII hyphen may join two nonempty runs of clusters, but no edge hyphen or second hyphen is allowed. Length counts letter clusters, excluding the hyphen and any fixed prefix; spaces, digits and other characters are forbidden. No normalization is performed.
+  regex: "/^net:(?=(?:\\p{L}\\p{M}{0,2}-?){2,12}$)(?:\\p{L}\\p{M}{0,2}){1,12}(?:-(?:\\p{L}\\p{M}{0,2}){1,12})?$(?![\\s\\S])/u"
+  match:
+    - "net:ab"
+    - "net:e\u0301x"
+    - "net:a\u0301\u0308b"
+    - "net:\u6771\u4eac-\u5927\u962a"
+    - "net:\u0394\u03ad\u03bb\u03c4\u03b1"
+    - "net:\u0645\u0631\u062d\u0628\u0627"
+    - "net:\u0417\u0438\u043c\u0430"
+    - "net:abcdefghijkl"
+    - "net:e\u0301-e\u0308"
+    - "net:A\u00e9"
+  no_match:
+    - "net:a"
+    - "net:abcdefghijklm"
+    - "net:ab1"
+    - "net:a_b"
+    - "net:a b"
+    - "net:e\u0301"
+    - "net:\U0001f600a"
+    - "net:\u0301ab"
+    - "net:a\u0301\u0308\u0303b"
+    - "net:-ab"
+    - "net:ab-"
+    - "net:a--b"
+    - "net:ab-cd-ef"
+    - "!net:ab"
+    - "net:ab!"
+    - "net:ab\n"
+    - "net:ab\r"
+    - "net:ab\r\n"
+    - "net:ab\u2028"
+    - "net:ab\u2029"
+    - " net:ab"
+    - "net:ab "
+  pitfall: >-
+    Count base-letter clusters, attach bounded marks only after a letter, and limit the optional internal separator.
+- id: gpt-network-17
+  difficulty: hard
+  status: ok
+  description: >-
+    A packet note: the entire string has the literal opening wrapper NET{, a lowercase ASCII routing label of 2 through 6 letters, colon, a body, colon, the exact same routing label and the literal closing wrapper }NET. The body has 1 through 40 Unicode code points, allows any characters including line breaks and colons, and must contain the lowercase substring packet. Only the body counts toward its length limit; no other text is allowed.
+  regex: "/^NET\\{(?<route>[a-z]{2,6}):(?=.{1,40}:\\k<route>\\}NET$)(?=.{0,40}packet.{0,40}:\\k<route>\\}NET$).*:\\k<route>\\}NET$(?![\\s\\S])/su"
+  match:
+    - "NET{aa:packet:aa}NET"
+    - "NET{abcdef:apacket:abcdef}NET"
+    - "NET{tag:packetb:tag}NET"
+    - "NET{route:\npacket:route}NET"
+    - "NET{memo:packet\n:memo}NET"
+    - "NET{ab:\tpacket:ab}NET"
+    - "NET{zz:\U0001f600packet:zz}NET"
+    - "NET{key:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxpacket:key}NET"
+    - "NET{xy:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600packet:xy}NET"
+    - "NET{aa:prefix: packet: suffix:aa}NET"
+  no_match:
+    - "NET{aa::aa}NET"
+    - "NET{aa:abc:aa}NET"
+    - "NET{aa:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxpacket:aa}NET"
+    - "NET{aa:packet:ab}NET"
+    - "NET{a:packet:a}NET"
+    - "NET{abcdefg:packet:abcdefg}NET"
+    - "NET{AA:packet:AA}NET"
+    - "NET{aa:PACKET:aa}NET"
+    - "NET{aa:packet:aa"
+    - "aa:packet:aa}NET"
+    - "NET{aa:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600packet:aa}NET"
+    - "NET{packet:abc:packet}NET"
+    - "!NET{aa:packet:aa}NET"
+    - "NET{aa:packet:aa}NET!"
+    - "NET{aa:packet:aa}NET\n"
+    - "NET{aa:packet:aa}NET\r"
+    - "NET{aa:packet:aa}NET\r\n"
+    - "NET{aa:packet:aa}NET\u2028"
+    - "NET{aa:packet:aa}NET\u2029"
+    - " NET{aa:packet:aa}NET"
+    - "NET{aa:packet:aa}NET "
+  pitfall: >-
+    Repeat the routing label exactly, count only body code points including line breaks, and require the marker inside that body.
+- id: gpt-network-18
+  difficulty: hard
+  status: ok
+  description: >-
+    An LF-only two-line interface receipt is iface= and an eth interface index 0 to 15 without leading zeros, then copy= and the same interface spelling. No VLAN suffix, final LF or spaces. Both values must be enclosed in matching ASCII single or double quotes, using the same quote character on both lines. The quotes are delimiters, not part of the value; no escapes are permitted.
+  regex: "/^iface=(['\\\"])(eth(?:[0-9]|1[0-5]))\\1\\ncopy=\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "iface='eth0'\ncopy='eth0'"
+    - "iface=\"eth1\"\ncopy=\"eth1\""
+    - "iface='eth9'\ncopy='eth9'"
+    - "iface=\"eth10\"\ncopy=\"eth10\""
+    - "iface='eth12'\ncopy='eth12'"
+    - "iface=\"eth13\"\ncopy=\"eth13\""
+    - "iface='eth14'\ncopy='eth14'"
+    - "iface=\"eth15\"\ncopy=\"eth15\""
+  no_match:
+    - "iface='eth0'\ncopy='eth1'"
+    - "iface='eth0\r'\ncopy='eth0'"
+    - "iface=eth0 copy=eth0"
+    - "iface=eth0\nCopy=eth0"
+    - "iface='?'\ncopy='?'"
+    - "iface='eth0'\ncopy='eth0 '"
+    - "iface='!!!!'\ncopy='!!!!'"
+    - "iface='eth'\ncopy='eth'"
+    - "iface='eth00'\ncopy='eth00'"
+    - "iface='ethz'\ncopy='ethz'"
+    - "iface='0000'\ncopy='0000'"
+    - "iface='eth0\"\ncopy='eth0'"
+    - "iface='eth0'\ncopy=\"eth0\""
+    - "iface=eth0\ncopy=eth0"
+    - "iface='eth0'\r\ncopy='eth0'"
+    - "!iface='eth0'\ncopy='eth0'"
+    - "iface='eth0'\ncopy='eth0'!"
+    - "iface='eth0'\ncopy='eth0'\n"
+    - "iface='eth0'\ncopy='eth0'\r"
+    - "iface='eth0'\ncopy='eth0'\r\n"
+    - "iface='eth0'\ncopy='eth0'\u2028"
+    - "iface='eth0'\ncopy='eth0'\u2029"
+    - " iface='eth0'\ncopy='eth0'"
+    - "iface='eth0'\ncopy='eth0' "
+  pitfall: >-
+    The exact value and quote convention must agree across LF-separated lines, in addition to the value policy.
+- id: gpt-network-19
+  difficulty: hard
+  status: ok
+  description: >-
+    Acceptance criteria:
+    - A fabric pair consists of two distinct lowercase ASCII host labels of 3 to 8 letters joined by <->. The exact labels localhost and gateway are reserved and forbidden on either side.
+    - Evaluate the input as supplied; do not trim or normalize it.
+  regex: "/^(?!localhost<->|gateway<->)([a-z]{3,8})<->(?!\\1$|localhost$|gateway$)[a-z]{3,8}$(?![\\s\\S])/"
+  match:
+    - "node<->proxy"
+    - "proxy<->node"
+    - "abc<->xyz"
+    - "abcdefgh<->router"
+    - "switch<->bridge"
+    - "gateways<->abc"
+    - "foo<->bar"
+    - "left<->right"
+  no_match:
+    - "abc<->abc"
+    - "gateway<->abc"
+    - "abc<->gateway"
+    - "localhost<->abc"
+    - "abc<->localhost"
+    - "ab<->xyz"
+    - "abc<->abcdefghi"
+    - "!node<->proxy"
+    - "node<->proxy!"
+    - "node<->proxy\n"
+    - "node<->proxy\r"
+    - "node<->proxy\r\n"
+    - "node<->proxy\u2028"
+    - "node<->proxy\u2029"
+    - " node<->proxy"
+    - "node<->proxy "
+  pitfall: >-
+    Exact reserved names and whole-label inequality must both hold.
+- id: gpt-network-20
+  difficulty: hard
+  status: ok
+  description: >-
+    A port-mapping record is a canonical integer 1024 through 1039, colon, the same integer, slash, then lowercase tcp or udp. No padding, spaces or extra text.
+  regex: "/^(10(?:2[4-9]|3[0-9])):\\1\\/(?:tcp|udp)$(?![\\s\\S])/"
+  match:
+    - "1024:1024/tcp"
+    - "1039:1039/udp"
+    - "1025:1025/udp"
+    - "1038:1038/tcp"
+    - "1030:1030/tcp"
+    - "1031:1031/udp"
+    - "1029:1029/tcp"
+    - "1035:1035/udp"
+  no_match:
+    - "1023:1023/tcp"
+    - "1040:1040/udp"
+    - "1024:1025/tcp"
+    - "01024:01024/tcp"
+    - "1024:1024/TCP"
+    - "1024:1024/sctp"
+    - "!1024:1024/tcp"
+    - "1024:1024/tcp!"
+    - "1024:1024/tcp\n"
+    - "1024:1024/tcp\r"
+    - "1024:1024/tcp\r\n"
+    - "1024:1024/tcp\u2028"
+    - "1024:1024/tcp\u2029"
+    - " 1024:1024/tcp"
+    - "1024:1024/tcp "
+  pitfall: >-
+    The repeated port must also fall in the narrow permitted band.

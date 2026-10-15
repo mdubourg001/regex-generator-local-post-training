@@ -1,0 +1,712 @@
+# Benchmark GPT, catégorie files-paths. Format et contrôles : scripts/benchmark.py.
+- id: gpt-files-paths-01
+  difficulty: simple
+  status: ok
+  description: >-
+    A thumbnail filename is thumb- followed by eight lowercase hexadecimal digits and .avif. Basename only; no path.
+  regex: "/^thumb\\-[0123456789abcdef]{8}\\.avif$(?![\\s\\S])/"
+  match:
+    - "thumb-00000000.avif"
+    - "thumb-ffffffff.avif"
+    - "thumb-88888888.avif"
+    - "thumb-0f0f0f0f.avif"
+    - "thumb-f0f0f0f0.avif"
+    - "thumb-0fffffff.avif"
+    - "thumb-f0000000.avif"
+    - "thumb-80000000.avif"
+  no_match:
+    - "thumb-0000000.avif"
+    - "thumb-000000000.avif"
+    - "thumb-?0000000.avif"
+    - "thumb- 0000000.avif"
+    - "thumb-0000000\u00e9.avif"
+    - "thumb-00000000\t.avif"
+    - "thumb?00000000.avif"
+    - "thumb-00000000?avif"
+    - "thumb-A0000000.avif"
+    - "!thumb-00000000.avif"
+    - "thumb-00000000.avif!"
+    - "thumb-00000000.avif\n"
+    - "thumb-00000000.avif\r"
+    - "thumb-00000000.avif\r\n"
+    - "thumb-00000000.avif\u2028"
+    - "thumb-00000000.avif\u2029"
+    - " thumb-00000000.avif"
+    - "thumb-00000000.avif "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-files-paths-02
+  difficulty: simple
+  status: ok
+  description: >-
+    A daily spool path is /spool/ followed by exactly six ASCII digits and .dat. No other components.
+  regex: "/^\\/spool\\/[0123456789]{6}\\.dat$(?![\\s\\S])/"
+  match:
+    - "/spool/000000.dat"
+    - "/spool/999999.dat"
+    - "/spool/555555.dat"
+    - "/spool/090909.dat"
+    - "/spool/909090.dat"
+    - "/spool/099999.dat"
+    - "/spool/900000.dat"
+    - "/spool/500000.dat"
+  no_match:
+    - "/spool/00000.dat"
+    - "/spool/0000000.dat"
+    - "/spool/?00000.dat"
+    - "/spool/ 00000.dat"
+    - "/spool/00000\u00e9.dat"
+    - "/spool/000000\t.dat"
+    - "/spool?000000.dat"
+    - "/spool/000000?dat"
+    - "!/spool/000000.dat"
+    - "/spool/000000.dat!"
+    - "/spool/000000.dat\n"
+    - "/spool/000000.dat\r"
+    - "/spool/000000.dat\r\n"
+    - "/spool/000000.dat\u2028"
+    - "/spool/000000.dat\u2029"
+    - " /spool/000000.dat"
+    - "/spool/000000.dat "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-files-paths-03
+  difficulty: simple
+  status: ok
+  description: >-
+    A source filename is exactly eight lowercase ASCII letters followed by .mjs. No path or extra extension.
+  regex: "/^[abcdefghijklmnopqrstuvwxyz]{8}\\.mjs$(?![\\s\\S])/"
+  match:
+    - "aaaaaaaa.mjs"
+    - "zzzzzzzz.mjs"
+    - "nnnnnnnn.mjs"
+    - "azazazaz.mjs"
+    - "zazazaza.mjs"
+    - "azzzzzzz.mjs"
+    - "zaaaaaaa.mjs"
+    - "naaaaaaa.mjs"
+  no_match:
+    - "aaaaaaa.mjs"
+    - "aaaaaaaaa.mjs"
+    - "?aaaaaaa.mjs"
+    - " aaaaaaa.mjs"
+    - "aaaaaaa\u00e9.mjs"
+    - "aaaaaaaa\t.mjs"
+    - "aaaaaaaa?mjs"
+    - "Aaaaaaaa.mjs"
+    - "!aaaaaaaa.mjs"
+    - "aaaaaaaa.mjs!"
+    - "aaaaaaaa.mjs\n"
+    - "aaaaaaaa.mjs\r"
+    - "aaaaaaaa.mjs\r\n"
+    - "aaaaaaaa.mjs\u2028"
+    - "aaaaaaaa.mjs\u2029"
+    - " aaaaaaaa.mjs"
+    - "aaaaaaaa.mjs "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-files-paths-04
+  difficulty: simple
+  status: ok
+  description: >-
+    An environment file is .env. followed by exactly four lowercase ASCII letters. No spaces or path.
+  regex: "/^\\.env\\.[abcdefghijklmnopqrstuvwxyz]{4}$(?![\\s\\S])/"
+  match:
+    - ".env.aaaa"
+    - ".env.zzzz"
+    - ".env.nnnn"
+    - ".env.azaz"
+    - ".env.zaza"
+    - ".env.azzz"
+    - ".env.zaaa"
+    - ".env.naaa"
+  no_match:
+    - ".env.aaa"
+    - ".env.aaaaa"
+    - ".env.?aaa"
+    - ".env. aaa"
+    - ".env.aaa\u00e9"
+    - ".env.aaaa\t"
+    - ".env?aaaa"
+    - ".env.Aaaa"
+    - "!.env.aaaa"
+    - ".env.aaaa!"
+    - ".env.aaaa\n"
+    - ".env.aaaa\r"
+    - ".env.aaaa\r\n"
+    - ".env.aaaa\u2028"
+    - ".env.aaaa\u2029"
+    - " .env.aaaa"
+    - ".env.aaaa "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-files-paths-05
+  difficulty: simple
+  status: ok
+  description: >-
+    A Windows scratch filename is T followed by five ASCII digits and .TMP, uppercase. No directory portion.
+  regex: "/^T[0123456789]{5}\\.TMP$(?![\\s\\S])/"
+  match:
+    - "T00000.TMP"
+    - "T99999.TMP"
+    - "T55555.TMP"
+    - "T09090.TMP"
+    - "T90909.TMP"
+    - "T09999.TMP"
+    - "T90000.TMP"
+    - "T50000.TMP"
+  no_match:
+    - "T0000.TMP"
+    - "T000000.TMP"
+    - "T?0000.TMP"
+    - "T 0000.TMP"
+    - "T0000\u00e9.TMP"
+    - "T00000\t.TMP"
+    - "?00000.TMP"
+    - "T00000?TMP"
+    - "!T00000.TMP"
+    - "T00000.TMP!"
+    - "T00000.TMP\n"
+    - "T00000.TMP\r"
+    - "T00000.TMP\r\n"
+    - "T00000.TMP\u2028"
+    - "T00000.TMP\u2029"
+    - " T00000.TMP"
+    - "T00000.TMP "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-files-paths-06
+  difficulty: medium
+  status: ok
+  description: >-
+    Form-validation ticket: A rotated log filename is service.log. followed by a canonical integer 1 through 32. No leading zeros or compression suffix.
+  regex: "/^service\\.log\\.(?:[1-9]|[12][0-9]|3[0-2])$(?![\\s\\S])/"
+  match:
+    - "service.log.1"
+    - "service.log.2"
+    - "service.log.3"
+    - "service.log.30"
+    - "service.log.31"
+    - "service.log.32"
+    - "service.log.16"
+    - "service.log.17"
+  no_match:
+    - "service.log.0"
+    - "service.log.33"
+    - "service.log.01"
+    - "service.log.+1"
+    - "service.log.1.0"
+    - "service.log. 1"
+    - "service.log.320"
+    - "!service.log.1"
+    - "service.log.1!"
+    - "service.log.1\n"
+    - "service.log.1\r"
+    - "service.log.1\r\n"
+    - "service.log.1\u2028"
+    - "service.log.1\u2029"
+    - " service.log.1"
+    - "service.log.1 "
+  pitfall: >-
+    Endpoints and canonical decimal spelling must both be enforced.
+- id: gpt-files-paths-07
+  difficulty: medium
+  status: ok
+  description: >-
+    An image filename has a basename of 1 to 12 lowercase ASCII letters or digits starting with a letter, followed by .png or .webp. No directory or other dots.
+  regex: "/^[a-z][a-z0-9]{0,11}\\.(?:png|webp)$(?![\\s\\S])/"
+  match:
+    - "a.png"
+    - "a.webp"
+    - "a12345678901.png"
+    - "a12345678901.webp"
+    - "icon1.png"
+    - "logo.webp"
+    - "z9.png"
+    - "file123.webp"
+  no_match:
+    - "1a.png"
+    - ".png"
+    - "a123456789012.png"
+    - "A.png"
+    - "a.jpg"
+    - "aXpng"
+    - "a_b.png"
+    - "!a.png"
+    - "a.png!"
+    - "a.png\n"
+    - "a.png\r"
+    - "a.png\r\n"
+    - "a.png\u2028"
+    - "a.png\u2029"
+    - " a.png"
+    - "a.png "
+  pitfall: >-
+    The basename alphabet and first-character rule differ.
+- id: gpt-files-paths-08
+  difficulty: medium
+  status: ok
+  description: >-
+    A relative module path has 1 to 4 directories of 1 to 8 lowercase ASCII letters followed by a filename of 1 to 8 lowercase ASCII letters and .js. Slash separators, no leading slash, dot components or spaces.
+  regex: "/^(?:[a-z]{1,8}\\/){1,4}[a-z]{1,8}\\.js$(?![\\s\\S])/"
+  match:
+    - "a/b.js"
+    - "abcdefgh/ijklmnop.js"
+    - "a/b/c/d/e.js"
+    - "src/lib/main.js"
+    - "x/y/z.js"
+    - "one/two/three/four/file.js"
+    - "lib/index.js"
+    - "app/ui/view.js"
+  no_match:
+    - "file.js"
+    - "a/b/c/d/e/f.js"
+    - "/a/b.js"
+    - "abcdefghi/b.js"
+    - "a/abcdefghi.js"
+    - "a/../b.js"
+    - "a/B.js"
+    - "!a/b.js"
+    - "a/b.js!"
+    - "a/b.js\n"
+    - "a/b.js\r"
+    - "a/b.js\r\n"
+    - "a/b.js\u2028"
+    - "a/b.js\u2029"
+    - " a/b.js"
+    - "a/b.js "
+  pitfall: >-
+    Count directory components separately from basename width.
+- id: gpt-files-paths-09
+  difficulty: medium
+  status: ok
+  description: >-
+    A backup file is a lowercase ASCII basename 3 to 8 letters, .bak., and a canonical integer 1 through 99. No path, spaces or other suffix.
+  regex: "/^[a-z]{3,8}\\.bak\\.[1-9][0-9]?$(?![\\s\\S])/"
+  match:
+    - "abc.bak.1"
+    - "abcdefgh.bak.99"
+    - "config.bak.10"
+    - "file.bak.9"
+    - "sample.bak.20"
+    - "backup.bak.30"
+    - "data.bak.50"
+    - "main.bak.98"
+  no_match:
+    - "ab.bak.1"
+    - "abcdefghi.bak.1"
+    - "abc.bak.0"
+    - "abc.bak.100"
+    - "abc.bak.01"
+    - "ABC.bak.1"
+    - "abcXbak.1"
+    - "!abc.bak.1"
+    - "abc.bak.1!"
+    - "abc.bak.1\n"
+    - "abc.bak.1\r"
+    - "abc.bak.1\r\n"
+    - "abc.bak.1\u2028"
+    - "abc.bak.1\u2029"
+    - " abc.bak.1"
+    - "abc.bak.1 "
+  pitfall: >-
+    Both literal dots and canonical rotation number matter.
+- id: gpt-files-paths-10
+  difficulty: medium
+  status: ok
+  description: >-
+    Import gate — reject any nonconforming input. Accept a basename consisting of 1 to 16 lowercase ASCII letters, digits, underscores or hyphens, followed by .json. The basename may not begin with hyphen and may not be exactly null or true.
+  regex: "/^(?!-|null\\.json$|true\\.json$)[a-z0-9_-]{1,16}\\.json$(?![\\s\\S])/"
+  match:
+    - "a.json"
+    - "_.json"
+    - "0.json"
+    - "a-b_c.json"
+    - "nulls.json"
+    - "true1.json"
+    - "abcdefghijklmnop.json"
+    - "config123.json"
+  no_match:
+    - "-a.json"
+    - "null.json"
+    - "true.json"
+    - ".json"
+    - "abcdefghijklmnopq.json"
+    - "A.json"
+    - "a.yaml"
+    - "aXjson"
+    - "!a.json"
+    - "a.json!"
+    - "a.json\n"
+    - "a.json\r"
+    - "a.json\r\n"
+    - "a.json\u2028"
+    - "a.json\u2029"
+    - " a.json"
+    - "a.json "
+  pitfall: >-
+    Reserved basenames are exact matches, not substrings.
+- id: gpt-files-paths-11
+  difficulty: medium
+  status: ok
+  description: >-
+    Search filter, not whole-input validation. Search a report for a six-digit ASCII spool number immediately after lowercase spool= and before semicolon. Surrounding text is unrestricted.
+  regex: "/(?<=spool=)[0-9]{6}(?=;)/"
+  match:
+    - "spool=000000;"
+    - "spool=999999;"
+    - "spool=123456;"
+    - "spool=654321;"
+    - "before spool=100000; after"
+    - "before spool=000001; after"
+    - "before spool=555555; after"
+    - "before spool=987654; after"
+  no_match:
+    - "spool=00000;"
+    - "spool=0000000;"
+    - "spool=abcdef;"
+    - "spool=\uff11\uff12\uff13\uff14\uff15\uff16;"
+    - "spool=12345a;"
+    - "spool=123 56;"
+    - "SPOOL=000000;"
+    - "spool=000000 ;"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-files-paths-12
+  difficulty: medium
+  status: ok
+  description: >-
+    Find a backup generation 1 through 48 in shortest ASCII decimal spelling immediately between lowercase backup[ and ]. Search anywhere.
+  regex: "/(?<=backup\\[)(?:[1-9]|[1-3][0-9]|4[0-8])(?=\\])/"
+  match:
+    - "backup[1]"
+    - "backup[2]"
+    - "backup[9]"
+    - "backup[10]"
+    - "before backup[20] after"
+    - "before backup[40] after"
+    - "before backup[47] after"
+    - "before backup[48] after"
+  no_match:
+    - "backup[0]"
+    - "backup[49]"
+    - "backup[01]"
+    - "backup[+1]"
+    - "backup[a]"
+    - "backup[1.0]"
+    - "BACKUP[1]"
+    - "backup[1 ]"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-files-paths-13
+  difficulty: medium
+  status: ok
+  description: >-
+    A Windows test path is exactly C:\temp\ followed by a lowercase ASCII basename 1 to 8 letters and .txt. Backslashes only; no extra directories or spaces.
+  regex: "/^C:\\\\temp\\\\[a-z]{1,8}\\.txt$(?![\\s\\S])/"
+  match:
+    - "C:\\temp\\a.txt"
+    - "C:\\temp\\abcdefgh.txt"
+    - "C:\\temp\\file.txt"
+    - "C:\\temp\\log.txt"
+    - "C:\\temp\\data.txt"
+    - "C:\\temp\\test.txt"
+    - "C:\\temp\\sample.txt"
+    - "C:\\temp\\notes.txt"
+  no_match:
+    - "C:/temp/a.txt"
+    - "c:\\temp\\a.txt"
+    - "C:\\Temp\\a.txt"
+    - "C:\\temp\\.txt"
+    - "C:\\temp\\abcdefghi.txt"
+    - "C:\\temp\\A.txt"
+    - "C:\\temp\\aXtxt"
+    - "!C:\\temp\\a.txt"
+    - "C:\\temp\\a.txt!"
+    - "C:\\temp\\a.txt\n"
+    - "C:\\temp\\a.txt\r"
+    - "C:\\temp\\a.txt\r\n"
+    - "C:\\temp\\a.txt\u2028"
+    - "C:\\temp\\a.txt\u2029"
+    - " C:\\temp\\a.txt"
+    - "C:\\temp\\a.txt "
+  pitfall: >-
+    Backslashes in the input must be treated as literal separators.
+- id: gpt-files-paths-14
+  difficulty: hard
+  status: ok
+  description: >-
+    A filename comparison is same: then two identical basenames separated by slash. Each basename is 3 to 8 lowercase ASCII letters plus .csv. No spaces or path components. Each of the two values must be enclosed in matching ASCII single or double quotes; the same quote character must be used for both values. Quotes are not part of the value, and escapes are not permitted.
+  regex: "/^same:(['\\\"])([a-z]{3,8}\\.csv)\\1\\/\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "same:'abc.csv'/'abc.csv'"
+    - "same:\"xyz.csv\"/\"xyz.csv\""
+    - "same:'abcdefgh.csv'/'abcdefgh.csv'"
+    - "same:\"data.csv\"/\"data.csv\""
+    - "same:'table.csv'/'table.csv'"
+    - "same:\"foo.csv\"/\"foo.csv\""
+    - "same:'report.csv'/'report.csv'"
+    - "same:\"sample.csv\"/\"sample.csv\""
+  no_match:
+    - "same:'abc.csv'/'xyz.csv'"
+    - "same:'abc.csv'/'abc.csvabc.csv'"
+    - "same:'?'/'?'"
+    - "same:'abc.csv '/'abc.csv'"
+    - "same:'abc.csv'/' abc.csv'"
+    - "same:'abc.csv'/'abc.csv/abc.csv'"
+    - "same:'!!!!!!!'/'!!!!!!!'"
+    - "same:'abc.cs'/'abc.cs'"
+    - "same:'abc.csv0'/'abc.csv0'"
+    - "same:'000.000'/'000.000'"
+    - "same:'abc.csv\"/'abc.csv'"
+    - "same:'abc.csv'/\"abc.csv\""
+    - "same:abc.csv/abc.csv"
+    - "!same:'abc.csv'/'abc.csv'"
+    - "same:'abc.csv'/'abc.csv'!"
+    - "same:'abc.csv'/'abc.csv'\n"
+    - "same:'abc.csv'/'abc.csv'\r"
+    - "same:'abc.csv'/'abc.csv'\r\n"
+    - "same:'abc.csv'/'abc.csv'\u2028"
+    - "same:'abc.csv'/'abc.csv'\u2029"
+    - " same:'abc.csv'/'abc.csv'"
+    - "same:'abc.csv'/'abc.csv' "
+    - "same:'ab.csv'/'ab.csv'"
+    - "same:'abcdefghi.csv'/'abcdefghi.csv'"
+    - "same:'ab!.csv'/'ab!.csv'"
+  pitfall: >-
+    Quote style, both closing quotes, value policy and exact value repetition must all agree.
+- id: gpt-files-paths-15
+  difficulty: hard
+  status: ok
+  description: >-
+    Code review requirement: A mirrored directory path is / followed by a lowercase ASCII directory name 3 to 8 letters, slash, the exact same name and .txt. The directory name must not be tmp or cache. No final slash.
+  regex: "/^\\/(?!tmp\\/|cache\\/)([a-z]{3,8})\\/\\1\\.txt$(?![\\s\\S])/"
+  match:
+    - "/abc/abc.txt"
+    - "/xyz/xyz.txt"
+    - "/abcdefgh/abcdefgh.txt"
+    - "/tmpx/tmpx.txt"
+    - "/cached/cached.txt"
+    - "/data/data.txt"
+    - "/report/report.txt"
+    - "/sample/sample.txt"
+  no_match:
+    - "/tmp/tmp.txt"
+    - "/cache/cache.txt"
+    - "/abc/xyz.txt"
+    - "/ab/ab.txt"
+    - "/abcdefghi/abcdefghi.txt"
+    - "/ABC/ABC.txt"
+    - "/abc/abcXtxt"
+    - "!/abc/abc.txt"
+    - "/abc/abc.txt!"
+    - "/abc/abc.txt\n"
+    - "/abc/abc.txt\r"
+    - "/abc/abc.txt\r\n"
+    - "/abc/abc.txt\u2028"
+    - "/abc/abc.txt\u2029"
+    - " /abc/abc.txt"
+    - "/abc/abc.txt "
+  pitfall: >-
+    An exact reserved directory exclusion must not block longer names.
+- id: gpt-files-paths-16
+  difficulty: hard
+  status: ok
+  description: >-
+    An international basename: 2 through 12 Unicode letter clusters. Each cluster is a Unicode letter followed by zero to two Unicode combining marks. One optional ASCII hyphen may join two nonempty runs of clusters, but no edge hyphen or second hyphen is allowed. Length counts letter clusters, excluding the hyphen and any fixed prefix; spaces, digits and other characters are forbidden. No normalization is performed. Append the exact literal suffix .txt after the name; its characters do not count toward the cluster limit.
+  regex: "/^(?=(?:\\p{L}\\p{M}{0,2}-?){2,12}\\.txt$)(?:\\p{L}\\p{M}{0,2}){1,12}(?:-(?:\\p{L}\\p{M}{0,2}){1,12})?\\.txt$(?![\\s\\S])/u"
+  match:
+    - "ab.txt"
+    - "e\u0301x.txt"
+    - "a\u0301\u0308b.txt"
+    - "\u6771\u4eac-\u5927\u962a.txt"
+    - "\u0394\u03ad\u03bb\u03c4\u03b1.txt"
+    - "\u0645\u0631\u062d\u0628\u0627.txt"
+    - "\u0417\u0438\u043c\u0430.txt"
+    - "abcdefghijkl.txt"
+    - "e\u0301-e\u0308.txt"
+    - "A\u00e9.txt"
+  no_match:
+    - "a.txt"
+    - "abcdefghijklm.txt"
+    - "ab1.txt"
+    - "a_b.txt"
+    - "a b.txt"
+    - "e\u0301.txt"
+    - "\U0001f600a.txt"
+    - "\u0301ab.txt"
+    - "a\u0301\u0308\u0303b.txt"
+    - "-ab.txt"
+    - "ab-.txt"
+    - "a--b.txt"
+    - "ab-cd-ef.txt"
+    - "ab"
+    - "ab?txt"
+    - "ab.TXT"
+    - "!ab.txt"
+    - "ab.txt!"
+    - "ab.txt\n"
+    - "ab.txt\r"
+    - "ab.txt\r\n"
+    - "ab.txt\u2028"
+    - "ab.txt\u2029"
+    - " ab.txt"
+    - "ab.txt "
+  pitfall: >-
+    Count base-letter clusters, attach bounded marks only after a letter, and limit the optional internal separator.
+- id: gpt-files-paths-17
+  difficulty: hard
+  status: ok
+  description: >-
+    An imported file note: the entire string has the literal opening wrapper FILE{, a lowercase ASCII routing label of 2 through 6 letters, colon, a body, colon, the exact same routing label and the literal closing wrapper }FILE. The body has 1 through 40 Unicode code points, allows any characters including line breaks and colons, and must contain the lowercase substring path. Only the body counts toward its length limit; no other text is allowed.
+  regex: "/^FILE\\{(?<route>[a-z]{2,6}):(?=.{1,40}:\\k<route>\\}FILE$)(?=.{0,40}path.{0,40}:\\k<route>\\}FILE$).*:\\k<route>\\}FILE$(?![\\s\\S])/su"
+  match:
+    - "FILE{aa:path:aa}FILE"
+    - "FILE{abcdef:apath:abcdef}FILE"
+    - "FILE{tag:pathb:tag}FILE"
+    - "FILE{route:\npath:route}FILE"
+    - "FILE{memo:path\n:memo}FILE"
+    - "FILE{ab:\tpath:ab}FILE"
+    - "FILE{zz:\U0001f600path:zz}FILE"
+    - "FILE{key:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxpath:key}FILE"
+    - "FILE{xy:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600path:xy}FILE"
+    - "FILE{aa:prefix: path: suffix:aa}FILE"
+  no_match:
+    - "FILE{aa::aa}FILE"
+    - "FILE{aa:abc:aa}FILE"
+    - "FILE{aa:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxpath:aa}FILE"
+    - "FILE{aa:path:ab}FILE"
+    - "FILE{a:path:a}FILE"
+    - "FILE{abcdefg:path:abcdefg}FILE"
+    - "FILE{AA:path:AA}FILE"
+    - "FILE{aa:PATH:aa}FILE"
+    - "FILE{aa:path:aa"
+    - "aa:path:aa}FILE"
+    - "FILE{aa:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600path:aa}FILE"
+    - "FILE{path:abc:path}FILE"
+    - "!FILE{aa:path:aa}FILE"
+    - "FILE{aa:path:aa}FILE!"
+    - "FILE{aa:path:aa}FILE\n"
+    - "FILE{aa:path:aa}FILE\r"
+    - "FILE{aa:path:aa}FILE\r\n"
+    - "FILE{aa:path:aa}FILE\u2028"
+    - "FILE{aa:path:aa}FILE\u2029"
+    - " FILE{aa:path:aa}FILE"
+    - "FILE{aa:path:aa}FILE "
+  pitfall: >-
+    Repeat the routing label exactly, count only body code points including line breaks, and require the marker inside that body.
+- id: gpt-files-paths-18
+  difficulty: hard
+  status: ok
+  description: >-
+    An LF-only file receipt is file= and a basename of 3 to 8 lowercase ASCII letters plus .txt, then copy= and the exact same basename on line two. No final LF, spaces or path. Both values must be enclosed in matching ASCII single or double quotes, using the same quote character on both lines. The quotes are delimiters, not part of the value; no escapes are permitted.
+  regex: "/^file=(['\\\"])([a-z]{3,8}\\.txt)\\1\\ncopy=\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "file='abc.txt'\ncopy='abc.txt'"
+    - "file=\"xyz.txt\"\ncopy=\"xyz.txt\""
+    - "file='abcdefgh.txt'\ncopy='abcdefgh.txt'"
+    - "file=\"data.txt\"\ncopy=\"data.txt\""
+    - "file='table.txt'\ncopy='table.txt'"
+    - "file=\"foo.txt\"\ncopy=\"foo.txt\""
+    - "file='report.txt'\ncopy='report.txt'"
+    - "file=\"sample.txt\"\ncopy=\"sample.txt\""
+  no_match:
+    - "file='abc.txt'\ncopy='xyz.txt'"
+    - "file='abc.txt\r'\ncopy='abc.txt'"
+    - "file=abc.txt copy=abc.txt"
+    - "file=abc.txt\nCopy=abc.txt"
+    - "file='?'\ncopy='?'"
+    - "file='abc.txt'\ncopy='abc.txt '"
+    - "file='!!!!!!!'\ncopy='!!!!!!!'"
+    - "file='abc.tx'\ncopy='abc.tx'"
+    - "file='abc.txt0'\ncopy='abc.txt0'"
+    - "file='000.000'\ncopy='000.000'"
+    - "file='abc.txt\"\ncopy='abc.txt'"
+    - "file='abc.txt'\ncopy=\"abc.txt\""
+    - "file=abc.txt\ncopy=abc.txt"
+    - "file='abc.txt'\r\ncopy='abc.txt'"
+    - "!file='abc.txt'\ncopy='abc.txt'"
+    - "file='abc.txt'\ncopy='abc.txt'!"
+    - "file='abc.txt'\ncopy='abc.txt'\n"
+    - "file='abc.txt'\ncopy='abc.txt'\r"
+    - "file='abc.txt'\ncopy='abc.txt'\r\n"
+    - "file='abc.txt'\ncopy='abc.txt'\u2028"
+    - "file='abc.txt'\ncopy='abc.txt'\u2029"
+    - " file='abc.txt'\ncopy='abc.txt'"
+    - "file='abc.txt'\ncopy='abc.txt' "
+    - "file='ab.txt'\ncopy='ab.txt'"
+    - "file='abcdefghi.txt'\ncopy='abcdefghi.txt'"
+    - "file='ab!.txt'\ncopy='ab!.txt'"
+  pitfall: >-
+    The exact value and quote convention must agree across LF-separated lines, in addition to the value policy.
+- id: gpt-files-paths-19
+  difficulty: hard
+  status: ok
+  description: >-
+    Acceptance criteria:
+    - A relative path has exactly two lowercase ASCII directory names 3 to 8 letters and a file named item.txt. The directory names must differ, and neither may be tmp or cache. Use slash separators, no leading slash.
+    - Evaluate the input as supplied; do not trim or normalize it.
+  regex: "/^(?!tmp\\/|cache\\/)([a-z]{3,8})\\/(?!\\1\\/|tmp\\/|cache\\/)[a-z]{3,8}\\/item\\.txt$(?![\\s\\S])/"
+  match:
+    - "abc/xyz/item.txt"
+    - "xyz/abc/item.txt"
+    - "abcdefgh/data/item.txt"
+    - "tmpx/cached/item.txt"
+    - "source/build/item.txt"
+    - "foo/bar/item.txt"
+    - "one/two/item.txt"
+    - "left/right/item.txt"
+  no_match:
+    - "abc/abc/item.txt"
+    - "tmp/abc/item.txt"
+    - "abc/tmp/item.txt"
+    - "cache/abc/item.txt"
+    - "abc/cache/item.txt"
+    - "ab/xyz/item.txt"
+    - "abc/abcdefghi/item.txt"
+    - "abc/xyz/itemXtxt"
+    - "!abc/xyz/item.txt"
+    - "abc/xyz/item.txt!"
+    - "abc/xyz/item.txt\n"
+    - "abc/xyz/item.txt\r"
+    - "abc/xyz/item.txt\r\n"
+    - "abc/xyz/item.txt\u2028"
+    - "abc/xyz/item.txt\u2029"
+    - " abc/xyz/item.txt"
+    - "abc/xyz/item.txt "
+  pitfall: >-
+    Two reserved-directory checks and whole-name inequality are needed.
+- id: gpt-files-paths-20
+  difficulty: hard
+  status: ok
+  description: >-
+    A file checksum label is a basename of 3 to 8 lowercase ASCII letters, colon, six lowercase hexadecimal digits, colon, the same basename, colon, the same digest. Format only; no digest is computed.
+  regex: "/^([a-z]{3,8}):([0-9a-f]{6}):\\1:\\2$(?![\\s\\S])/"
+  match:
+    - "abc:000000:abc:000000"
+    - "xyz:ffffff:xyz:ffffff"
+    - "abcdefgh:abcdef:abcdefgh:abcdef"
+    - "data:123456:data:123456"
+    - "table:deadbe:table:deadbe"
+    - "foo:aa1122:foo:aa1122"
+    - "report:012345:report:012345"
+    - "sample:fedcba:sample:fedcba"
+  no_match:
+    - "abc:000000:xyz:000000"
+    - "abc:000000:abc:000001"
+    - "ab:000000:ab:000000"
+    - "abcdefghi:000000:abcdefghi:000000"
+    - "abc:ABCDEf:abc:ABCDEf"
+    - "abc:00000:abc:00000"
+    - "abc:0000000:abc:0000000"
+    - "!abc:000000:abc:000000"
+    - "abc:000000:abc:000000!"
+    - "abc:000000:abc:000000\n"
+    - "abc:000000:abc:000000\r"
+    - "abc:000000:abc:000000\r\n"
+    - "abc:000000:abc:000000\u2028"
+    - "abc:000000:abc:000000\u2029"
+    - " abc:000000:abc:000000"
+    - "abc:000000:abc:000000 "
+  pitfall: >-
+    Both repeated fields have independent alphabets and lengths.

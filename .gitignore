@@ -27,3 +27,4 @@ logs/
 
 # Secrets
 .env
+benchmark-gpt/benchmark-gpt.jsonl

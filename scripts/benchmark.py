@@ -3,6 +3,11 @@
     uv run scripts/benchmark.py check    # contrôles mécaniques, à relancer après chaque modification
     uv run scripts/benchmark.py build    # cas `status: ok` → data/eval/benchmark.jsonl, pour eval.py
 
+Un autre benchmark, dans son propre dossier (même format, mêmes contrôles) :
+
+    uv run scripts/benchmark.py check --dir benchmark-gpt
+    uv run scripts/benchmark.py build --dir benchmark-gpt --output data/eval/benchmark-gpt.jsonl
+
 `benchmark/<catégorie>.yaml` est la source de vérité, versionnée. Chaque cas : id, difficulty, status (`ok` gardé,
 `todo` à revoir, `drop` écarté), description, regex de référence, chaînes `match` et `no_match`, et `pitfall` (ce
 qu'une solution naïve rate).
@@ -23,6 +28,7 @@ import yaml
 from common import RegexRunner, parse_literal
 from generate import CONFIG, TAXONOMY
 from validate import (
+    BENCHMARK_DIR,
     PREPARED_DIR,
     SIMILARITY_THRESHOLD,
     add_examples,
@@ -101,14 +107,14 @@ def check(cases: list[dict], cfg: dict) -> dict[str, dict[str, list[str]]]:
 # --- Gel --------------------------------------------------------------------------------------------------------------
 
 
-def build(cases: list[dict], cfg: dict, share: float) -> None:
+def build(cases: list[dict], cfg: dict, share: float, output: Path = OUTPUT) -> None:
     issues = check(cases, cfg)
     kept = [c for c in cases if c.get("status") == "ok"]
     blocked = [c["id"] for c in kept if issues[c["id"]]["errors"]]
     if blocked:
         raise SystemExit(f"cas `ok` avec des erreurs, à corriger d'abord : {blocked}")
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    with OUTPUT.open("w") as f:
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with output.open("w") as f:
         for c in kept:
             example = {
                 "id": c["id"],
@@ -120,20 +126,22 @@ def build(cases: list[dict], cfg: dict, share: float) -> None:
             }
             f.write(json.dumps(add_examples(example, cfg, share), ensure_ascii=False) + "\n")
     todo = sum(c.get("status") == "todo" for c in cases)
-    print(f"{len(kept)} cas écrits dans {OUTPUT} ({todo} encore à relire, {len(cases) - len(kept) - todo} écartés)")
+    print(f"{len(kept)} cas écrits dans {output} ({todo} encore à relire, {len(cases) - len(kept) - todo} écartés)")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("command", choices=["check", "build"])
     parser.add_argument("--all", action="store_true", help="check : affiche aussi les cas sans problème détecté")
+    parser.add_argument("--dir", type=Path, default=BENCHMARK_DIR, help="dossier des YAML du benchmark")
+    parser.add_argument("--output", type=Path, default=OUTPUT, help="build : JSONL écrit pour eval.py")
     args = parser.parse_args()
     cfg, taxonomy = yaml.safe_load(CONFIG.read_text()), yaml.safe_load(TAXONOMY.read_text())
 
     if args.command == "build":
-        build(load_benchmark(), cfg, taxonomy["examples_share"])
+        build(load_benchmark(args.dir), cfg, taxonomy["examples_share"], args.output)
     else:
-        cases = load_benchmark()
+        cases = load_benchmark(args.dir)
         issues = check(cases, cfg)
         for c in cases:
             found = issues.get(c["id"])

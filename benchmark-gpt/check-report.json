@@ -1,0 +1,24 @@
+{
+  "cases": 420,
+  "difficulties": {
+    "simple": 105,
+    "medium": 168,
+    "hard": 147
+  },
+  "statuses": {
+    "ok": 420
+  },
+  "coverage": {
+    "lookahead": 176,
+    "backreference": 120,
+    "lookbehind": 41,
+    "multiline_or_explicit_lines": 46,
+    "dotall": 19,
+    "unicode_property": 36,
+    "contains": 45,
+    "numeric_range_alternation": 89
+  },
+  "errors": [],
+  "mutation_warnings": [],
+  "isolation": "No project modules, training data, taxonomy or other benchmark read. Training overlap checks unavailable."
+}

@@ -1,0 +1,707 @@
+# Benchmark GPT, catégorie measurements. Format et contrôles : scripts/benchmark.py.
+- id: gpt-measurements-01
+  difficulty: simple
+  status: ok
+  description: >-
+    A millimetre reading is exactly four ASCII digits followed immediately by lowercase mm. No sign, decimal or spaces.
+  regex: "/^[0123456789]{4}mm$(?![\\s\\S])/"
+  match:
+    - "0000mm"
+    - "9999mm"
+    - "5555mm"
+    - "0909mm"
+    - "9090mm"
+    - "0999mm"
+    - "9000mm"
+    - "5000mm"
+  no_match:
+    - "000mm"
+    - "00000mm"
+    - "?000mm"
+    - " 000mm"
+    - "000\u00e9mm"
+    - "0000\tmm"
+    - "0000?m"
+    - "!0000mm"
+    - "0000mm!"
+    - "0000mm\n"
+    - "0000mm\r"
+    - "0000mm\r\n"
+    - "0000mm\u2028"
+    - "0000mm\u2029"
+    - " 0000mm"
+    - "0000mm "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-measurements-02
+  difficulty: simple
+  status: ok
+  description: >-
+    A mass label is M= followed by exactly five ASCII digits and lowercase g. Leading zeros are permitted.
+  regex: "/^M=[0123456789]{5}g$(?![\\s\\S])/"
+  match:
+    - "M=00000g"
+    - "M=99999g"
+    - "M=55555g"
+    - "M=09090g"
+    - "M=90909g"
+    - "M=09999g"
+    - "M=90000g"
+    - "M=50000g"
+  no_match:
+    - "M=0000g"
+    - "M=000000g"
+    - "M=?0000g"
+    - "M= 0000g"
+    - "M=0000\u00e9g"
+    - "M=00000\tg"
+    - "M?00000g"
+    - "M=00000?"
+    - "!M=00000g"
+    - "M=00000g!"
+    - "M=00000g\n"
+    - "M=00000g\r"
+    - "M=00000g\r\n"
+    - "M=00000g\u2028"
+    - "M=00000g\u2029"
+    - " M=00000g"
+    - "M=00000g "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-measurements-03
+  difficulty: simple
+  status: ok
+  description: >-
+    A sensor serial reading is exactly six lowercase hexadecimal characters followed by /raw, format only.
+  regex: "/^[0123456789abcdef]{6}\\/raw$(?![\\s\\S])/"
+  match:
+    - "000000/raw"
+    - "ffffff/raw"
+    - "888888/raw"
+    - "0f0f0f/raw"
+    - "f0f0f0/raw"
+    - "0fffff/raw"
+    - "f00000/raw"
+    - "800000/raw"
+  no_match:
+    - "00000/raw"
+    - "0000000/raw"
+    - "?00000/raw"
+    - " 00000/raw"
+    - "00000\u00e9/raw"
+    - "000000\t/raw"
+    - "000000?raw"
+    - "A00000/raw"
+    - "!000000/raw"
+    - "000000/raw!"
+    - "000000/raw\n"
+    - "000000/raw\r"
+    - "000000/raw\r\n"
+    - "000000/raw\u2028"
+    - "000000/raw\u2029"
+    - " 000000/raw"
+    - "000000/raw "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-measurements-04
+  difficulty: simple
+  status: ok
+  description: >-
+    A display dimension token is W followed by exactly four ASCII digits and lowercase px.
+  regex: "/^W[0123456789]{4}px$(?![\\s\\S])/"
+  match:
+    - "W0000px"
+    - "W9999px"
+    - "W5555px"
+    - "W0909px"
+    - "W9090px"
+    - "W0999px"
+    - "W9000px"
+    - "W5000px"
+  no_match:
+    - "W000px"
+    - "W00000px"
+    - "W?000px"
+    - "W 000px"
+    - "W000\u00e9px"
+    - "W0000\tpx"
+    - "?0000px"
+    - "W0000?x"
+    - "!W0000px"
+    - "W0000px!"
+    - "W0000px\n"
+    - "W0000px\r"
+    - "W0000px\r\n"
+    - "W0000px\u2028"
+    - "W0000px\u2029"
+    - " W0000px"
+    - "W0000px "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-measurements-05
+  difficulty: simple
+  status: ok
+  description: >-
+    A pressure export field is P: followed by exactly three ASCII digits and literal .0kPa. No spaces.
+  regex: "/^P:[0123456789]{3}\\.0kPa$(?![\\s\\S])/"
+  match:
+    - "P:000.0kPa"
+    - "P:999.0kPa"
+    - "P:555.0kPa"
+    - "P:090.0kPa"
+    - "P:909.0kPa"
+    - "P:099.0kPa"
+    - "P:900.0kPa"
+    - "P:500.0kPa"
+  no_match:
+    - "P:00.0kPa"
+    - "P:0000.0kPa"
+    - "P:?00.0kPa"
+    - "P: 00.0kPa"
+    - "P:00\u00e9.0kPa"
+    - "P:000\t.0kPa"
+    - "P?000.0kPa"
+    - "P:000?0kPa"
+    - "!P:000.0kPa"
+    - "P:000.0kPa!"
+    - "P:000.0kPa\n"
+    - "P:000.0kPa\r"
+    - "P:000.0kPa\r\n"
+    - "P:000.0kPa\u2028"
+    - "P:000.0kPa\u2029"
+    - " P:000.0kPa"
+    - "P:000.0kPa "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-measurements-06
+  difficulty: medium
+  status: ok
+  description: >-
+    Form-validation ticket: A tilt setting is a canonical integer from 0 through 85 followed immediately by the degree symbol. No sign, decimals or spaces.
+  regex: "/^(?:[0-9]|[1-7][0-9]|8[0-5])°$(?![\\s\\S])/"
+  match:
+    - "0\u00b0"
+    - "1\u00b0"
+    - "2\u00b0"
+    - "83\u00b0"
+    - "84\u00b0"
+    - "85\u00b0"
+    - "42\u00b0"
+    - "43\u00b0"
+  no_match:
+    - "-1\u00b0"
+    - "86\u00b0"
+    - "00\u00b0"
+    - "+0\u00b0"
+    - "0.0\u00b0"
+    - " 0\u00b0"
+    - "850\u00b0"
+    - "!0\u00b0"
+    - "0\u00b0!"
+    - "0\u00b0\n"
+    - "0\u00b0\r"
+    - "0\u00b0\r\n"
+    - "0\u00b0\u2028"
+    - "0\u00b0\u2029"
+    - "0\u00b0 "
+  pitfall: >-
+    Endpoints and canonical decimal spelling must both be enforced.
+- id: gpt-measurements-07
+  difficulty: medium
+  status: ok
+  description: >-
+    A battery reading is a canonical integer 0 through 100 immediately followed by %. No decimals, signs, leading zeros or whitespace.
+  regex: "/^(?:0|[1-9][0-9]?|100)%$(?![\\s\\S])/"
+  match:
+    - "0%"
+    - "1%"
+    - "9%"
+    - "10%"
+    - "20%"
+    - "50%"
+    - "99%"
+    - "100%"
+  no_match:
+    - "101%"
+    - "00%"
+    - "01%"
+    - "+1%"
+    - "-1%"
+    - "1.0%"
+    - "1 %"
+    - "!0%"
+    - "0%!"
+    - "0%\n"
+    - "0%\r"
+    - "0%\r\n"
+    - "0%\u2028"
+    - "0%\u2029"
+    - " 0%"
+    - "0% "
+  pitfall: >-
+    The endpoint 100 is a separate canonical alternative.
+- id: gpt-measurements-08
+  difficulty: medium
+  status: ok
+  description: >-
+    A thermistor reading is an optional minus and a canonical integer magnitude 0 through 40, followed by °C. Negative zero is forbidden, plus signs and spaces are forbidden.
+  regex: "/^(?!-0°C$)-?(?:[0-9]|[1-3][0-9]|40)°C$(?![\\s\\S])/"
+  match:
+    - "0\u00b0C"
+    - "40\u00b0C"
+    - "-40\u00b0C"
+    - "1\u00b0C"
+    - "-1\u00b0C"
+    - "9\u00b0C"
+    - "-9\u00b0C"
+    - "20\u00b0C"
+  no_match:
+    - "-0\u00b0C"
+    - "41\u00b0C"
+    - "-41\u00b0C"
+    - "01\u00b0C"
+    - "+1\u00b0C"
+    - "1 \u00b0C"
+    - "1\u00b0c"
+    - "1.0\u00b0C"
+    - "!0\u00b0C"
+    - "0\u00b0C!"
+    - "0\u00b0C\n"
+    - "0\u00b0C\r"
+    - "0\u00b0C\r\n"
+    - "0\u00b0C\u2028"
+    - "0\u00b0C\u2029"
+    - " 0\u00b0C"
+    - "0\u00b0C "
+  pitfall: >-
+    Signed endpoints and zero canonicalization must both hold.
+- id: gpt-measurements-09
+  difficulty: medium
+  status: ok
+  description: >-
+    A lab volume is a canonical nonnegative integer with exactly one fractional ASCII digit, one space and either mL or L. No sign or grouping, case matters.
+  regex: "/^(?:0|[1-9][0-9]*)\\.[0-9] (?:mL|L)$(?![\\s\\S])/"
+  match:
+    - "0.0 mL"
+    - "0.0 L"
+    - "1.2 mL"
+    - "1.2 L"
+    - "999.9 mL"
+    - "10.0 L"
+    - "5.5 mL"
+    - "1000.1 L"
+  no_match:
+    - "01.0 mL"
+    - "1 mL"
+    - "1.00 mL"
+    - "1,0 mL"
+    - "1.0 ml"
+    - "1.0mL"
+    - "-1.0 L"
+    - "1.a L"
+    - "!0.0 mL"
+    - "0.0 mL!"
+    - "0.0 mL\n"
+    - "0.0 mL\r"
+    - "0.0 mL\r\n"
+    - "0.0 mL\u2028"
+    - "0.0 mL\u2029"
+    - " 0.0 mL"
+    - "0.0 mL "
+  pitfall: >-
+    Unit case and the single fractional digit are exact.
+- id: gpt-measurements-10
+  difficulty: medium
+  status: ok
+  description: >-
+    Import gate — reject any nonconforming input. A screen resolution is width x height with lowercase x and no spaces. Each dimension is an integer 100 through 999 in exactly three ASCII digits.
+  regex: "/^[1-9][0-9]{2}x[1-9][0-9]{2}$(?![\\s\\S])/"
+  match:
+    - "100x100"
+    - "999x999"
+    - "640x480"
+    - "800x600"
+    - "123x456"
+    - "900x100"
+    - "100x900"
+    - "512x768"
+  no_match:
+    - "099x100"
+    - "100x099"
+    - "1000x100"
+    - "100x1000"
+    - "100X100"
+    - "100 x 100"
+    - "1a0x100"
+    - "!100x100"
+    - "100x100!"
+    - "100x100\n"
+    - "100x100\r"
+    - "100x100\r\n"
+    - "100x100\u2028"
+    - "100x100\u2029"
+    - " 100x100"
+    - "100x100 "
+  pitfall: >-
+    Both numeric dimensions are bounded and the separator is lowercase.
+- id: gpt-measurements-11
+  difficulty: medium
+  status: ok
+  description: >-
+    Search filter, not whole-input validation. Search telemetry for a humidity integer 0 through 100 in shortest ASCII decimal spelling immediately after humidity= and before percent. Other text is unrestricted.
+  regex: "/(?<=humidity=)(?:0|[1-9][0-9]?|100)(?=%)/"
+  match:
+    - "humidity=0%"
+    - "humidity=1%"
+    - "humidity=9%"
+    - "humidity=10%"
+    - "before humidity=20% after"
+    - "before humidity=50% after"
+    - "before humidity=99% after"
+    - "before humidity=100% after"
+  no_match:
+    - "humidity=101%"
+    - "humidity=00%"
+    - "humidity=01%"
+    - "humidity=-1%"
+    - "humidity=1.0%"
+    - "humidity=a%"
+    - "HUMIDITY=0%"
+    - "humidity=0 %"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-measurements-12
+  difficulty: medium
+  status: ok
+  description: >-
+    Find a padded heading 00 through 35 immediately between lowercase heading[ and ]. Search anywhere, without interpreting physical angles.
+  regex: "/(?<=heading\\[)(?:[0-2][0-9]|3[0-5])(?=\\])/"
+  match:
+    - "heading[00]"
+    - "heading[01]"
+    - "heading[09]"
+    - "heading[10]"
+    - "before heading[20] after"
+    - "before heading[30] after"
+    - "before heading[34] after"
+    - "before heading[35] after"
+  no_match:
+    - "heading[36]"
+    - "heading[99]"
+    - "heading[0]"
+    - "heading[000]"
+    - "heading[a0]"
+    - "heading[-1]"
+    - "HEADING[00]"
+    - "heading[00 ]"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-measurements-13
+  difficulty: medium
+  status: ok
+  description: >-
+    A duration measurement is a canonical integer 1 through 99, optionally point and exactly two ASCII fractional digits, then one space and lowercase ms or s. No signs, padding or other units.
+  regex: "/^[1-9][0-9]?(?:\\.[0-9]{2})? (?:ms|s)$(?![\\s\\S])/"
+  match:
+    - "1 ms"
+    - "99 s"
+    - "1.00 ms"
+    - "99.99 s"
+    - "10.25 ms"
+    - "9 s"
+    - "20.50 s"
+    - "50 ms"
+  no_match:
+    - "0 ms"
+    - "100 ms"
+    - "01 ms"
+    - "1.0 ms"
+    - "1.000 ms"
+    - "1ms"
+    - "1 MS"
+    - "1.ab ms"
+    - "!1 ms"
+    - "1 ms!"
+    - "1 ms\n"
+    - "1 ms\r"
+    - "1 ms\r\n"
+    - "1 ms\u2028"
+    - "1 ms\u2029"
+    - " 1 ms"
+    - "1 ms "
+  pitfall: >-
+    Optional fractional precision and unit alternatives are independent.
+- id: gpt-measurements-14
+  difficulty: hard
+  status: ok
+  description: >-
+    A measurement check is check: and two identical readings separated by slash. Each reading is a canonical integer 1 through 99 followed by mm, no spaces or decimals. Each of the two values must be enclosed in matching ASCII single or double quotes; the same quote character must be used for both values. Quotes are not part of the value, and escapes are not permitted.
+  regex: "/^check:(['\\\"])([1-9][0-9]?mm)\\1\\/\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "check:'1mm'/'1mm'"
+    - "check:\"99mm\"/\"99mm\""
+    - "check:'10mm'/'10mm'"
+    - "check:\"9mm\"/\"9mm\""
+    - "check:'20mm'/'20mm'"
+    - "check:\"30mm\"/\"30mm\""
+    - "check:'40mm'/'40mm'"
+    - "check:\"50mm\"/\"50mm\""
+  no_match:
+    - "check:'1mm'/'99mm'"
+    - "check:'1mm'/'1mm1mm'"
+    - "check:'?'/'?'"
+    - "check:'1mm '/'1mm'"
+    - "check:'1mm'/' 1mm'"
+    - "check:'1mm'/'1mm/1mm'"
+    - "check:'!!!'/'!!!'"
+    - "check:'1m'/'1m'"
+    - "check:'1mm0'/'1mm0'"
+    - "check:'zmm'/'zmm'"
+    - "check:'100'/'100'"
+    - "check:'1mm\"/'1mm'"
+    - "check:'1mm'/\"1mm\""
+    - "check:1mm/1mm"
+    - "!check:'1mm'/'1mm'"
+    - "check:'1mm'/'1mm'!"
+    - "check:'1mm'/'1mm'\n"
+    - "check:'1mm'/'1mm'\r"
+    - "check:'1mm'/'1mm'\r\n"
+    - "check:'1mm'/'1mm'\u2028"
+    - "check:'1mm'/'1mm'\u2029"
+    - " check:'1mm'/'1mm'"
+    - "check:'1mm'/'1mm' "
+  pitfall: >-
+    Quote style, both closing quotes, value policy and exact value repetition must all agree.
+- id: gpt-measurements-15
+  difficulty: hard
+  status: ok
+  description: >-
+    Code review requirement: A square label is side= and a canonical integer 1 through 99, lowercase x and the same integer, then one space and cm. No signs, leading zeros or decimals.
+  regex: "/^side=([1-9][0-9]?)x\\1 cm$(?![\\s\\S])/"
+  match:
+    - "side=1x1 cm"
+    - "side=99x99 cm"
+    - "side=10x10 cm"
+    - "side=9x9 cm"
+    - "side=20x20 cm"
+    - "side=30x30 cm"
+    - "side=40x40 cm"
+    - "side=50x50 cm"
+  no_match:
+    - "side=1x2 cm"
+    - "side=0x0 cm"
+    - "side=100x100 cm"
+    - "side=01x01 cm"
+    - "side=1X1 cm"
+    - "side=1x1cm"
+    - "side=1x1 CM"
+    - "!side=1x1 cm"
+    - "side=1x1 cm!"
+    - "side=1x1 cm\n"
+    - "side=1x1 cm\r"
+    - "side=1x1 cm\r\n"
+    - "side=1x1 cm\u2028"
+    - "side=1x1 cm\u2029"
+    - " side=1x1 cm"
+    - "side=1x1 cm "
+  pitfall: >-
+    A square requires dimension equality in addition to range and unit rules.
+- id: gpt-measurements-16
+  difficulty: hard
+  status: ok
+  description: >-
+    A localized unit name: the literal prefix unit: followed by 2 through 12 Unicode letter clusters. Each cluster is a Unicode letter followed by zero to two Unicode combining marks. One optional ASCII hyphen may join two nonempty runs of clusters, but no edge hyphen or second hyphen is allowed. Length counts letter clusters, excluding the hyphen and any fixed prefix; spaces, digits and other characters are forbidden. No normalization is performed. Append the exact literal suffix :0000 after the name; its characters do not count toward the cluster limit.
+  regex: "/^unit:(?=(?:\\p{L}\\p{M}{0,2}-?){2,12}:0000$)(?:\\p{L}\\p{M}{0,2}){1,12}(?:-(?:\\p{L}\\p{M}{0,2}){1,12})?:0000$(?![\\s\\S])/u"
+  match:
+    - "unit:ab:0000"
+    - "unit:e\u0301x:0000"
+    - "unit:a\u0301\u0308b:0000"
+    - "unit:\u6771\u4eac-\u5927\u962a:0000"
+    - "unit:\u0394\u03ad\u03bb\u03c4\u03b1:0000"
+    - "unit:\u0645\u0631\u062d\u0628\u0627:0000"
+    - "unit:\u0417\u0438\u043c\u0430:0000"
+    - "unit:abcdefghijkl:0000"
+    - "unit:e\u0301-e\u0308:0000"
+    - "unit:A\u00e9:0000"
+  no_match:
+    - "unit:a:0000"
+    - "unit:abcdefghijklm:0000"
+    - "unit:ab1:0000"
+    - "unit:a_b:0000"
+    - "unit:a b:0000"
+    - "unit:e\u0301:0000"
+    - "unit:\U0001f600a:0000"
+    - "unit:\u0301ab:0000"
+    - "unit:a\u0301\u0308\u0303b:0000"
+    - "unit:-ab:0000"
+    - "unit:ab-:0000"
+    - "unit:a--b:0000"
+    - "unit:ab-cd-ef:0000"
+    - "unit:ab"
+    - "unit:ab?0000"
+    - "!unit:ab:0000"
+    - "unit:ab:0000!"
+    - "unit:ab:0000\n"
+    - "unit:ab:0000\r"
+    - "unit:ab:0000\r\n"
+    - "unit:ab:0000\u2028"
+    - "unit:ab:0000\u2029"
+    - " unit:ab:0000"
+    - "unit:ab:0000 "
+  pitfall: >-
+    Count base-letter clusters, attach bounded marks only after a letter, and limit the optional internal separator.
+- id: gpt-measurements-17
+  difficulty: hard
+  status: ok
+  description: >-
+    A sensor note: the entire string has the literal opening wrapper MEAS{, a lowercase ASCII routing label of 2 through 6 letters, colon, a body, colon, the exact same routing label and the literal closing wrapper }MEAS. The body has 1 through 40 Unicode code points, allows any characters including line breaks and colons, and must contain the lowercase substring reading. Only the body counts toward its length limit; no other text is allowed.
+  regex: "/^MEAS\\{(?<route>[a-z]{2,6}):(?=.{1,40}:\\k<route>\\}MEAS$)(?=.{0,40}reading.{0,40}:\\k<route>\\}MEAS$).*:\\k<route>\\}MEAS$(?![\\s\\S])/su"
+  match:
+    - "MEAS{aa:reading:aa}MEAS"
+    - "MEAS{abcdef:areading:abcdef}MEAS"
+    - "MEAS{tag:readingb:tag}MEAS"
+    - "MEAS{route:\nreading:route}MEAS"
+    - "MEAS{memo:reading\n:memo}MEAS"
+    - "MEAS{ab:\treading:ab}MEAS"
+    - "MEAS{zz:\U0001f600reading:zz}MEAS"
+    - "MEAS{key:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxreading:key}MEAS"
+    - "MEAS{xy:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600reading:xy}MEAS"
+    - "MEAS{aa:prefix: reading: suffix:aa}MEAS"
+  no_match:
+    - "MEAS{aa::aa}MEAS"
+    - "MEAS{aa:abc:aa}MEAS"
+    - "MEAS{aa:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxreading:aa}MEAS"
+    - "MEAS{aa:reading:ab}MEAS"
+    - "MEAS{a:reading:a}MEAS"
+    - "MEAS{abcdefg:reading:abcdefg}MEAS"
+    - "MEAS{AA:reading:AA}MEAS"
+    - "MEAS{aa:READING:aa}MEAS"
+    - "MEAS{aa:reading:aa"
+    - "aa:reading:aa}MEAS"
+    - "MEAS{aa:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600reading:aa}MEAS"
+    - "!MEAS{aa:reading:aa}MEAS"
+    - "MEAS{aa:reading:aa}MEAS!"
+    - "MEAS{aa:reading:aa}MEAS\n"
+    - "MEAS{aa:reading:aa}MEAS\r"
+    - "MEAS{aa:reading:aa}MEAS\r\n"
+    - "MEAS{aa:reading:aa}MEAS\u2028"
+    - "MEAS{aa:reading:aa}MEAS\u2029"
+    - " MEAS{aa:reading:aa}MEAS"
+    - "MEAS{aa:reading:aa}MEAS "
+  pitfall: >-
+    Repeat the routing label exactly, count only body code points including line breaks, and require the marker inside that body.
+- id: gpt-measurements-18
+  difficulty: hard
+  status: ok
+  description: >-
+    An LF-only sensor receipt has value= and a canonical integer 1 through 99 followed by mm, then copy= and the exact same reading on line two. No final LF, spaces or decimals. Both values must be enclosed in matching ASCII single or double quotes, using the same quote character on both lines. The quotes are delimiters, not part of the value; no escapes are permitted.
+  regex: "/^value=(['\\\"])([1-9][0-9]?mm)\\1\\ncopy=\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "value='1mm'\ncopy='1mm'"
+    - "value=\"99mm\"\ncopy=\"99mm\""
+    - "value='10mm'\ncopy='10mm'"
+    - "value=\"9mm\"\ncopy=\"9mm\""
+    - "value='20mm'\ncopy='20mm'"
+    - "value=\"30mm\"\ncopy=\"30mm\""
+    - "value='40mm'\ncopy='40mm'"
+    - "value=\"50mm\"\ncopy=\"50mm\""
+  no_match:
+    - "value='1mm'\ncopy='99mm'"
+    - "value='1mm\r'\ncopy='1mm'"
+    - "value=1mm copy=1mm"
+    - "value=1mm\nCopy=1mm"
+    - "value='?'\ncopy='?'"
+    - "value='1mm'\ncopy='1mm '"
+    - "value='!!!'\ncopy='!!!'"
+    - "value='1m'\ncopy='1m'"
+    - "value='1mm0'\ncopy='1mm0'"
+    - "value='zmm'\ncopy='zmm'"
+    - "value='100'\ncopy='100'"
+    - "value='1mm\"\ncopy='1mm'"
+    - "value='1mm'\ncopy=\"1mm\""
+    - "value=1mm\ncopy=1mm"
+    - "value='1mm'\r\ncopy='1mm'"
+    - "!value='1mm'\ncopy='1mm'"
+    - "value='1mm'\ncopy='1mm'!"
+    - "value='1mm'\ncopy='1mm'\n"
+    - "value='1mm'\ncopy='1mm'\r"
+    - "value='1mm'\ncopy='1mm'\r\n"
+    - "value='1mm'\ncopy='1mm'\u2028"
+    - "value='1mm'\ncopy='1mm'\u2029"
+    - " value='1mm'\ncopy='1mm'"
+    - "value='1mm'\ncopy='1mm' "
+  pitfall: >-
+    The exact value and quote convention must agree across LF-separated lines, in addition to the value policy.
+- id: gpt-measurements-19
+  difficulty: hard
+  status: ok
+  description: >-
+    Acceptance criteria:
+    - A grid coordinate is ( then two different canonical integers 0 through 31 separated by comma and ). No spaces, signs or leading zeros; the two coordinates must not be equal.
+    - Evaluate the input as supplied; do not trim or normalize it.
+  regex: "/^\\(([0-9]|[12][0-9]|3[01]),(?!\\1\\))(?:[0-9]|[12][0-9]|3[01])\\)$(?![\\s\\S])/"
+  match:
+    - "(0,1)"
+    - "(31,30)"
+    - "(1,0)"
+    - "(0,31)"
+    - "(9,10)"
+    - "(10,9)"
+    - "(20,30)"
+    - "(30,20)"
+  no_match:
+    - "(0,0)"
+    - "(31,31)"
+    - "(32,0)"
+    - "(0,32)"
+    - "(01,2)"
+    - "(1,02)"
+    - "(1, 2)"
+    - "(-1,2)"
+    - "!(0,1)"
+    - "(0,1)!"
+    - "(0,1)\n"
+    - "(0,1)\r"
+    - "(0,1)\r\n"
+    - "(0,1)\u2028"
+    - "(0,1)\u2029"
+    - " (0,1)"
+    - "(0,1) "
+  pitfall: >-
+    Coordinate inequality is whole-value equality, not a digit-prefix check.
+- id: gpt-measurements-20
+  difficulty: hard
+  status: ok
+  description: >-
+    A bounded geographical display is N or S, colon, padded latitude magnitude 00 through 89 and point plus two ASCII fractional digits, or 90.00 only; semicolon; E or W, colon, padded longitude magnitude 000 through 179 and point plus two digits, or 180.00 only. No spaces, signs or other precision. Check ranges only, not real geography.
+  regex: "/^[NS]:(?:[0-8][0-9]\\.[0-9]{2}|90\\.00);[EW]:(?:(?:0[0-9]{2}|1[0-7][0-9])\\.[0-9]{2}|180\\.00)$(?![\\s\\S])/"
+  match:
+    - "N:00.00;E:000.00"
+    - "S:90.00;W:180.00"
+    - "N:89.99;W:179.99"
+    - "S:01.23;E:001.23"
+    - "N:45.50;E:090.25"
+    - "S:12.34;W:123.45"
+    - "N:90.00;W:000.01"
+    - "S:00.01;E:180.00"
+  no_match:
+    - "N:90.01;E:000.00"
+    - "N:91.00;E:000.00"
+    - "N:00.00;E:180.01"
+    - "N:00.00;E:181.00"
+    - "N:0.00;E:000.00"
+    - "N:00.00;E:00.00"
+    - "n:00.00;E:000.00"
+    - "N:00.00; e:000.00"
+    - "N:00x00;E:000.00"
+    - "!N:00.00;E:000.00"
+    - "N:00.00;E:000.00!"
+    - "N:00.00;E:000.00\n"
+    - "N:00.00;E:000.00\r"
+    - "N:00.00;E:000.00\r\n"
+    - "N:00.00;E:000.00\u2028"
+    - "N:00.00;E:000.00\u2029"
+    - " N:00.00;E:000.00"
+    - "N:00.00;E:000.00 "
+  pitfall: >-
+    Both extreme magnitudes force a zero fractional part and widths differ.

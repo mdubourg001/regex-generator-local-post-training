@@ -1,0 +1,694 @@
+# Benchmark GPT, catégorie dates-times. Format et contrôles : scripts/benchmark.py.
+- id: gpt-dates-times-01
+  difficulty: simple
+  status: ok
+  description: >-
+    A compact year label is lowercase yr followed by exactly four ASCII digits. This is a label format, not a year range check.
+  regex: "/^yr[0123456789]{4}$(?![\\s\\S])/"
+  match:
+    - "yr0000"
+    - "yr9999"
+    - "yr5555"
+    - "yr0909"
+    - "yr9090"
+    - "yr0999"
+    - "yr9000"
+    - "yr5000"
+  no_match:
+    - "yr000"
+    - "yr00000"
+    - "yr?000"
+    - "yr 000"
+    - "yr000\u00e9"
+    - "yr0000\t"
+    - "y?0000"
+    - "!yr0000"
+    - "yr0000!"
+    - "yr0000\n"
+    - "yr0000\r"
+    - "yr0000\r\n"
+    - "yr0000\u2028"
+    - "yr0000\u2029"
+    - " yr0000"
+    - "yr0000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-dates-times-02
+  difficulty: simple
+  status: ok
+  description: >-
+    A stopwatch tick is exactly five ASCII digits followed by lowercase ms, without spaces.
+  regex: "/^[0123456789]{5}ms$(?![\\s\\S])/"
+  match:
+    - "00000ms"
+    - "99999ms"
+    - "55555ms"
+    - "09090ms"
+    - "90909ms"
+    - "09999ms"
+    - "90000ms"
+    - "50000ms"
+  no_match:
+    - "0000ms"
+    - "000000ms"
+    - "?0000ms"
+    - " 0000ms"
+    - "0000\u00e9ms"
+    - "00000\tms"
+    - "00000?s"
+    - "!00000ms"
+    - "00000ms!"
+    - "00000ms\n"
+    - "00000ms\r"
+    - "00000ms\r\n"
+    - "00000ms\u2028"
+    - "00000ms\u2029"
+    - " 00000ms"
+    - "00000ms "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-dates-times-03
+  difficulty: simple
+  status: ok
+  description: >-
+    A duration entry is one or more ASCII digits followed by exactly one of the lowercase units sec, min or hr. Leading zeros are allowed; no spaces or signs.
+  regex: "/^[0-9]+(?:sec|min|hr)$(?![\\s\\S])/"
+  match:
+    - "0sec"
+    - "1min"
+    - "2hr"
+    - "001sec"
+    - "99min"
+    - "100hr"
+    - "42sec"
+    - "8hr"
+  no_match:
+    - "1Sec"
+    - "1s"
+    - "1 sec"
+    - "-1hr"
+    - "1.0min"
+    - "amin"
+    - "!0sec"
+    - "0sec!"
+    - "0sec\n"
+    - "0sec\r"
+    - "0sec\r\n"
+    - "0sec\u2028"
+    - "0sec\u2029"
+    - " 0sec"
+    - "0sec "
+  pitfall: >-
+    Unit spelling and adjacency matter.
+- id: gpt-dates-times-04
+  difficulty: simple
+  status: ok
+  description: >-
+    The archive stores a day key as D followed by exactly seven ASCII digits, with no interpretation as a calendar date.
+  regex: "/^D[0123456789]{7}$(?![\\s\\S])/"
+  match:
+    - "D0000000"
+    - "D9999999"
+    - "D5555555"
+    - "D0909090"
+    - "D9090909"
+    - "D0999999"
+    - "D9000000"
+    - "D5000000"
+  no_match:
+    - "D000000"
+    - "D00000000"
+    - "D?000000"
+    - "D 000000"
+    - "D000000\u00e9"
+    - "D0000000\t"
+    - "?0000000"
+    - "!D0000000"
+    - "D0000000!"
+    - "D0000000\n"
+    - "D0000000\r"
+    - "D0000000\r\n"
+    - "D0000000\u2028"
+    - "D0000000\u2029"
+    - " D0000000"
+    - "D0000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-dates-times-05
+  difficulty: simple
+  status: ok
+  description: >-
+    A scheduled batch label is T followed by exactly six ASCII digits and uppercase Z. Only digit width is checked, not time ranges.
+  regex: "/^T[0123456789]{6}Z$(?![\\s\\S])/"
+  match:
+    - "T000000Z"
+    - "T999999Z"
+    - "T555555Z"
+    - "T090909Z"
+    - "T909090Z"
+    - "T099999Z"
+    - "T900000Z"
+    - "T500000Z"
+  no_match:
+    - "T00000Z"
+    - "T0000000Z"
+    - "T?00000Z"
+    - "T 00000Z"
+    - "T00000\u00e9Z"
+    - "T000000\tZ"
+    - "?000000Z"
+    - "T000000?"
+    - "!T000000Z"
+    - "T000000Z!"
+    - "T000000Z\n"
+    - "T000000Z\r"
+    - "T000000Z\r\n"
+    - "T000000Z\u2028"
+    - "T000000Z\u2029"
+    - " T000000Z"
+    - "T000000Z "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-dates-times-06
+  difficulty: medium
+  status: ok
+  description: >-
+    Form-validation ticket: The reminder field is wait= followed by an integer 5 through 45 and lowercase min, no sign, spaces or leading zeros.
+  regex: "/^wait=(?:[5-9]|[1-3][0-9]|4[0-5])min$(?![\\s\\S])/"
+  match:
+    - "wait=5min"
+    - "wait=6min"
+    - "wait=7min"
+    - "wait=43min"
+    - "wait=44min"
+    - "wait=45min"
+    - "wait=25min"
+    - "wait=26min"
+  no_match:
+    - "wait=4min"
+    - "wait=46min"
+    - "wait=05min"
+    - "wait=+5min"
+    - "wait=5.0min"
+    - "wait= 5min"
+    - "wait=450min"
+    - "!wait=5min"
+    - "wait=5min!"
+    - "wait=5min\n"
+    - "wait=5min\r"
+    - "wait=5min\r\n"
+    - "wait=5min\u2028"
+    - "wait=5min\u2029"
+    - " wait=5min"
+    - "wait=5min "
+  pitfall: >-
+    Endpoints and canonical decimal spelling must both be enforced.
+- id: gpt-dates-times-07
+  difficulty: medium
+  status: ok
+  description: >-
+    Time-picker value: 24-hour HH:MM, hour 00 through 23 and minute 00 through 59, followed by one space and either UTC or GMT, uppercase. No seconds.
+  regex: "/^(?:[01][0-9]|2[0-3]):[0-5][0-9] (?:UTC|GMT)$(?![\\s\\S])/"
+  match:
+    - "00:00 UTC"
+    - "23:59 GMT"
+    - "12:30 UTC"
+    - "01:01 GMT"
+    - "09:59 UTC"
+    - "20:00 GMT"
+    - "22:45 UTC"
+    - "10:10 GMT"
+  no_match:
+    - "24:00 UTC"
+    - "23:60 GMT"
+    - "1:00 UTC"
+    - "01:0 UTC"
+    - "01:00 utc"
+    - "01:00  UTC"
+    - "01:00:00 UTC"
+    - "!00:00 UTC"
+    - "00:00 UTC!"
+    - "00:00 UTC\n"
+    - "00:00 UTC\r"
+    - "00:00 UTC\r\n"
+    - "00:00 UTC\u2028"
+    - "00:00 UTC\u2029"
+    - " 00:00 UTC"
+    - "00:00 UTC "
+  pitfall: >-
+    Both padded ranges and the timezone alternative are required.
+- id: gpt-dates-times-08
+  difficulty: medium
+  status: ok
+  description: >-
+    A month bucket uses a four-digit ASCII year, slash, month 01 through 12, slash, and literal all. No calendar validation beyond the month range.
+  regex: "/^[0-9]{4}\\/(?:0[1-9]|1[0-2])\\/all$(?![\\s\\S])/"
+  match:
+    - "0000/01/all"
+    - "2026/12/all"
+    - "1999/06/all"
+    - "9999/11/all"
+    - "0001/09/all"
+    - "1234/10/all"
+    - "2030/02/all"
+    - "2000/03/all"
+  no_match:
+    - "2026/00/all"
+    - "2026/13/all"
+    - "2026/1/all"
+    - "202/01/all"
+    - "2026-01/all"
+    - "2026/01/ALL"
+    - "!0000/01/all"
+    - "0000/01/all!"
+    - "0000/01/all\n"
+    - "0000/01/all\r"
+    - "0000/01/all\r\n"
+    - "0000/01/all\u2028"
+    - "0000/01/all\u2029"
+    - " 0000/01/all"
+    - "0000/01/all "
+  pitfall: >-
+    The month is bounded but the year is format only.
+- id: gpt-dates-times-09
+  difficulty: medium
+  status: ok
+  description: >-
+    A date fragment is day 01 through 31, hyphen, month 01 through 12 and suffix ? immediately after the month. Format only: accept impossible calendar combinations.
+  regex: "/^(?:0[1-9]|[12][0-9]|3[01])-(?:0[1-9]|1[0-2])\\?$(?![\\s\\S])/"
+  match:
+    - "01-01?"
+    - "31-12?"
+    - "31-02?"
+    - "30-02?"
+    - "09-09?"
+    - "10-10?"
+    - "29-02?"
+    - "15-06?"
+  no_match:
+    - "00-01?"
+    - "32-01?"
+    - "01-00?"
+    - "01-13?"
+    - "1-01?"
+    - "01-1?"
+    - "01-01"
+    - "!01-01?"
+    - "01-01?!"
+    - "01-01?\n"
+    - "01-01?\r"
+    - "01-01?\r\n"
+    - "01-01?\u2028"
+    - "01-01?\u2029"
+    - " 01-01?"
+    - "01-01? "
+  pitfall: >-
+    Do not add month lengths or leap-year rules.
+- id: gpt-dates-times-10
+  difficulty: medium
+  status: ok
+  description: >-
+    Import gate — reject any nonconforming input. A timezone offset is uppercase UTC followed by plus or minus, two-digit hours 00 through 13 and colon plus minutes 00 through 59, or hours 14 with minutes 00 only.
+  regex: "/^UTC[+-](?:(?:0[0-9]|1[0-3]):[0-5][0-9]|14:00)$(?![\\s\\S])/"
+  match:
+    - "UTC+00:00"
+    - "UTC-00:00"
+    - "UTC+13:59"
+    - "UTC-13:59"
+    - "UTC+14:00"
+    - "UTC-14:00"
+    - "UTC+05:30"
+    - "UTC-09:45"
+  no_match:
+    - "UTC+14:01"
+    - "UTC-15:00"
+    - "UTC+00:60"
+    - "UTC+0:00"
+    - "utc+00:00"
+    - "UTC00:00"
+    - "!UTC+00:00"
+    - "UTC+00:00!"
+    - "UTC+00:00\n"
+    - "UTC+00:00\r"
+    - "UTC+00:00\r\n"
+    - "UTC+00:00\u2028"
+    - "UTC+00:00\u2029"
+    - " UTC+00:00"
+    - "UTC+00:00 "
+  pitfall: >-
+    The extreme hour forces zero minutes.
+- id: gpt-dates-times-11
+  difficulty: medium
+  status: ok
+  description: >-
+    Search filter, not whole-input validation. Find a two-digit minute from 00 to 59 immediately after lowercase minute= and before a semicolon anywhere in the text.
+  regex: "/(?<=minute=)[0-5][0-9](?=;)/"
+  match:
+    - "minute=00;"
+    - "minute=01;"
+    - "minute=09;"
+    - "minute=10;"
+    - "before minute=30; after"
+    - "before minute=45; after"
+    - "before minute=58; after"
+    - "before minute=59; after"
+  no_match:
+    - "minute=60;"
+    - "minute=99;"
+    - "minute=0;"
+    - "minute=000;"
+    - "minute=a0;"
+    - "minute=-1;"
+    - "MINUTE=00;"
+    - "minute=00 ;"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-dates-times-12
+  difficulty: medium
+  status: ok
+  description: >-
+    Search for an hour code 01 through 12 immediately between the lowercase marker hour[ and the closing bracket ]. Other text is allowed anywhere outside it.
+  regex: "/(?<=hour\\[)(?:0[1-9]|1[0-2])(?=\\])/"
+  match:
+    - "hour[01]"
+    - "hour[02]"
+    - "hour[03]"
+    - "hour[04]"
+    - "before hour[09] after"
+    - "before hour[10] after"
+    - "before hour[11] after"
+    - "before hour[12] after"
+  no_match:
+    - "hour[00]"
+    - "hour[13]"
+    - "hour[1]"
+    - "hour[001]"
+    - "hour[a1]"
+    - "hour[-1]"
+    - "HOUR[01]"
+    - "hour[01 ]"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-dates-times-13
+  difficulty: medium
+  status: ok
+  description: >-
+    An elapsed time is a canonical integer 0 through 99 followed by colon and two-digit seconds 00 through 59. No sign, spaces or leading zeros in the first field.
+  regex: "/^(?:0|[1-9][0-9]?):[0-5][0-9]$(?![\\s\\S])/"
+  match:
+    - "0:00"
+    - "0:59"
+    - "1:00"
+    - "9:09"
+    - "10:10"
+    - "99:59"
+    - "50:30"
+    - "20:45"
+  no_match:
+    - "00:00"
+    - "100:00"
+    - "1:60"
+    - "1:0"
+    - "-1:00"
+    - "1 :00"
+    - "!0:00"
+    - "0:00!"
+    - "0:00\n"
+    - "0:00\r"
+    - "0:00\r\n"
+    - "0:00\u2028"
+    - "0:00\u2029"
+    - " 0:00"
+    - "0:00 "
+  pitfall: >-
+    Minutes are unpadded; seconds are padded.
+- id: gpt-dates-times-14
+  difficulty: hard
+  status: ok
+  description: >-
+    A scheduler comparison is due: followed by two identical 24-hour times separated by slash. Each time is HH:MM with hours 00 through 23 and minutes 00 through 59; no spaces. Each of the two values must be enclosed in matching ASCII single or double quotes; the same quote character must be used for both values. Quotes are not part of the value, and escapes are not permitted.
+  regex: "/^due:(['\\\"])((?:[01][0-9]|2[0-3]):[0-5][0-9])\\1\\/\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "due:'00:00'/'00:00'"
+    - "due:\"23:59\"/\"23:59\""
+    - "due:'01:01'/'01:01'"
+    - "due:\"09:30\"/\"09:30\""
+    - "due:'12:00'/'12:00'"
+    - "due:\"20:45\"/\"20:45\""
+    - "due:'22:10'/'22:10'"
+    - "due:\"10:59\"/\"10:59\""
+  no_match:
+    - "due:'00:00'/'23:59'"
+    - "due:'00:00'/'00:0000:00'"
+    - "due:'?'/'?'"
+    - "due:'00:00 '/'00:00'"
+    - "due:'00:00'/' 00:00'"
+    - "due:'00:00'/'00:00/00:00'"
+    - "due:'!!!!!'/'!!!!!'"
+    - "due:'00:0'/'00:0'"
+    - "due:'00:000'/'00:000'"
+    - "due:'zz:zz'/'zz:zz'"
+    - "due:'00:00\"/'00:00'"
+    - "due:'00:00'/\"00:00\""
+    - "due:00:00/00:00"
+    - "!due:'00:00'/'00:00'"
+    - "due:'00:00'/'00:00'!"
+    - "due:'00:00'/'00:00'\n"
+    - "due:'00:00'/'00:00'\r"
+    - "due:'00:00'/'00:00'\r\n"
+    - "due:'00:00'/'00:00'\u2028"
+    - "due:'00:00'/'00:00'\u2029"
+    - " due:'00:00'/'00:00'"
+    - "due:'00:00'/'00:00' "
+    - "due:aa:aa/aa:aa"
+  pitfall: >-
+    Quote style, both closing quotes, value policy and exact value repetition must all agree.
+- id: gpt-dates-times-15
+  difficulty: hard
+  status: ok
+  description: >-
+    Code review requirement: A date token has a four-digit ASCII year, a separator chosen from slash or hyphen, month 01 through 12, the same separator, and day 01 through 31. Only ranges and format are checked, not calendar validity.
+  regex: "/^[0-9]{4}([/-])(?:0[1-9]|1[0-2])\\1(?:0[1-9]|[12][0-9]|3[01])$(?![\\s\\S])/"
+  match:
+    - "2026-01-01"
+    - "2026/12/31"
+    - "0000-02-31"
+    - "9999/11/30"
+    - "1234-09-09"
+    - "2000/10/10"
+    - "2024-02-29"
+    - "0001/03/15"
+  no_match:
+    - "2026-01/01"
+    - "2026/01-01"
+    - "2026-00-01"
+    - "2026-13-01"
+    - "2026-01-00"
+    - "2026-01-32"
+    - "202-01-01"
+    - "!2026-01-01"
+    - "2026-01-01!"
+    - "2026-01-01\n"
+    - "2026-01-01\r"
+    - "2026-01-01\r\n"
+    - "2026-01-01\u2028"
+    - "2026-01-01\u2029"
+    - " 2026-01-01"
+    - "2026-01-01 "
+  pitfall: >-
+    Separators must agree without inferring calendar facts.
+- id: gpt-dates-times-16
+  difficulty: hard
+  status: ok
+  description: >-
+    A locale-specific month label: 2 through 12 Unicode letter clusters. Each cluster is a Unicode letter followed by zero to two Unicode combining marks. One optional ASCII hyphen may join two nonempty runs of clusters, but no edge hyphen or second hyphen is allowed. Length counts letter clusters, excluding the hyphen and any fixed prefix; spaces, digits and other characters are forbidden. No normalization is performed.
+  regex: "/^(?=(?:\\p{L}\\p{M}{0,2}-?){2,12}$)(?:\\p{L}\\p{M}{0,2}){1,12}(?:-(?:\\p{L}\\p{M}{0,2}){1,12})?$(?![\\s\\S])/u"
+  match:
+    - "ab"
+    - "e\u0301x"
+    - "a\u0301\u0308b"
+    - "\u6771\u4eac-\u5927\u962a"
+    - "\u0394\u03ad\u03bb\u03c4\u03b1"
+    - "\u0645\u0631\u062d\u0628\u0627"
+    - "\u0417\u0438\u043c\u0430"
+    - "abcdefghijkl"
+    - "e\u0301-e\u0308"
+    - "A\u00e9"
+  no_match:
+    - "a"
+    - "abcdefghijklm"
+    - "ab1"
+    - "a_b"
+    - "a b"
+    - "e\u0301"
+    - "\U0001f600a"
+    - "\u0301ab"
+    - "a\u0301\u0308\u0303b"
+    - "-ab"
+    - "ab-"
+    - "a--b"
+    - "ab-cd-ef"
+    - "!ab"
+    - "ab!"
+    - "ab\n"
+    - "ab\r"
+    - "ab\r\n"
+    - "ab\u2028"
+    - "ab\u2029"
+    - " ab"
+    - "ab "
+  pitfall: >-
+    Count base-letter clusters, attach bounded marks only after a letter, and limit the optional internal separator.
+- id: gpt-dates-times-17
+  difficulty: hard
+  status: ok
+  description: >-
+    A raw timer note: the entire string has the literal opening wrapper TIME{, a lowercase ASCII routing label of 2 through 6 letters, colon, a body, colon, the exact same routing label and the literal closing wrapper }TIME. The body has 1 through 40 Unicode code points, allows any characters including line breaks and colons, and must contain the lowercase substring tick. Only the body counts toward its length limit; no other text is allowed.
+  regex: "/^TIME\\{(?<route>[a-z]{2,6}):(?=.{1,40}:\\k<route>\\}TIME$)(?=.{0,40}tick.{0,40}:\\k<route>\\}TIME$).*:\\k<route>\\}TIME$(?![\\s\\S])/su"
+  match:
+    - "TIME{aa:tick:aa}TIME"
+    - "TIME{abcdef:atick:abcdef}TIME"
+    - "TIME{tag:tickb:tag}TIME"
+    - "TIME{route:\ntick:route}TIME"
+    - "TIME{memo:tick\n:memo}TIME"
+    - "TIME{ab:\ttick:ab}TIME"
+    - "TIME{zz:\U0001f600tick:zz}TIME"
+    - "TIME{key:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxtick:key}TIME"
+    - "TIME{xy:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600tick:xy}TIME"
+    - "TIME{aa:prefix: tick: suffix:aa}TIME"
+  no_match:
+    - "TIME{aa::aa}TIME"
+    - "TIME{aa:abc:aa}TIME"
+    - "TIME{aa:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxtick:aa}TIME"
+    - "TIME{aa:tick:ab}TIME"
+    - "TIME{a:tick:a}TIME"
+    - "TIME{abcdefg:tick:abcdefg}TIME"
+    - "TIME{AA:tick:AA}TIME"
+    - "TIME{aa:TICK:aa}TIME"
+    - "TIME{aa:tick:aa"
+    - "aa:tick:aa}TIME"
+    - "TIME{aa:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600tick:aa}TIME"
+    - "TIME{tick:abc:tick}TIME"
+    - "!TIME{aa:tick:aa}TIME"
+    - "TIME{aa:tick:aa}TIME!"
+    - "TIME{aa:tick:aa}TIME\n"
+    - "TIME{aa:tick:aa}TIME\r"
+    - "TIME{aa:tick:aa}TIME\r\n"
+    - "TIME{aa:tick:aa}TIME\u2028"
+    - "TIME{aa:tick:aa}TIME\u2029"
+    - " TIME{aa:tick:aa}TIME"
+    - "TIME{aa:tick:aa}TIME "
+  pitfall: >-
+    Repeat the routing label exactly, count only body code points including line breaks, and require the marker inside that body.
+- id: gpt-dates-times-18
+  difficulty: hard
+  status: ok
+  description: >-
+    A two-line clock receipt uses LF only: time= and a 24-hour HH:MM time (hours 00 to 23, minutes 00 to 59), then copy= and that exact same time. No final LF or other characters. Both values must be enclosed in matching ASCII single or double quotes, using the same quote character on both lines. The quotes are delimiters, not part of the value; no escapes are permitted.
+  regex: "/^time=(['\\\"])((?:[01][0-9]|2[0-3]):[0-5][0-9])\\1\\ncopy=\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "time='00:00'\ncopy='00:00'"
+    - "time=\"23:59\"\ncopy=\"23:59\""
+    - "time='01:10'\ncopy='01:10'"
+    - "time=\"09:09\"\ncopy=\"09:09\""
+    - "time='12:30'\ncopy='12:30'"
+    - "time=\"20:20\"\ncopy=\"20:20\""
+    - "time='22:58'\ncopy='22:58'"
+    - "time=\"10:45\"\ncopy=\"10:45\""
+  no_match:
+    - "time='00:00'\ncopy='23:59'"
+    - "time='00:00\r'\ncopy='00:00'"
+    - "time=00:00 copy=00:00"
+    - "time=00:00\nCopy=00:00"
+    - "time='?'\ncopy='?'"
+    - "time='00:00'\ncopy='00:00 '"
+    - "time='!!!!!'\ncopy='!!!!!'"
+    - "time='00:0'\ncopy='00:0'"
+    - "time='00:000'\ncopy='00:000'"
+    - "time='zz:zz'\ncopy='zz:zz'"
+    - "time='00:00\"\ncopy='00:00'"
+    - "time='00:00'\ncopy=\"00:00\""
+    - "time=00:00\ncopy=00:00"
+    - "time='00:00'\r\ncopy='00:00'"
+    - "!time='00:00'\ncopy='00:00'"
+    - "time='00:00'\ncopy='00:00'!"
+    - "time='00:00'\ncopy='00:00'\n"
+    - "time='00:00'\ncopy='00:00'\r"
+    - "time='00:00'\ncopy='00:00'\r\n"
+    - "time='00:00'\ncopy='00:00'\u2028"
+    - "time='00:00'\ncopy='00:00'\u2029"
+    - " time='00:00'\ncopy='00:00'"
+    - "time='00:00'\ncopy='00:00' "
+    - "time=aa:aa\ncopy=aa:aa"
+  pitfall: >-
+    The exact value and quote convention must agree across LF-separated lines, in addition to the value policy.
+- id: gpt-dates-times-19
+  difficulty: hard
+  status: ok
+  description: >-
+    Acceptance criteria:
+    - A three-slot schedule consists of three different padded hours 00 through 23, separated by commas. No spaces; no hour can occur twice.
+    - Evaluate the input as supplied; do not trim or normalize it.
+  regex: "/^([01][0-9]|2[0-3]),(?!\\1,)([01][0-9]|2[0-3]),(?!\\1$)(?!\\2$)(?:[01][0-9]|2[0-3])$(?![\\s\\S])/"
+  match:
+    - "00,01,02"
+    - "23,22,21"
+    - "01,10,20"
+    - "09,00,23"
+    - "12,13,14"
+    - "20,21,22"
+    - "03,06,09"
+    - "10,11,12"
+  no_match:
+    - "00,00,01"
+    - "00,01,00"
+    - "00,01,01"
+    - "24,01,02"
+    - "01,24,02"
+    - "01,02,24"
+    - "1,02,03"
+    - "!00,01,02"
+    - "00,01,02!"
+    - "00,01,02\n"
+    - "00,01,02\r"
+    - "00,01,02\r\n"
+    - "00,01,02\u2028"
+    - "00,01,02\u2029"
+    - " 00,01,02"
+    - "00,01,02 "
+  pitfall: >-
+    All pairwise repetitions must be excluded, while each field has its own range.
+- id: gpt-dates-times-20
+  difficulty: hard
+  status: ok
+  description: >-
+    A shift span is start HH:MM, hyphen, end HH:MM in 24-hour format with padded hour 00 to 23 and minute 00 to 59. Start and end must not be identical; do not compare chronological order.
+  regex: "/^((?:[01][0-9]|2[0-3]):[0-5][0-9])-(?!\\1$)(?:[01][0-9]|2[0-3]):[0-5][0-9]$(?![\\s\\S])/"
+  match:
+    - "00:00-00:01"
+    - "23:59-00:00"
+    - "12:00-11:00"
+    - "01:30-02:30"
+    - "09:59-10:00"
+    - "20:00-19:59"
+    - "22:10-22:11"
+    - "10:45-10:44"
+  no_match:
+    - "00:00-00:00"
+    - "23:59-23:59"
+    - "24:00-00:00"
+    - "00:00-24:00"
+    - "00:60-01:00"
+    - "01:00-00:60"
+    - "1:00-02:00"
+    - "!00:00-00:01"
+    - "00:00-00:01!"
+    - "00:00-00:01\n"
+    - "00:00-00:01\r"
+    - "00:00-00:01\r\n"
+    - "00:00-00:01\u2028"
+    - "00:00-00:01\u2029"
+    - " 00:00-00:01"
+    - "00:00-00:01 "
+  pitfall: >-
+    Equality is forbidden, not overnight or reverse ordering.

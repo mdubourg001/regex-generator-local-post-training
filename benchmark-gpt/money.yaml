@@ -1,0 +1,688 @@
+# Benchmark GPT, catégorie money. Format et contrôles : scripts/benchmark.py.
+- id: gpt-money-01
+  difficulty: simple
+  status: ok
+  description: >-
+    Receipt field: uppercase USD, one space, exactly four ASCII digits, a point and exactly two literal zero digits. No other text.
+  regex: "/^USD\\ [0123456789]{4}\\.00$(?![\\s\\S])/"
+  match:
+    - "USD 0000.00"
+    - "USD 9999.00"
+    - "USD 5555.00"
+    - "USD 0909.00"
+    - "USD 9090.00"
+    - "USD 0999.00"
+    - "USD 9000.00"
+    - "USD 5000.00"
+  no_match:
+    - "USD 000.00"
+    - "USD 00000.00"
+    - "USD ?000.00"
+    - "USD  000.00"
+    - "USD 000\u00e9.00"
+    - "USD 0000\t.00"
+    - "USD?0000.00"
+    - "USD 0000?00"
+    - "!USD 0000.00"
+    - "USD 0000.00!"
+    - "USD 0000.00\n"
+    - "USD 0000.00\r"
+    - "USD 0000.00\r\n"
+    - "USD 0000.00\u2028"
+    - "USD 0000.00\u2029"
+    - " USD 0000.00"
+    - "USD 0000.00 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-money-02
+  difficulty: simple
+  status: ok
+  description: >-
+    A prepaid card price is the euro symbol immediately followed by exactly three ASCII digits. No decimals or spaces.
+  regex: "/^€[0123456789]{3}$(?![\\s\\S])/"
+  match:
+    - "\u20ac000"
+    - "\u20ac999"
+    - "\u20ac555"
+    - "\u20ac090"
+    - "\u20ac909"
+    - "\u20ac099"
+    - "\u20ac900"
+    - "\u20ac500"
+  no_match:
+    - "\u20ac00"
+    - "\u20ac0000"
+    - "\u20ac?00"
+    - "\u20ac 00"
+    - "\u20ac00\u00e9"
+    - "\u20ac000\t"
+    - "?000"
+    - "!\u20ac000"
+    - "\u20ac000!"
+    - "\u20ac000\n"
+    - "\u20ac000\r"
+    - "\u20ac000\r\n"
+    - "\u20ac000\u2028"
+    - "\u20ac000\u2029"
+    - " \u20ac000"
+    - "\u20ac000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-money-03
+  difficulty: simple
+  status: ok
+  description: >-
+    Validate a yen price label: three ASCII digits followed immediately by the literal suffix JPY, all uppercase.
+  regex: "/^[0123456789]{3}JPY$(?![\\s\\S])/"
+  match:
+    - "000JPY"
+    - "999JPY"
+    - "555JPY"
+    - "090JPY"
+    - "909JPY"
+    - "099JPY"
+    - "900JPY"
+    - "500JPY"
+  no_match:
+    - "00JPY"
+    - "0000JPY"
+    - "?00JPY"
+    - " 00JPY"
+    - "00\u00e9JPY"
+    - "000\tJPY"
+    - "000?PY"
+    - "!000JPY"
+    - "000JPY!"
+    - "000JPY\n"
+    - "000JPY\r"
+    - "000JPY\r\n"
+    - "000JPY\u2028"
+    - "000JPY\u2029"
+    - " 000JPY"
+    - "000JPY "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-money-04
+  difficulty: simple
+  status: ok
+  description: >-
+    A cash drawer token is GBP: followed by exactly five ASCII digits; leading zeros are permitted.
+  regex: "/^GBP:[0123456789]{5}$(?![\\s\\S])/"
+  match:
+    - "GBP:00000"
+    - "GBP:99999"
+    - "GBP:55555"
+    - "GBP:09090"
+    - "GBP:90909"
+    - "GBP:09999"
+    - "GBP:90000"
+    - "GBP:50000"
+  no_match:
+    - "GBP:0000"
+    - "GBP:000000"
+    - "GBP:?0000"
+    - "GBP: 0000"
+    - "GBP:0000\u00e9"
+    - "GBP:00000\t"
+    - "GBP?00000"
+    - "!GBP:00000"
+    - "GBP:00000!"
+    - "GBP:00000\n"
+    - "GBP:00000\r"
+    - "GBP:00000\r\n"
+    - "GBP:00000\u2028"
+    - "GBP:00000\u2029"
+    - " GBP:00000"
+    - "GBP:00000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-money-05
+  difficulty: simple
+  status: ok
+  description: >-
+    A Swiss subtotal uses CHF, one ASCII space, one or more ASCII digits, a point, and exactly two fractional digits. Leading zeros are permitted; signs are not.
+  regex: "/^CHF [0-9]+\\.[0-9]{2}$(?![\\s\\S])/"
+  match:
+    - "CHF 0.00"
+    - "CHF 1.05"
+    - "CHF 10.20"
+    - "CHF 999.99"
+    - "CHF 000.01"
+    - "CHF 5.50"
+    - "CHF 20.00"
+    - "CHF 12345.67"
+  no_match:
+    - "CHF1.00"
+    - "CHF 1,00"
+    - "CHF 1.0"
+    - "CHF 1.000"
+    - "CHF -1.00"
+    - "chf 1.00"
+    - "CHF a.00"
+    - "!CHF 0.00"
+    - "CHF 0.00!"
+    - "CHF 0.00\n"
+    - "CHF 0.00\r"
+    - "CHF 0.00\r\n"
+    - "CHF 0.00\u2028"
+    - "CHF 0.00\u2029"
+    - " CHF 0.00"
+    - "CHF 0.00 "
+  pitfall: >-
+    Currency spelling, spacing and decimal precision are exact.
+- id: gpt-money-06
+  difficulty: medium
+  status: ok
+  description: >-
+    Form-validation ticket: Shipping surcharge in EUR: uppercase EUR and one space, then an integer 2 through 35 inclusive, no leading zeros, signs or fractional part.
+  regex: "/^EUR\\ (?:[2-9]|[12][0-9]|3[0-5])$(?![\\s\\S])/"
+  match:
+    - "EUR 2"
+    - "EUR 3"
+    - "EUR 4"
+    - "EUR 33"
+    - "EUR 34"
+    - "EUR 35"
+    - "EUR 18"
+    - "EUR 19"
+  no_match:
+    - "EUR 1"
+    - "EUR 36"
+    - "EUR 02"
+    - "EUR +2"
+    - "EUR 2.0"
+    - "EUR  2"
+    - "EUR 350"
+    - "!EUR 2"
+    - "EUR 2!"
+    - "EUR 2\n"
+    - "EUR 2\r"
+    - "EUR 2\r\n"
+    - "EUR 2\u2028"
+    - "EUR 2\u2029"
+    - " EUR 2"
+    - "EUR 2 "
+  pitfall: >-
+    Endpoints and canonical decimal spelling must both be enforced.
+- id: gpt-money-07
+  difficulty: medium
+  status: ok
+  description: >-
+    The kiosk accepts dollar prices from $0.00 through $99.99 using shortest integer spelling and exactly two cents digits, but cents must be 00, 25, 50 or 75.
+  regex: "/^\\$(?:0|[1-9][0-9]?)\\.(?:00|25|50|75)$(?![\\s\\S])/"
+  match:
+    - "$0.00"
+    - "$0.25"
+    - "$1.50"
+    - "$9.75"
+    - "$10.00"
+    - "$50.25"
+    - "$99.50"
+    - "$99.75"
+  no_match:
+    - "$100.00"
+    - "$01.00"
+    - "$1.24"
+    - "$1.26"
+    - "$1.5"
+    - "1.00"
+    - "$-1.00"
+    - "!$0.00"
+    - "$0.00!"
+    - "$0.00\n"
+    - "$0.00\r"
+    - "$0.00\r\n"
+    - "$0.00\u2028"
+    - "$0.00\u2029"
+    - " $0.00"
+    - "$0.00 "
+  pitfall: >-
+    The cents values are discrete alternatives, not an arbitrary range.
+- id: gpt-money-08
+  difficulty: medium
+  status: ok
+  description: >-
+    French price entry: a canonical unsigned integer, comma, two ASCII cents digits, one nonbreaking space U+00A0 and euro symbol. No thousands separators or ordinary spaces.
+  regex: "/^(?:0|[1-9][0-9]*),[0-9]{2}\\u00A0€$(?![\\s\\S])/"
+  match:
+    - "0,00\u00a0\u20ac"
+    - "1,25\u00a0\u20ac"
+    - "9,99\u00a0\u20ac"
+    - "10,00\u00a0\u20ac"
+    - "123,45\u00a0\u20ac"
+    - "999,99\u00a0\u20ac"
+    - "2,05\u00a0\u20ac"
+    - "1000,01\u00a0\u20ac"
+  no_match:
+    - "1,00 \u20ac"
+    - "01,00\u00a0\u20ac"
+    - "1.00\u00a0\u20ac"
+    - "1,0\u00a0\u20ac"
+    - "1,000\u00a0\u20ac"
+    - "-1,00\u00a0\u20ac"
+    - "1,ab\u00a0\u20ac"
+    - "!0,00\u00a0\u20ac"
+    - "0,00\u00a0\u20ac!"
+    - "0,00\u00a0\u20ac\n"
+    - "0,00\u00a0\u20ac\r"
+    - "0,00\u00a0\u20ac\r\n"
+    - "0,00\u00a0\u20ac\u2028"
+    - "0,00\u00a0\u20ac\u2029"
+    - " 0,00\u00a0\u20ac"
+    - "0,00\u00a0\u20ac "
+  pitfall: >-
+    A nonbreaking space is not interchangeable with a normal space.
+- id: gpt-money-09
+  difficulty: medium
+  status: ok
+  description: >-
+    A UK expense amount is GBP followed by one space and either an amount with a positive canonical integer part and exactly two decimal places, or that same amount in parentheses for a refund. A zero integer part and leading zeros are not allowed.
+  regex: "/^GBP (?:[1-9][0-9]*\\.[0-9]{2}|\\([1-9][0-9]*\\.[0-9]{2}\\))$(?![\\s\\S])/"
+  match:
+    - "GBP 1.00"
+    - "GBP (1.00)"
+    - "GBP 99.50"
+    - "GBP (99.50)"
+    - "GBP 10.01"
+    - "GBP (10.01)"
+    - "GBP 1234.00"
+    - "GBP (1234.00)"
+  no_match:
+    - "GBP 0.00"
+    - "GBP (0.00)"
+    - "GBP -1.00"
+    - "GBP (1.00"
+    - "GBP 1.00)"
+    - "GBP 01.00"
+    - "GBP 1.ab"
+    - "GBP 1.0"
+    - "!GBP 1.00"
+    - "GBP 1.00!"
+    - "GBP 1.00\n"
+    - "GBP 1.00\r"
+    - "GBP 1.00\r\n"
+    - "GBP 1.00\u2028"
+    - "GBP 1.00\u2029"
+    - " GBP 1.00"
+    - "GBP 1.00 "
+  pitfall: >-
+    The parentheses must occur as a balanced alternative.
+- id: gpt-money-10
+  difficulty: medium
+  status: ok
+  description: >-
+    Import gate — reject any nonconforming input. A wallet load is the literal PLN followed by colon and an integer from 10 to 75 inclusive. No sign, leading zeros or spaces.
+  regex: "/^PLN:(?:[1-6][0-9]|7[0-5])$(?![\\s\\S])/"
+  match:
+    - "PLN:10"
+    - "PLN:11"
+    - "PLN:12"
+    - "PLN:73"
+    - "PLN:74"
+    - "PLN:75"
+    - "PLN:42"
+    - "PLN:43"
+  no_match:
+    - "PLN:9"
+    - "PLN:76"
+    - "PLN:010"
+    - "PLN:+10"
+    - "PLN:10.0"
+    - "PLN: 10"
+    - "PLN:750"
+    - "!PLN:10"
+    - "PLN:10!"
+    - "PLN:10\n"
+    - "PLN:10\r"
+    - "PLN:10\r\n"
+    - "PLN:10\u2028"
+    - "PLN:10\u2029"
+    - " PLN:10"
+    - "PLN:10 "
+  pitfall: >-
+    Endpoints and canonical decimal spelling must both be enforced.
+- id: gpt-money-11
+  difficulty: medium
+  status: ok
+  description: >-
+    Search filter, not whole-input validation. Find a cent amount 0 to 99, in shortest ASCII decimal spelling, immediately between the lowercase text cents= and a semicolon. This is a contains search, with unrestricted surrounding text.
+  regex: "/(?<=cents=)(?:0|[1-9][0-9]?)(?=;)/"
+  match:
+    - "cents=0;"
+    - "cents=1;"
+    - "cents=9;"
+    - "cents=10;"
+    - "before cents=25; after"
+    - "before cents=50; after"
+    - "before cents=75; after"
+    - "before cents=99; after"
+  no_match:
+    - "cents=100;"
+    - "cents=00;"
+    - "cents=01;"
+    - "cents=-1;"
+    - "cents=1.0;"
+    - "cents=x;"
+    - "CENTS=0;"
+    - "cents=0 ;"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-money-12
+  difficulty: medium
+  status: ok
+  description: >-
+    Search payment notes for the exact currency token USD or EUR, bounded by start/end or a character other than an ASCII letter. Case matters and digits count as boundaries.
+  regex: "/(?<![A-Za-z])(?:USD|EUR)(?![A-Za-z])/"
+  match:
+    - "USD"
+    - "EUR"
+    - "paid USD now"
+    - "(EUR)"
+    - "USD1"
+    - "2EUR"
+    - "USD/EUR"
+    - "\nEUR\n"
+  no_match:
+    - "usd"
+    - "eur"
+    - "USDA"
+    - "xUSD"
+    - "EURO"
+    - "aEUR"
+    - "US"
+    - "E UR"
+  pitfall: >-
+    ASCII letter boundaries differ from generic word boundaries.
+- id: gpt-money-13
+  difficulty: medium
+  status: ok
+  description: >-
+    A donation amount starts with AUD and a space, then a canonical integer from 0 through 999 followed by a point and exactly two digits. The total amount must not be zero.
+  regex: "/^AUD (?!0\\.00$)(?:0|[1-9][0-9]{0,2})\\.[0-9]{2}$(?![\\s\\S])/"
+  match:
+    - "AUD 0.01"
+    - "AUD 0.99"
+    - "AUD 1.00"
+    - "AUD 9.25"
+    - "AUD 99.99"
+    - "AUD 999.99"
+    - "AUD 100.00"
+    - "AUD 10.10"
+  no_match:
+    - "AUD 0.00"
+    - "AUD 1000.00"
+    - "AUD 01.00"
+    - "AUD 1.0"
+    - "AUD 1.000"
+    - "AUD -1.00"
+    - "AUD 1.ab"
+    - "!AUD 0.01"
+    - "AUD 0.01!"
+    - "AUD 0.01\n"
+    - "AUD 0.01\r"
+    - "AUD 0.01\r\n"
+    - "AUD 0.01\u2028"
+    - "AUD 0.01\u2029"
+    - " AUD 0.01"
+    - "AUD 0.01 "
+  pitfall: >-
+    The zero exclusion must not reject nonzero cents on a zero integer part.
+- id: gpt-money-14
+  difficulty: hard
+  status: ok
+  description: >-
+    A price confirmation is USD: followed by two identical amounts separated by slash. Each amount is an integer 1 through 99 without leading zeros, a point, and exactly two ASCII cents digits; no spaces. Each of the two values must be enclosed in matching ASCII single or double quotes; the same quote character must be used for both values. Quotes are not part of the value, and escapes are not permitted.
+  regex: "/^USD:(['\\\"])([1-9][0-9]?\\.[0-9]{2})\\1\\/\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "USD:'1.00'/'1.00'"
+    - "USD:\"9.99\"/\"9.99\""
+    - "USD:'10.25'/'10.25'"
+    - "USD:\"99.99\"/\"99.99\""
+    - "USD:'20.50'/'20.50'"
+    - "USD:\"5.75\"/\"5.75\""
+    - "USD:'40.01'/'40.01'"
+    - "USD:\"88.88\"/\"88.88\""
+  no_match:
+    - "USD:'1.00'/'9.99'"
+    - "USD:'1.00'/'1.001.00'"
+    - "USD:'?'/'?'"
+    - "USD:'1.00 '/'1.00'"
+    - "USD:'1.00'/' 1.00'"
+    - "USD:'1.00'/'1.00/1.00'"
+    - "USD:'!!!!'/'!!!!'"
+    - "USD:'1.0'/'1.0'"
+    - "USD:'1.000'/'1.000'"
+    - "USD:'z.zz'/'z.zz'"
+    - "USD:'1.00\"/'1.00'"
+    - "USD:'1.00'/\"1.00\""
+    - "USD:1.00/1.00"
+    - "!USD:'1.00'/'1.00'"
+    - "USD:'1.00'/'1.00'!"
+    - "USD:'1.00'/'1.00'\n"
+    - "USD:'1.00'/'1.00'\r"
+    - "USD:'1.00'/'1.00'\r\n"
+    - "USD:'1.00'/'1.00'\u2028"
+    - "USD:'1.00'/'1.00'\u2029"
+    - " USD:'1.00'/'1.00'"
+    - "USD:'1.00'/'1.00' "
+    - "USD:1.0/1.0"
+    - "USD:1.zz/1.zz"
+  pitfall: >-
+    Quote style, both closing quotes, value policy and exact value repetition must all agree.
+- id: gpt-money-15
+  difficulty: hard
+  status: ok
+  description: >-
+    Code review requirement: A settlement record contains EUR or USD, colon, a canonical integer amount 1 through 99, slash, the exact same currency, colon, the exact same integer amount. No spaces or decimals.
+  regex: "/^(EUR|USD):([1-9][0-9]?)\\/\\1:\\2$(?![\\s\\S])/"
+  match:
+    - "EUR:1/EUR:1"
+    - "USD:1/USD:1"
+    - "EUR:99/EUR:99"
+    - "USD:99/USD:99"
+    - "EUR:10/EUR:10"
+    - "USD:25/USD:25"
+    - "EUR:50/EUR:50"
+    - "USD:9/USD:9"
+  no_match:
+    - "EUR:1/USD:1"
+    - "EUR:1/EUR:2"
+    - "EUR:01/EUR:01"
+    - "EUR:0/EUR:0"
+    - "EUR:100/EUR:100"
+    - "eur:1/eur:1"
+    - "!EUR:1/EUR:1"
+    - "EUR:1/EUR:1!"
+    - "EUR:1/EUR:1\n"
+    - "EUR:1/EUR:1\r"
+    - "EUR:1/EUR:1\r\n"
+    - "EUR:1/EUR:1\u2028"
+    - "EUR:1/EUR:1\u2029"
+    - " EUR:1/EUR:1"
+    - "EUR:1/EUR:1 "
+  pitfall: >-
+    Currency and amount are two independent repeated fields.
+- id: gpt-money-16
+  difficulty: hard
+  status: ok
+  description: >-
+    A currency display name: 2 through 12 Unicode letter clusters. Each cluster is a Unicode letter followed by zero to two Unicode combining marks. One optional ASCII hyphen may join two nonempty runs of clusters, but no edge hyphen or second hyphen is allowed. Length counts letter clusters, excluding the hyphen and any fixed prefix; spaces, digits and other characters are forbidden. No normalization is performed.
+  regex: "/^(?=(?:\\p{L}\\p{M}{0,2}-?){2,12}$)(?:\\p{L}\\p{M}{0,2}){1,12}(?:-(?:\\p{L}\\p{M}{0,2}){1,12})?$(?![\\s\\S])/u"
+  match:
+    - "ab"
+    - "e\u0301x"
+    - "a\u0301\u0308b"
+    - "\u6771\u4eac-\u5927\u962a"
+    - "\u0394\u03ad\u03bb\u03c4\u03b1"
+    - "\u0645\u0631\u062d\u0628\u0627"
+    - "\u0417\u0438\u043c\u0430"
+    - "abcdefghijkl"
+    - "e\u0301-e\u0308"
+    - "A\u00e9"
+  no_match:
+    - "a"
+    - "abcdefghijklm"
+    - "ab1"
+    - "a_b"
+    - "a b"
+    - "e\u0301"
+    - "\U0001f600a"
+    - "\u0301ab"
+    - "a\u0301\u0308\u0303b"
+    - "-ab"
+    - "ab-"
+    - "a--b"
+    - "ab-cd-ef"
+    - "!ab"
+    - "ab!"
+    - "ab\n"
+    - "ab\r"
+    - "ab\r\n"
+    - "ab\u2028"
+    - "ab\u2029"
+    - " ab"
+    - "ab "
+  pitfall: >-
+    Count base-letter clusters, attach bounded marks only after a letter, and limit the optional internal separator.
+- id: gpt-money-17
+  difficulty: hard
+  status: ok
+  description: >-
+    A raw payment memo: the entire string has the literal opening wrapper PAY{, a lowercase ASCII routing label of 2 through 6 letters, colon, a body, colon, the exact same routing label and the literal closing wrapper }PAY. The body has 1 through 40 Unicode code points, allows any characters including line breaks and colons, and must contain the lowercase substring paid. Only the body counts toward its length limit; no other text is allowed.
+  regex: "/^PAY\\{(?<route>[a-z]{2,6}):(?=.{1,40}:\\k<route>\\}PAY$)(?=.{0,40}paid.{0,40}:\\k<route>\\}PAY$).*:\\k<route>\\}PAY$(?![\\s\\S])/su"
+  match:
+    - "PAY{aa:paid:aa}PAY"
+    - "PAY{abcdef:apaid:abcdef}PAY"
+    - "PAY{tag:paidb:tag}PAY"
+    - "PAY{route:\npaid:route}PAY"
+    - "PAY{memo:paid\n:memo}PAY"
+    - "PAY{ab:\tpaid:ab}PAY"
+    - "PAY{zz:\U0001f600paid:zz}PAY"
+    - "PAY{key:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxpaid:key}PAY"
+    - "PAY{xy:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600paid:xy}PAY"
+    - "PAY{aa:prefix: paid: suffix:aa}PAY"
+  no_match:
+    - "PAY{aa::aa}PAY"
+    - "PAY{aa:abc:aa}PAY"
+    - "PAY{aa:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxpaid:aa}PAY"
+    - "PAY{aa:paid:ab}PAY"
+    - "PAY{a:paid:a}PAY"
+    - "PAY{abcdefg:paid:abcdefg}PAY"
+    - "PAY{AA:paid:AA}PAY"
+    - "PAY{aa:PAID:aa}PAY"
+    - "PAY{aa:paid:aa"
+    - "aa:paid:aa}PAY"
+    - "PAY{aa:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600paid:aa}PAY"
+    - "PAY{paid:abc:paid}PAY"
+    - "!PAY{aa:paid:aa}PAY"
+    - "PAY{aa:paid:aa}PAY!"
+    - "PAY{aa:paid:aa}PAY\n"
+    - "PAY{aa:paid:aa}PAY\r"
+    - "PAY{aa:paid:aa}PAY\r\n"
+    - "PAY{aa:paid:aa}PAY\u2028"
+    - "PAY{aa:paid:aa}PAY\u2029"
+    - " PAY{aa:paid:aa}PAY"
+    - "PAY{aa:paid:aa}PAY "
+  pitfall: >-
+    Repeat the routing label exactly, count only body code points including line breaks, and require the marker inside that body.
+- id: gpt-money-18
+  difficulty: hard
+  status: ok
+  description: >-
+    A two-line payout confirmation uses LF only. First line is currency= followed by EUR, USD, JPY, GBP, CHF, CAD, AUD or PLN; second is confirm= followed by the exact same currency. No final newline or extra whitespace.
+  regex: "/^currency=(EUR|USD|JPY|GBP|CHF|CAD|AUD|PLN)\\nconfirm=\\1$(?![\\s\\S])/"
+  match:
+    - "currency=EUR\nconfirm=EUR"
+    - "currency=USD\nconfirm=USD"
+    - "currency=JPY\nconfirm=JPY"
+    - "currency=GBP\nconfirm=GBP"
+    - "currency=CHF\nconfirm=CHF"
+    - "currency=CAD\nconfirm=CAD"
+    - "currency=AUD\nconfirm=AUD"
+    - "currency=PLN\nconfirm=PLN"
+  no_match:
+    - "currency=EUR\nconfirm=USD"
+    - "currency=eur\nconfirm=eur"
+    - "currency=XXX\nconfirm=XXX"
+    - "currency=EUR\r\nconfirm=EUR"
+    - "currency=EUR confirm=EUR"
+    - "currency=EUR\nconfirm=EUR "
+    - "!currency=EUR\nconfirm=EUR"
+    - "currency=EUR\nconfirm=EUR!"
+    - "currency=EUR\nconfirm=EUR\n"
+    - "currency=EUR\nconfirm=EUR\r"
+    - "currency=EUR\nconfirm=EUR\r\n"
+    - "currency=EUR\nconfirm=EUR\u2028"
+    - "currency=EUR\nconfirm=EUR\u2029"
+    - " currency=EUR\nconfirm=EUR"
+  pitfall: >-
+    The currency must agree across lines.
+- id: gpt-money-19
+  difficulty: hard
+  status: ok
+  description: >-
+    Acceptance criteria:
+    - A cash batch is exactly three canonical positive amounts from 1 through 99, separated by commas. No two amounts may have identical decimal spellings. No currency symbol or spaces.
+    - Evaluate the input as supplied; do not trim or normalize it.
+  regex: "/^([1-9][0-9]?),(?!\\1,)([1-9][0-9]?),(?!\\1$)(?!\\2$)[1-9][0-9]?$(?![\\s\\S])/"
+  match:
+    - "1,2,3"
+    - "99,98,97"
+    - "1,10,99"
+    - "10,1,20"
+    - "5,50,55"
+    - "12,34,56"
+    - "90,9,19"
+    - "2,22,23"
+  no_match:
+    - "1,1,2"
+    - "1,2,1"
+    - "1,2,2"
+    - "0,1,2"
+    - "100,1,2"
+    - "01,2,3"
+    - "1, 2,3"
+    - "!1,2,3"
+    - "1,2,3!"
+    - "1,2,3\n"
+    - "1,2,3\r"
+    - "1,2,3\r\n"
+    - "1,2,3\u2028"
+    - "1,2,3\u2029"
+    - " 1,2,3"
+    - "1,2,3 "
+  pitfall: >-
+    Uniqueness requires checking all three pairings.
+- id: gpt-money-20
+  difficulty: hard
+  status: ok
+  description: >-
+    A quoted amount uses one matching pair of ASCII single or double quotes around EUR, a colon and a canonical integer 1 through 50. After the closing quote comes a space and the exact same integer, unquoted. Nothing else.
+  regex: "/^(['\\\"])EUR:([1-9]|[1-4][0-9]|50)\\1 \\2$(?![\\s\\S])/"
+  match:
+    - "'EUR:1' 1"
+    - "\"EUR:50\" 50"
+    - "'EUR:9' 9"
+    - "\"EUR:10\" 10"
+    - "'EUR:20' 20"
+    - "\"EUR:30\" 30"
+    - "'EUR:40' 40"
+    - "\"EUR:49\" 49"
+  no_match:
+    - "'EUR:1\" 1"
+    - "'EUR:1' 2"
+    - "'EUR:0' 0"
+    - "'EUR:51' 51"
+    - "'EUR:01' 01"
+    - "'EUR:1'  1"
+    - "!'EUR:1' 1"
+    - "'EUR:1' 1!"
+    - "'EUR:1' 1\n"
+    - "'EUR:1' 1\r"
+    - "'EUR:1' 1\r\n"
+    - "'EUR:1' 1\u2028"
+    - "'EUR:1' 1\u2029"
+    - " 'EUR:1' 1"
+    - "'EUR:1' 1 "
+  pitfall: >-
+    Quote identity, numeric bounds and repeated amount all interact.

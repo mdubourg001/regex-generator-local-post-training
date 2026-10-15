@@ -1,0 +1,700 @@
+# Benchmark GPT, catégorie dev-tooling. Format et contrôles : scripts/benchmark.py.
+- id: gpt-dev-tooling-01
+  difficulty: simple
+  status: ok
+  description: >-
+    A short commit display is commit: followed by exactly ten lowercase hexadecimal characters. No branch, spaces or newline.
+  regex: "/^commit:[0123456789abcdef]{10}$(?![\\s\\S])/"
+  match:
+    - "commit:0000000000"
+    - "commit:ffffffffff"
+    - "commit:8888888888"
+    - "commit:0f0f0f0f0f"
+    - "commit:f0f0f0f0f0"
+    - "commit:0fffffffff"
+    - "commit:f000000000"
+    - "commit:8000000000"
+  no_match:
+    - "commit:000000000"
+    - "commit:00000000000"
+    - "commit:?000000000"
+    - "commit: 000000000"
+    - "commit:000000000\u00e9"
+    - "commit:0000000000\t"
+    - "commit?0000000000"
+    - "commit:A000000000"
+    - "!commit:0000000000"
+    - "commit:0000000000!"
+    - "commit:0000000000\n"
+    - "commit:0000000000\r"
+    - "commit:0000000000\r\n"
+    - "commit:0000000000\u2028"
+    - "commit:0000000000\u2029"
+    - " commit:0000000000"
+    - "commit:0000000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-dev-tooling-02
+  difficulty: simple
+  status: ok
+  description: >-
+    A CI artifact label is ci- followed by exactly eight ASCII digits and .zip.
+  regex: "/^ci\\-[0123456789]{8}\\.zip$(?![\\s\\S])/"
+  match:
+    - "ci-00000000.zip"
+    - "ci-99999999.zip"
+    - "ci-55555555.zip"
+    - "ci-09090909.zip"
+    - "ci-90909090.zip"
+    - "ci-09999999.zip"
+    - "ci-90000000.zip"
+    - "ci-50000000.zip"
+  no_match:
+    - "ci-0000000.zip"
+    - "ci-000000000.zip"
+    - "ci-?0000000.zip"
+    - "ci- 0000000.zip"
+    - "ci-0000000\u00e9.zip"
+    - "ci-00000000\t.zip"
+    - "ci?00000000.zip"
+    - "ci-00000000?zip"
+    - "!ci-00000000.zip"
+    - "ci-00000000.zip!"
+    - "ci-00000000.zip\n"
+    - "ci-00000000.zip\r"
+    - "ci-00000000.zip\r\n"
+    - "ci-00000000.zip\u2028"
+    - "ci-00000000.zip\u2029"
+    - " ci-00000000.zip"
+    - "ci-00000000.zip "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-dev-tooling-03
+  difficulty: simple
+  status: ok
+  description: >-
+    A review key is PR followed by exactly six ASCII digits; leading zeros are allowed.
+  regex: "/^PR[0123456789]{6}$(?![\\s\\S])/"
+  match:
+    - "PR000000"
+    - "PR999999"
+    - "PR555555"
+    - "PR090909"
+    - "PR909090"
+    - "PR099999"
+    - "PR900000"
+    - "PR500000"
+  no_match:
+    - "PR00000"
+    - "PR0000000"
+    - "PR?00000"
+    - "PR 00000"
+    - "PR00000\u00e9"
+    - "PR000000\t"
+    - "P?000000"
+    - "!PR000000"
+    - "PR000000!"
+    - "PR000000\n"
+    - "PR000000\r"
+    - "PR000000\r\n"
+    - "PR000000\u2028"
+    - "PR000000\u2029"
+    - " PR000000"
+    - "PR000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-dev-tooling-04
+  difficulty: simple
+  status: ok
+  description: >-
+    A task runner alias is task: followed by exactly five lowercase ASCII letters, no digits or punctuation.
+  regex: "/^task:[abcdefghijklmnopqrstuvwxyz]{5}$(?![\\s\\S])/"
+  match:
+    - "task:aaaaa"
+    - "task:zzzzz"
+    - "task:nnnnn"
+    - "task:azaza"
+    - "task:zazaz"
+    - "task:azzzz"
+    - "task:zaaaa"
+    - "task:naaaa"
+  no_match:
+    - "task:aaaa"
+    - "task:aaaaaa"
+    - "task:?aaaa"
+    - "task: aaaa"
+    - "task:aaaa\u00e9"
+    - "task:aaaaa\t"
+    - "task?aaaaa"
+    - "task:Aaaaa"
+    - "!task:aaaaa"
+    - "task:aaaaa!"
+    - "task:aaaaa\n"
+    - "task:aaaaa\r"
+    - "task:aaaaa\r\n"
+    - "task:aaaaa\u2028"
+    - "task:aaaaa\u2029"
+    - " task:aaaaa"
+    - "task:aaaaa "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-dev-tooling-05
+  difficulty: simple
+  status: ok
+  description: >-
+    A registry digest display is sha256: followed by exactly 64 lowercase hexadecimal characters. Format only; do not compute the hash.
+  regex: "/^sha256:[0123456789abcdef]{64}$(?![\\s\\S])/"
+  match:
+    - "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    - "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    - "sha256:8888888888888888888888888888888888888888888888888888888888888888"
+    - "sha256:0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f"
+    - "sha256:f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0"
+    - "sha256:0fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    - "sha256:f000000000000000000000000000000000000000000000000000000000000000"
+    - "sha256:8000000000000000000000000000000000000000000000000000000000000000"
+  no_match:
+    - "sha256:000000000000000000000000000000000000000000000000000000000000000"
+    - "sha256:00000000000000000000000000000000000000000000000000000000000000000"
+    - "sha256:?000000000000000000000000000000000000000000000000000000000000000"
+    - "sha256: 000000000000000000000000000000000000000000000000000000000000000"
+    - "sha256:000000000000000000000000000000000000000000000000000000000000000\u00e9"
+    - "sha256:0000000000000000000000000000000000000000000000000000000000000000\t"
+    - "sha256?0000000000000000000000000000000000000000000000000000000000000000"
+    - "sha256:A000000000000000000000000000000000000000000000000000000000000000"
+    - "!sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    - "sha256:0000000000000000000000000000000000000000000000000000000000000000!"
+    - "sha256:0000000000000000000000000000000000000000000000000000000000000000\n"
+    - "sha256:0000000000000000000000000000000000000000000000000000000000000000\r"
+    - "sha256:0000000000000000000000000000000000000000000000000000000000000000\r\n"
+    - "sha256:0000000000000000000000000000000000000000000000000000000000000000\u2028"
+    - "sha256:0000000000000000000000000000000000000000000000000000000000000000\u2029"
+    - " sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    - "sha256:0000000000000000000000000000000000000000000000000000000000000000 "
+  pitfall: >-
+    Literal punctuation, allowed characters, and exact width all matter.
+- id: gpt-dev-tooling-06
+  difficulty: medium
+  status: ok
+  description: >-
+    Form-validation ticket: A CI worker label is worker- followed by an integer 1 through 32 in shortest decimal spelling.
+  regex: "/^worker\\-(?:[1-9]|[12][0-9]|3[0-2])$(?![\\s\\S])/"
+  match:
+    - "worker-1"
+    - "worker-2"
+    - "worker-3"
+    - "worker-30"
+    - "worker-31"
+    - "worker-32"
+    - "worker-16"
+    - "worker-17"
+  no_match:
+    - "worker-0"
+    - "worker-33"
+    - "worker-01"
+    - "worker-+1"
+    - "worker-1.0"
+    - "worker- 1"
+    - "worker-320"
+    - "!worker-1"
+    - "worker-1!"
+    - "worker-1\n"
+    - "worker-1\r"
+    - "worker-1\r\n"
+    - "worker-1\u2028"
+    - "worker-1\u2029"
+    - " worker-1"
+    - "worker-1 "
+  pitfall: >-
+    Endpoints and canonical decimal spelling must both be enforced.
+- id: gpt-dev-tooling-07
+  difficulty: medium
+  status: ok
+  description: >-
+    A release workflow branch is deploy/ followed by 3 to 8 lowercase ASCII letters, hyphen and an integer 1 through 99 without leading zeros. No other slashes or spaces.
+  regex: "/^deploy\\/[a-z]{3,8}-[1-9][0-9]?$(?![\\s\\S])/"
+  match:
+    - "deploy/abc-1"
+    - "deploy/abcdefgh-99"
+    - "deploy/staging-10"
+    - "deploy/prod-9"
+    - "deploy/test-20"
+    - "deploy/dev-30"
+    - "deploy/sample-40"
+    - "deploy/release-50"
+  no_match:
+    - "deploy/ab-1"
+    - "deploy/abcdefghi-1"
+    - "deploy/abc-0"
+    - "deploy/abc-100"
+    - "deploy/abc-01"
+    - "deploy/ABC-1"
+    - "Deploy/abc-1"
+    - "!deploy/abc-1"
+    - "deploy/abc-1!"
+    - "deploy/abc-1\n"
+    - "deploy/abc-1\r"
+    - "deploy/abc-1\r\n"
+    - "deploy/abc-1\u2028"
+    - "deploy/abc-1\u2029"
+    - " deploy/abc-1"
+    - "deploy/abc-1 "
+  pitfall: >-
+    Branch label and numeric suffix have independent bounds.
+- id: gpt-dev-tooling-08
+  difficulty: medium
+  status: ok
+  description: >-
+    A compact test result is passed= followed by integer 0 through 99, then ;failed= followed by integer 0 through 9. Shortest decimal spelling; fixed field order, no spaces.
+  regex: "/^passed=(?:0|[1-9][0-9]?);failed=[0-9]$(?![\\s\\S])/"
+  match:
+    - "passed=0;failed=0"
+    - "passed=99;failed=9"
+    - "passed=1;failed=0"
+    - "passed=10;failed=1"
+    - "passed=20;failed=2"
+    - "passed=30;failed=3"
+    - "passed=40;failed=4"
+    - "passed=50;failed=5"
+  no_match:
+    - "passed=100;failed=0"
+    - "passed=0;failed=10"
+    - "passed=00;failed=0"
+    - "passed=0;failed=00"
+    - "passed=-1;failed=0"
+    - "passed=0; failed=0"
+    - "failed=0;passed=0"
+    - "!passed=0;failed=0"
+    - "passed=0;failed=0!"
+    - "passed=0;failed=0\n"
+    - "passed=0;failed=0\r"
+    - "passed=0;failed=0\r\n"
+    - "passed=0;failed=0\u2028"
+    - "passed=0;failed=0\u2029"
+    - " passed=0;failed=0"
+    - "passed=0;failed=0 "
+  pitfall: >-
+    Do not treat the two counters as having the same range.
+- id: gpt-dev-tooling-09
+  difficulty: medium
+  status: ok
+  description: >-
+    A tooling label is @scope/ followed by a lowercase ASCII package name 3 to 12 letters, optionally hyphen and lowercase dev or cli. No other punctuation or uppercase.
+  regex: "/^@scope\\/[a-z]{3,12}(?:-(?:dev|cli))?$(?![\\s\\S])/"
+  match:
+    - "@scope/abc"
+    - "@scope/abcdefghijkl"
+    - "@scope/abc-dev"
+    - "@scope/abc-cli"
+    - "@scope/tool"
+    - "@scope/tool-dev"
+    - "@scope/package-cli"
+    - "@scope/build"
+  no_match:
+    - "@scope/ab"
+    - "@scope/abcdefghijklm"
+    - "@scope/ABC"
+    - "@scope/abc-test"
+    - "@scope/abc-DEV"
+    - "scope/abc"
+    - "@Scope/abc"
+    - "!@scope/abc"
+    - "@scope/abc!"
+    - "@scope/abc\n"
+    - "@scope/abc\r"
+    - "@scope/abc\r\n"
+    - "@scope/abc\u2028"
+    - "@scope/abc\u2029"
+    - " @scope/abc"
+    - "@scope/abc "
+  pitfall: >-
+    Only the enumerated suffixes are optional.
+- id: gpt-dev-tooling-10
+  difficulty: medium
+  status: ok
+  description: >-
+    Import gate — reject any nonconforming input. A migration filename is a four-digit ASCII sequence not all zeros, underscore, 3 to 12 lowercase ASCII letters, and .sql. Leading zeros otherwise allowed.
+  regex: "/^(?!0000_)[0-9]{4}_[a-z]{3,12}\\.sql$(?![\\s\\S])/"
+  match:
+    - "0001_abc.sql"
+    - "9999_abcdefghijkl.sql"
+    - "0010_users.sql"
+    - "0100_table.sql"
+    - "1000_schema.sql"
+    - "1234_index.sql"
+    - "4321_create.sql"
+    - "0009_data.sql"
+  no_match:
+    - "0000_abc.sql"
+    - "001_abc.sql"
+    - "00001_abc.sql"
+    - "0001_ab.sql"
+    - "0001_abcdefghijklm.sql"
+    - "0001_ABC.sql"
+    - "0001_abcXsql"
+    - "!0001_abc.sql"
+    - "0001_abc.sql!"
+    - "0001_abc.sql\n"
+    - "0001_abc.sql\r"
+    - "0001_abc.sql\r\n"
+    - "0001_abc.sql\u2028"
+    - "0001_abc.sql\u2029"
+    - " 0001_abc.sql"
+    - "0001_abc.sql "
+  pitfall: >-
+    Sequence zero exclusion is separate from width and name rules.
+- id: gpt-dev-tooling-11
+  difficulty: medium
+  status: ok
+  description: >-
+    Search filter, not whole-input validation. Search terminal text for a build number 1 through 64 in shortest ASCII decimal spelling immediately after build= and before semicolon. Surrounding output is unrestricted.
+  regex: "/(?<=build=)(?:[1-9]|[1-5][0-9]|6[0-4])(?=;)/"
+  match:
+    - "build=1;"
+    - "build=2;"
+    - "build=9;"
+    - "build=10;"
+    - "before build=20; after"
+    - "before build=50; after"
+    - "before build=63; after"
+    - "before build=64; after"
+  no_match:
+    - "build=0;"
+    - "build=65;"
+    - "build=01;"
+    - "build=+1;"
+    - "build=a;"
+    - "build=1.0;"
+    - "BUILD=1;"
+    - "build=1 ;"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-dev-tooling-12
+  difficulty: medium
+  status: ok
+  description: >-
+    Find an eight-character lowercase hexadecimal commit immediately between lowercase commit[ and ]. This is a contains search.
+  regex: "/(?<=commit\\[)[0-9a-f]{8}(?=\\])/"
+  match:
+    - "commit[00000000]"
+    - "commit[ffffffff]"
+    - "commit[abcdef12]"
+    - "commit[12345678]"
+    - "before commit[deadbeef] after"
+    - "before commit[a0000001] after"
+    - "before commit[01234567] after"
+    - "before commit[99aabbcc] after"
+  no_match:
+    - "commit[0000000]"
+    - "commit[000000000]"
+    - "commit[ABCDEF12]"
+    - "commit[abcdefg1]"
+    - "commit[a000000!]"
+    - "commit[\u00e90000000]"
+    - "COMMIT[00000000]"
+    - "commit[00000000 ]"
+  pitfall: >-
+    Search anywhere, but require the exact local context and the entire bounded token.
+- id: gpt-dev-tooling-13
+  difficulty: medium
+  status: ok
+  description: >-
+    A container reference is registry.test/ followed by a lowercase ASCII repository 3 to 8 letters, colon and a canonical tag integer 1 through 24. No scheme, digest, path nesting or spaces.
+  regex: "/^registry\\.test\\/[a-z]{3,8}:(?:[1-9]|1[0-9]|2[0-4])$(?![\\s\\S])/"
+  match:
+    - "registry.test/abc:1"
+    - "registry.test/abcdefgh:24"
+    - "registry.test/app:9"
+    - "registry.test/service:10"
+    - "registry.test/worker:20"
+    - "registry.test/build:23"
+    - "registry.test/proxy:2"
+    - "registry.test/tool:12"
+  no_match:
+    - "registryXtest/abc:1"
+    - "registry.test/ab:1"
+    - "registry.test/abcdefghi:1"
+    - "registry.test/abc:0"
+    - "registry.test/abc:25"
+    - "registry.test/abc:01"
+    - "registry.test/ABC:1"
+    - "!registry.test/abc:1"
+    - "registry.test/abc:1!"
+    - "registry.test/abc:1\n"
+    - "registry.test/abc:1\r"
+    - "registry.test/abc:1\r\n"
+    - "registry.test/abc:1\u2028"
+    - "registry.test/abc:1\u2029"
+    - " registry.test/abc:1"
+    - "registry.test/abc:1 "
+  pitfall: >-
+    Exact registry and narrow tag bounds replace generic image-reference conventions.
+- id: gpt-dev-tooling-14
+  difficulty: hard
+  status: ok
+  description: >-
+    A CI digest confirmation is verify: followed by two identical eight-character lowercase hexadecimal digests separated by slash. Format only, no hashing or spaces. Each of the two values must be enclosed in matching ASCII single or double quotes; the same quote character must be used for both values. Quotes are not part of the value, and escapes are not permitted.
+  regex: "/^verify:(['\\\"])([0-9a-f]{8})\\1\\/\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "verify:'00000000'/'00000000'"
+    - "verify:\"ffffffff\"/\"ffffffff\""
+    - "verify:'abcdef12'/'abcdef12'"
+    - "verify:\"12345678\"/\"12345678\""
+    - "verify:'deadbeef'/'deadbeef'"
+    - "verify:\"a0000001\"/\"a0000001\""
+    - "verify:'01234567'/'01234567'"
+    - "verify:\"99aabbcc\"/\"99aabbcc\""
+  no_match:
+    - "verify:'00000000'/'ffffffff'"
+    - "verify:'00000000'/'0000000000000000'"
+    - "verify:'?'/'?'"
+    - "verify:'00000000 '/'00000000'"
+    - "verify:'00000000'/' 00000000'"
+    - "verify:'00000000'/'00000000/00000000'"
+    - "verify:'!!!!!!!!'/'!!!!!!!!'"
+    - "verify:'0000000'/'0000000'"
+    - "verify:'000000000'/'000000000'"
+    - "verify:'zzzzzzzz'/'zzzzzzzz'"
+    - "verify:'00000000\"/'00000000'"
+    - "verify:'00000000'/\"00000000\""
+    - "verify:00000000/00000000"
+    - "!verify:'00000000'/'00000000'"
+    - "verify:'00000000'/'00000000'!"
+    - "verify:'00000000'/'00000000'\n"
+    - "verify:'00000000'/'00000000'\r"
+    - "verify:'00000000'/'00000000'\r\n"
+    - "verify:'00000000'/'00000000'\u2028"
+    - "verify:'00000000'/'00000000'\u2029"
+    - " verify:'00000000'/'00000000'"
+    - "verify:'00000000'/'00000000' "
+  pitfall: >-
+    Quote style, both closing quotes, value policy and exact value repetition must all agree.
+- id: gpt-dev-tooling-15
+  difficulty: hard
+  status: ok
+  description: >-
+    Code review requirement: A cherry-pick record is pick followed by one space, six lowercase hexadecimal characters, then literal ' -> ' and the exact same six characters. The hash cannot be all zeros.
+  regex: "/^pick (?!000000 )([0-9a-f]{6}) -> \\1$(?![\\s\\S])/"
+  match:
+    - "pick 000001 -> 000001"
+    - "pick ffffff -> ffffff"
+    - "pick abcdef -> abcdef"
+    - "pick 123456 -> 123456"
+    - "pick deadbe -> deadbe"
+    - "pick aa1122 -> aa1122"
+    - "pick 012345 -> 012345"
+    - "pick fedcba -> fedcba"
+  no_match:
+    - "pick 000000 -> 000000"
+    - "pick abcdef -> abcdee"
+    - "pick ABCDEF -> ABCDEF"
+    - "pick abcde -> abcde"
+    - "pick abcdefg -> abcdefg"
+    - "pick abcdef-> abcdef"
+    - "pick abcdef ->  abcdef"
+    - "!pick 000001 -> 000001"
+    - "pick 000001 -> 000001!"
+    - "pick 000001 -> 000001\n"
+    - "pick 000001 -> 000001\r"
+    - "pick 000001 -> 000001\r\n"
+    - "pick 000001 -> 000001\u2028"
+    - "pick 000001 -> 000001\u2029"
+    - " pick 000001 -> 000001"
+    - "pick 000001 -> 000001 "
+  pitfall: >-
+    Zero exclusion, exact spacing and hash reuse all apply.
+- id: gpt-dev-tooling-16
+  difficulty: hard
+  status: ok
+  description: >-
+    A localized pipeline label: the literal prefix job: followed by 2 through 12 Unicode letter clusters. Each cluster is a Unicode letter followed by zero to two Unicode combining marks. One optional ASCII hyphen may join two nonempty runs of clusters, but no edge hyphen or second hyphen is allowed. Length counts letter clusters, excluding the hyphen and any fixed prefix; spaces, digits and other characters are forbidden. No normalization is performed.
+  regex: "/^job:(?=(?:\\p{L}\\p{M}{0,2}-?){2,12}$)(?:\\p{L}\\p{M}{0,2}){1,12}(?:-(?:\\p{L}\\p{M}{0,2}){1,12})?$(?![\\s\\S])/u"
+  match:
+    - "job:ab"
+    - "job:e\u0301x"
+    - "job:a\u0301\u0308b"
+    - "job:\u6771\u4eac-\u5927\u962a"
+    - "job:\u0394\u03ad\u03bb\u03c4\u03b1"
+    - "job:\u0645\u0631\u062d\u0628\u0627"
+    - "job:\u0417\u0438\u043c\u0430"
+    - "job:abcdefghijkl"
+    - "job:e\u0301-e\u0308"
+    - "job:A\u00e9"
+  no_match:
+    - "job:a"
+    - "job:abcdefghijklm"
+    - "job:ab1"
+    - "job:a_b"
+    - "job:a b"
+    - "job:e\u0301"
+    - "job:\U0001f600a"
+    - "job:\u0301ab"
+    - "job:a\u0301\u0308\u0303b"
+    - "job:-ab"
+    - "job:ab-"
+    - "job:a--b"
+    - "job:ab-cd-ef"
+    - "!job:ab"
+    - "job:ab!"
+    - "job:ab\n"
+    - "job:ab\r"
+    - "job:ab\r\n"
+    - "job:ab\u2028"
+    - "job:ab\u2029"
+    - " job:ab"
+    - "job:ab "
+  pitfall: >-
+    Count base-letter clusters, attach bounded marks only after a letter, and limit the optional internal separator.
+- id: gpt-dev-tooling-17
+  difficulty: hard
+  status: ok
+  description: >-
+    A CI output capsule: the entire string has the literal opening wrapper CI{, a lowercase ASCII routing label of 2 through 6 letters, colon, a body, colon, the exact same routing label and the literal closing wrapper }CI. The body has 1 through 40 Unicode code points, allows any characters including line breaks and colons, and must contain the lowercase substring passed. Only the body counts toward its length limit; no other text is allowed.
+  regex: "/^CI\\{(?<route>[a-z]{2,6}):(?=.{1,40}:\\k<route>\\}CI$)(?=.{0,40}passed.{0,40}:\\k<route>\\}CI$).*:\\k<route>\\}CI$(?![\\s\\S])/su"
+  match:
+    - "CI{aa:passed:aa}CI"
+    - "CI{abcdef:apassed:abcdef}CI"
+    - "CI{tag:passedb:tag}CI"
+    - "CI{route:\npassed:route}CI"
+    - "CI{memo:passed\n:memo}CI"
+    - "CI{ab:\tpassed:ab}CI"
+    - "CI{zz:\U0001f600passed:zz}CI"
+    - "CI{key:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxpassed:key}CI"
+    - "CI{xy:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600passed:xy}CI"
+    - "CI{aa:prefix: passed: suffix:aa}CI"
+  no_match:
+    - "CI{aa::aa}CI"
+    - "CI{aa:abc:aa}CI"
+    - "CI{aa:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxpassed:aa}CI"
+    - "CI{aa:passed:ab}CI"
+    - "CI{a:passed:a}CI"
+    - "CI{abcdefg:passed:abcdefg}CI"
+    - "CI{AA:passed:AA}CI"
+    - "CI{aa:PASSED:aa}CI"
+    - "CI{aa:passed:aa"
+    - "aa:passed:aa}CI"
+    - "CI{aa:\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600\U0001f600passed:aa}CI"
+    - "CI{passed:abc:passed}CI"
+    - "!CI{aa:passed:aa}CI"
+    - "CI{aa:passed:aa}CI!"
+    - "CI{aa:passed:aa}CI\n"
+    - "CI{aa:passed:aa}CI\r"
+    - "CI{aa:passed:aa}CI\r\n"
+    - "CI{aa:passed:aa}CI\u2028"
+    - "CI{aa:passed:aa}CI\u2029"
+    - " CI{aa:passed:aa}CI"
+    - "CI{aa:passed:aa}CI "
+  pitfall: >-
+    Repeat the routing label exactly, count only body code points including line breaks, and require the marker inside that body.
+- id: gpt-dev-tooling-18
+  difficulty: hard
+  status: ok
+  description: >-
+    An LF-only CI receipt is branch= followed by 3 to 8 lowercase ASCII letters, then copy= and the same branch on line two. No final LF, additional punctuation or spaces. Both values must be enclosed in matching ASCII single or double quotes, using the same quote character on both lines. The quotes are delimiters, not part of the value; no escapes are permitted.
+  regex: "/^branch=(['\\\"])([a-z]{3,8})\\1\\ncopy=\\1\\2\\1$(?![\\s\\S])/"
+  match:
+    - "branch='abc'\ncopy='abc'"
+    - "branch=\"xyz\"\ncopy=\"xyz\""
+    - "branch='abcdefgh'\ncopy='abcdefgh'"
+    - "branch=\"staging\"\ncopy=\"staging\""
+    - "branch='prod'\ncopy='prod'"
+    - "branch=\"dev\"\ncopy=\"dev\""
+    - "branch='release'\ncopy='release'"
+    - "branch=\"sample\"\ncopy=\"sample\""
+  no_match:
+    - "branch='abc'\ncopy='xyz'"
+    - "branch='abc\r'\ncopy='abc'"
+    - "branch=abc copy=abc"
+    - "branch=abc\nCopy=abc"
+    - "branch='?'\ncopy='?'"
+    - "branch='abc'\ncopy='abc '"
+    - "branch='!!!'\ncopy='!!!'"
+    - "branch='ab'\ncopy='ab'"
+    - "branch='abc0'\ncopy='abc0'"
+    - "branch='000'\ncopy='000'"
+    - "branch='abc\"\ncopy='abc'"
+    - "branch='abc'\ncopy=\"abc\""
+    - "branch=abc\ncopy=abc"
+    - "branch='abc'\r\ncopy='abc'"
+    - "!branch='abc'\ncopy='abc'"
+    - "branch='abc'\ncopy='abc'!"
+    - "branch='abc'\ncopy='abc'\n"
+    - "branch='abc'\ncopy='abc'\r"
+    - "branch='abc'\ncopy='abc'\r\n"
+    - "branch='abc'\ncopy='abc'\u2028"
+    - "branch='abc'\ncopy='abc'\u2029"
+    - " branch='abc'\ncopy='abc'"
+    - "branch='abc'\ncopy='abc' "
+  pitfall: >-
+    The exact value and quote convention must agree across LF-separated lines, in addition to the value policy.
+- id: gpt-dev-tooling-19
+  difficulty: hard
+  status: ok
+  description: >-
+    Acceptance criteria:
+    - A commit subject is fix or feat, an opening parenthesis, a lowercase ASCII scope 3 to 8 letters, then ): followed by one space, then the exact same scope and one space plus done. The scope cannot be tmp or skip. No additional content.
+    - Evaluate the input as supplied; do not trim or normalize it.
+  regex: "/^(?:fix|feat)\\((?!tmp\\)|skip\\))([a-z]{3,8})\\): \\1 done$(?![\\s\\S])/"
+  match:
+    - "fix(api): api done"
+    - "feat(core): core done"
+    - "fix(abcdefgh): abcdefgh done"
+    - "feat(tmpx): tmpx done"
+    - "fix(skips): skips done"
+    - "feat(router): router done"
+    - "fix(parser): parser done"
+    - "feat(sample): sample done"
+  no_match:
+    - "fix(tmp): tmp done"
+    - "feat(skip): skip done"
+    - "fix(api): core done"
+    - "chore(api): api done"
+    - "fix(ab): ab done"
+    - "fix(abcdefghi): abcdefghi done"
+    - "fix(API): API done"
+    - "fix(api):api done"
+    - "!fix(api): api done"
+    - "fix(api): api done!"
+    - "fix(api): api done\n"
+    - "fix(api): api done\r"
+    - "fix(api): api done\r\n"
+    - "fix(api): api done\u2028"
+    - "fix(api): api done\u2029"
+    - " fix(api): api done"
+    - "fix(api): api done "
+  pitfall: >-
+    Scope reuse and exact reserved names are distinct from subject type.
+- id: gpt-dev-tooling-20
+  difficulty: hard
+  status: ok
+  description: >-
+    A workflow dependency is job: followed by a lowercase ASCII name 3 to 8 letters, then > and a different name with the same rules, then > and the exact first name again. No whitespace; neither name may be skip.
+  regex: "/^job:(?!skip>)([a-z]{3,8})>(?!\\1>|skip>)[a-z]{3,8}>\\1$(?![\\s\\S])/"
+  match:
+    - "job:abc>xyz>abc"
+    - "job:build>test>build"
+    - "job:abcdefgh>deploy>abcdefgh"
+    - "job:skips>check>skips"
+    - "job:foo>bar>foo"
+    - "job:lint>types>lint"
+    - "job:pack>publish>pack"
+    - "job:left>right>left"
+  no_match:
+    - "job:abc>abc>abc"
+    - "job:abc>xyz>xyz"
+    - "job:skip>abc>skip"
+    - "job:abc>skip>abc"
+    - "job:ab>xyz>ab"
+    - "job:abc>abcdefghi>abc"
+    - "job:ABC>xyz>ABC"
+    - "!job:abc>xyz>abc"
+    - "job:abc>xyz>abc!"
+    - "job:abc>xyz>abc\n"
+    - "job:abc>xyz>abc\r"
+    - "job:abc>xyz>abc\r\n"
+    - "job:abc>xyz>abc\u2028"
+    - "job:abc>xyz>abc\u2029"
+    - " job:abc>xyz>abc"
+    - "job:abc>xyz>abc "
+  pitfall: >-
+    The cycle has equal endpoints but a distinct, nonreserved middle node.
