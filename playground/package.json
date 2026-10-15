@@ -1,6 +1,7 @@
 {
   "name": "regex-playground",
   "private": true,
+  "packageManager": "pnpm@12.9.1",
   "type": "module",
   "scripts": {
     "dev": "vite",

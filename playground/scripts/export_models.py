@@ -33,6 +33,36 @@ OUT = Path(__file__).resolve().parents[1] / "public" / "models"
 CHUNK_BYTES = 1_800_000_000
 BASES = {"sft-0.6b": "Qwen/Qwen3-0.6B", "sft-0.6b-plus": "Qwen/Qwen3-0.6B", "sft-1.7b": "Qwen/Qwen3-1.7B"}
 
+# Provenance des données, reprise dans la carte du modèle (README.md du repo Hugging Face).
+DATA = {
+    "sft-0.6b": "~8,300 synthetic examples written by DeepSeek V4.1 Flash",
+    "sft-0.6b-plus": "~8,300 synthetic examples written by DeepSeek V4.1 Flash, plus ~450 written by Claude "
+    "on the weakest categories",
+    "sft-1.7b": "~8,300 synthetic examples written by DeepSeek V4.1 Flash",
+}
+
+CARD = """---
+base_model: {base}
+license: apache-2.0
+library_name: transformers.js
+pipeline_tag: text-generation
+tags: [onnx, regex, javascript]
+---
+
+# {name}: natural language → JavaScript regex
+
+[{base}](https://huggingface.co/{base}) fine-tuned with LoRA (SFT) to answer a description in English with a
+single JavaScript regex literal (ECMAScript 2018), such as `/^\\d{{5}}$/`. ONNX export in fp16 for
+[Transformers.js](https://huggingface.co/docs/transformers.js/index) on WebGPU.
+
+- **Data**: {data}. Every example is kept only if its regex passes test strings written in a separate call,
+  without seeing the regex, and if trivial or mutated regexes fail at least one of them.
+- **Prompt**: the system prompt and user format of the training (see `src/prompt.ts` in the playground), Qwen3 chat
+  template with thinking disabled, greedy decoding.
+- **Limits**: good on simple requests, weak on intermediate ones, and nearly always wrong on hard ones (lookarounds,
+  backreferences, numeric ranges). Mistakes are often almost-right regexes: always test the result.
+"""
+
 
 def tensor_bytes(tensor: onnx.TensorProto, src_dir: Path) -> bytes:
     if tensor.data_location != onnx.TensorProto.EXTERNAL:
@@ -88,6 +118,7 @@ def export(name: str) -> None:
     base = Path(snapshot_download(BASES[name], allow_patterns=["tokenizer.json", "tokenizer_config.json"]))
     for f in ("tokenizer.json", "tokenizer_config.json"):
         shutil.copyfile(base / f, dst / f)
+    (dst / "README.md").write_text(CARD.format(name=name, base=BASES[name], data=DATA[name]))
     print(f"{name} → {dst} ({chunks} bloc(s))")
 
 

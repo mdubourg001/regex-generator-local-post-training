@@ -2,3 +2,4 @@ node_modules/
 dist/
 # Poids ONNX générés par scripts/export_models.py (plusieurs Go)
 public/models/
+.env.local

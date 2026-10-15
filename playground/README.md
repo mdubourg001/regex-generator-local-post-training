@@ -34,7 +34,13 @@ et 13 pour le SFT enrichi ; les écarts viennent de l'arrondi fp16 / bf16.
 
 ```sh
 pnpm install
-pnpm dev
+pnpm dev       # http://localhost:5299
+```
+
+Build de production en local (même build que Netlify, modèle chargé depuis le Hub) :
+
+```sh
+VITE_HUB_SFT_0_6B_PLUS=maximedubourg/regex-sft-qwen3-0.6b-onnx@<sha> pnpm build && pnpm preview   # http://localhost:5298
 ```
 
 ## Fonctionnement
@@ -49,3 +55,28 @@ pnpm dev
   est supprimé. Rechargement du 0.6B : ~26 s sans cache, ~2,7 s avec (dont ~2 s d'initialisation WebGPU).
 - `src/TestArea.tsx` : chaque ligne est testée avec `RegExp.prototype.test` (✓ / ✗), et les correspondances sont
   surlignées avec une copie de la regex en flag `g`.
+
+## Déployer (Hugging Face + Netlify)
+
+Le build public ne contient pas les poids (`public/` n'est pas copié dans `dist/`, ~26 Mo au total) : le navigateur
+les télécharge depuis un repo **public** du Hub, à une révision figée.
+
+1. Publier l'export (le dossier contient déjà la carte du modèle, `README.md`) :
+
+   ```sh
+   hf auth login                                     # token avec droit d'écriture
+   hf repo create <owner>/regex-sft-qwen3-0.6b-onnx  # public : le navigateur n'envoie pas de token
+   hf upload <owner>/regex-sft-qwen3-0.6b-onnx public/models/sft-0.6b-plus .
+   ```
+
+2. Récupérer le SHA du commit (page « Files and versions » du repo) et définir
+   `VITE_HUB_SFT_0_6B_PLUS=<owner>/regex-sft-qwen3-0.6b-onnx@<sha>` : dans `.env.local` pour tester en dev, et dans
+   l'interface Netlify (ou `netlify.toml`) pour le build. Sans aucune variable `VITE_HUB_*`, le build échoue.
+3. Netlify lit `netlify.toml` à la racine du dépôt (base `playground`, `pnpm build`, Node 22).
+
+Figer la révision rend le build reproductible et sert de clé au cache navigateur : un nouvel upload ne change rien au
+site tant que le SHA n'est pas mis à jour. En dev, une variable `VITE_HUB_*` fait charger ce modèle depuis le Hub au
+lieu de `public/models/`.
+
+Avant de publier le SFT enrichi : ~450 de ses exemples ont été écrits par Claude, dont les conditions d'utilisation
+encadrent l'entraînement de modèles sur ses sorties. À vérifier, sinon publier `sft-0.6b` (données DeepSeek seules).

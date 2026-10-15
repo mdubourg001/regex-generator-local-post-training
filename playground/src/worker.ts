@@ -15,14 +15,16 @@ import ortMjs from "../node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.
 import ortWasm from "../node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.wasm?url";
 import { buildPrompt, type Request } from "./prompt";
 
-// Modèles servis par Vite depuis public/models/ (générés par scripts/export_models.py), jamais depuis le Hub.
-env.allowLocalModels = true;
-env.allowRemoteModels = false;
+// Deux sources (voir ModelSource) : public/models/ servi par Vite en dev, ou un repo du Hub Hugging Face.
 env.localModelPath = "/models/";
 env.useBrowserCache = true;
 env.backends.onnx.wasm!.wasmPaths = { mjs: ortMjs, wasm: ortWasm };
 
-export type ToWorker = { type: "load"; model: string } | ({ type: "generate"; id: number } & Request);
+/** `local` : public/models/<id>/ (scripts/export_models.py). `hub` : repo public, à une révision figée. */
+export type ModelSource = { kind: "local" } | { kind: "hub"; repo: string; revision: string };
+export type ToWorker =
+  | { type: "load"; model: string; source: ModelSource }
+  | ({ type: "generate"; id: number } & Request);
 export type FromWorker =
   | { type: "progress"; loaded: number; total: number }
   | { type: "ready"; model: string }
@@ -38,10 +40,10 @@ let pending: (ToWorker & { type: "generate" }) | null = null;
 let running = false;
 let generation: Promise<unknown> = Promise.resolve();
 
-/** Un cache (Cache API) par modèle et par export : les poids d'un export précédent sont supprimés. */
-async function useCacheFor(name: string, exportId: string) {
+/** Un cache (Cache API) par modèle et par version : les poids d'une version précédente sont supprimés. */
+async function useCacheFor(name: string, version: string) {
   const prefix = `regex-playground/${name}/`;
-  env.cacheKey = prefix + exportId;
+  env.cacheKey = prefix + version;
   try {
     for (const key of await caches.keys()) if (key.startsWith(prefix) && key !== env.cacheKey) await caches.delete(key);
   } catch {
@@ -49,7 +51,27 @@ async function useCacheFor(name: string, exportId: string) {
   }
 }
 
-async function load(name: string) {
+/** Prépare env pour la source, et retourne l'identifiant et la révision à passer à from_pretrained. */
+async function resolve(name: string, source: ModelSource): Promise<{ path: string; revision?: string }> {
+  if (source.kind === "hub") {
+    // Pas de repli local : en dev, Vite répondrait index.html pour /models/<owner>/<repo>/…
+    env.allowLocalModels = false;
+    env.allowRemoteModels = true;
+    await useCacheFor(name, source.revision);
+    return { path: source.repo, revision: source.revision };
+  }
+  env.allowLocalModels = true;
+  env.allowRemoteModels = false;
+  // Fichier absent : Vite répond index.html (repli SPA) au lieu d'un 404, d'où un test sur le type de contenu.
+  const config = await fetch(`${env.localModelPath}${name}/config.json`, { cache: "no-store" });
+  if (!config.headers.get("content-type")?.includes("json")) {
+    throw new Error(`${name} is not exported: run \`uv run scripts/export_models.py ${name}\``);
+  }
+  await useCacheFor(name, (await config.json()).playground_export_id ?? "unversioned");
+  return { path: name };
+}
+
+async function load(name: string, source: ModelSource) {
   stopping.interrupt();
   await generation.catch(() => {});
   await current?.model.dispose();
@@ -57,15 +79,10 @@ async function load(name: string) {
   const progress_callback = (info: { status: string; loaded?: number; total?: number }) => {
     if (info.status === "progress_total") post({ type: "progress", loaded: info.loaded!, total: info.total! });
   };
-  // Fichier absent : Vite répond index.html (repli SPA) au lieu d'un 404, d'où un test sur le type de contenu.
-  const config = await fetch(`${env.localModelPath}${name}/config.json`, { cache: "no-store" });
-  if (!config.headers.get("content-type")?.includes("json")) {
-    throw new Error(`${name} is not exported: run \`uv run scripts/export_models.py ${name}\``);
-  }
-  await useCacheFor(name, (await config.json()).playground_export_id ?? "unversioned");
+  const { path, revision } = await resolve(name, source);
   const [tokenizer, model] = await Promise.all([
-    AutoTokenizer.from_pretrained(name),
-    AutoModelForCausalLM.from_pretrained(name, { device: "webgpu", dtype: "fp16", progress_callback }),
+    AutoTokenizer.from_pretrained(path, { revision }),
+    AutoModelForCausalLM.from_pretrained(path, { revision, device: "webgpu", dtype: "fp16", progress_callback }),
   ]);
   current = { name, tokenizer, model };
   post({ type: "ready", model: name });
@@ -109,7 +126,7 @@ self.onmessage = (event: MessageEvent<ToWorker>) => {
   const message = event.data;
   const fail = (error: unknown) => post({ type: "error", message: error instanceof Error ? error.message : String(error) });
   if (message.type === "load") {
-    loading = loading.then(() => load(message.model)).catch(fail);
+    loading = loading.then(() => load(message.model, message.source)).catch(fail);
   } else {
     pending = message;
     stopping.interrupt();

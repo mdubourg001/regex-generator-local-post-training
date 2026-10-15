@@ -2,13 +2,30 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { parseAnswer, type Request } from "./prompt";
 import { HowItWorks } from "./HowItWorks";
 import { TestArea } from "./TestArea";
-import type { FromWorker, ToWorker } from "./worker";
+import type { FromWorker, ModelSource, ToWorker } from "./worker";
 
-const MODELS = [
+/** `owner/repo@revision` (variable VITE_HUB_*, voir .env.example) → source Hub ; absente → public/models/ en local. */
+function source(hub: string | undefined): ModelSource {
+  if (!hub) return { kind: "local" };
+  const [repo, revision] = hub.split("@");
+  if (!repo || !revision) throw new Error(`Expected owner/repo@revision, got "${hub}"`);
+  return { kind: "hub", repo, revision };
+}
+
+const ALL_MODELS = [
   // Meilleur 0.6B au benchmark indépendant (GPT) : SFT sur données enrichies, étape 9 ter.
-  { id: "sft-0.6b-plus", label: "SFT Qwen3-0.6B", size: "1.6 GB" },
-  // { id: "sft-1.7b", label: "SFT Qwen3-1.7B", size: "4.7 GB" },
+  {
+    id: "sft-0.6b-plus",
+    label: "SFT Qwen3-0.6B",
+    size: "1.6 GB",
+    source: source(import.meta.env.VITE_HUB_SFT_0_6B_PLUS),
+  },
+  // { id: "sft-1.7b", label: "SFT Qwen3-1.7B", size: "4.7 GB", source: source(import.meta.env.VITE_HUB_SFT_1_7B) },
 ];
+// En production, public/models/ n'est pas publié : seuls les modèles hébergés sur le Hub sont proposés.
+const MODELS = import.meta.env.PROD
+  ? ALL_MODELS.filter((m) => m.source.kind === "hub")
+  : ALL_MODELS;
 
 const ua = navigator.userAgent;
 const isFirefox = /firefox|fxios/i.test(ua);
@@ -69,7 +86,8 @@ export default function App() {
     setOutput("");
     setGeneratedKey(null);
     setStatus({ kind: "loading", loaded: 0, total: 0 });
-    worker.current?.postMessage({ type: "load", model } satisfies ToWorker);
+    const { source } = MODELS.find((m) => m.id === model)!;
+    worker.current?.postMessage({ type: "load", model, source } satisfies ToWorker);
   };
 
   const selectModel = (id: string) => {
@@ -144,7 +162,7 @@ export default function App() {
           <div>
             <h1 className="font-mono text-lg leading-tight font-semibold tracking-tight">
               <span className="text-zinc-400">/</span>regex<span className="text-zinc-400">/</span>
-              <span className="text-sky-600">playground</span>
+              <span className="text-sky-600">vibes</span>
             </h1>
             <p className="text-xs text-zinc-500 pt-2">Generate regexes from natural language.</p>
           </div>
