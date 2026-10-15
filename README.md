@@ -864,6 +864,46 @@ uv run scripts/eval.py --name base-1.7b-thinking-gpt-hard-sample --data data/eva
   modèle de 1.7B, qu'il raisonne ou non. Pour un usage réel, l'objectif réaliste est les besoins simples et
   intermédiaires (71 % et 18 % pour le SFT 1.7B ici), avec repli sur un modèle frontier pour le reste.
 
+### Bilan : ce que valent les évaluations, et la suite
+
+| SFT 1.7B, succès | Held-out | Benchmark Claude | Benchmark GPT |
+| ---------------- | -------- | ---------------- | ------------- |
+| simples          | 88 %     | 73 %             | 71 %          |
+| intermédiaires   | 77 %     | 38 %             | 18 %          |
+| difficiles       | 57 %     | 11 %             | 2 %           |
+
+- **Le held-out mesure l'apprentissage de la distribution du professeur**, pas la qualité réelle : un « difficile »
+  de DeepSeek ressemble à un « intermédiaire » des benchmarks. Il garde de la valeur comme outil de comparaison : il
+  classe les modèles comme les deux benchmarks (1.7B > 0.6B partout, RFT et GRPO dans le bruit partout).
+- **L'écart held-out / benchmarks est un surapprentissage au style du professeur** : même sur les cas simples, on perd
+  environ 16 points en sortant de la distribution de DeepSeek.
+- **Le chiffre robuste : environ 72 % sur les besoins simples**, stable sur deux benchmarks de deux familles de
+  modèles. Les intermédiaires (18 à 38 %) ne sont pas utilisables seuls, les difficiles sont hors de portée. Les
+  scores globaux (39 % et 26 %) dépendent surtout de la part de cas difficiles.
+- **Comme produit autonome, le modèle ne tient pas face à un modèle frontier** (100 % sur les deux benchmarks), et
+  ses erreurs sont souvent des regex presque justes, donc silencieuses. Piste : échantillonner plusieurs candidats,
+  garder ceux qui passent les exemples de l'utilisateur, et sinon s'abstenir ou basculer vers un modèle frontier.
+
+**Mélanger les professeurs (par exemple Claude et GPT à 50 %)** réduirait le style propre à DeepSeek, mais pas le
+style commun à tous les LLM (demandes complètes, sans ambiguïté, exemples propres). Surtout, cela contaminerait les
+deux benchmarks : il ne resterait comme juge indépendant que le held-out DeepSeek, la distribution la plus facile.
+
+**Ce qui manque le plus n'est pas un train réel, mais une évaluation réelle** : les trois évaluations sont écrites
+par des LLM. Le biais de style porte surtout sur les entrées (les descriptions), les sorties étant vérifiées par les
+tests : de vraies demandes suffisent, annotées par un modèle frontier puis filtrées par les garde-fous.
+
+Suite proposée, dans l'ordre :
+
+1. **Évaluation réelle** : 200 à 400 vraies demandes (questions Stack Overflow, bibliothèques de regex publiques,
+   licences à vérifier), regex et tests écrits par un modèle frontier puis relus. Elle sert uniquement à
+   l'évaluation et devient le juge principal.
+2. **Mesurer pass@k avec filtrage par les exemples**, sur les cas simples et intermédiaires : si l'abstention couvre
+   la plupart des erreurs, l'outil devient défendable.
+3. **Tester la diversité des professeurs en laissant une famille de côté** : entraîner sur DeepSeek + GPT, évaluer
+   sur le benchmark Claude, et comparer à un train DeepSeek seul de même taille. Un gain sur la famille absente
+   montrerait que la diversité aide vraiment.
+4. Seulement si l'évaluation réelle s'écarte beaucoup des benchmarks LLM : de vraies demandes en entrée du train.
+
 ### Plus tard (hors de ce repo pour l'instant)
 
 - Comparaison avec des modèles frontier (qualité, latence, coût par requête).
