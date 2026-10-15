@@ -741,10 +741,48 @@ cas difficiles, et sans baisse au benchmark.
 - **Livrable** : `results/summary.md`, avec un tableau comparatif (succès complet sur le benchmark) et des exemples
   qualitatifs (les erreurs corrigées à chaque étape, et les nouvelles erreurs apparues).
 
-| Modèle      | Brut (zero-shot) | Brut (few-shot) | SFT | DPO | RFT | GRPO |
-| ----------- | ---------------- | --------------- | --- | --- | --- | ---- |
-| Qwen3-0.6B  |                  |                 |     |     |     |      |
-| Qwen3-1.7B  |                  |                 |     |     |     |      |
+Succès complet au benchmark (le held-out, indépendant de Claude, est dans les tableaux de chaque étape) :
+
+| Modèle      | Brut (zero-shot) | Brut (few-shot) | SFT    | DPO (DPOP)     | RFT    | GRPO   |
+| ----------- | ---------------- | --------------- | ------ | -------------- | ------ | ------ |
+| Qwen3-0.6B  | 0,0 %            | 0,9 %           | 31,4 % | 9,0 % (31,9 %) | 33,8 % | 35,2 % |
+| Qwen3-1.7B  | 0,9 %            | 3,3 %           | 39,0 % |                |        |        |
+
+**SFT du 1.7B** : même recette et mêmes données que l'étape 6 (`data/sft`, écrit par DeepSeek) : la comparaison avec
+le 0.6B n'a pas le biais de style des données écrites par Claude.
+
+```sh
+uv run mlx_lm.lora --config configs/sft.yaml --model Qwen/Qwen3-1.7B --adapter-path adapters/sft-1.7b   # ~2 h 15
+uv run scripts/eval.py --name sft-1.7b-benchmark --data data/eval/benchmark.jsonl --model Qwen/Qwen3-1.7B --adapter adapters/sft-1.7b
+```
+
+- **Mémoire** : une sonde sur les 160 exemples les plus longs du train (334 à 486 tokens, `data/sft-probe-1.7b`) a
+  mesuré le pire cas avant le run : 6,9 Go. Le run complet a culminé à 7,1 Go, sans changer la recette.
+- **Durée** : 0,63 itération/s (0,95 lors d'un premier essai interrompu, sans doute avec une machine moins chargée),
+  71 s par évaluation de la val loss, ~2 h 15 au total.
+- **Courbe** : val loss 2,74 → 0,309 (400 itérations) → 0,158 (2 000, déjà sous la fin du 0.6B) → **0,132**.
+
+| SFT sur `data/sft` | Held-out : succès | tests réussis | mal formées | Benchmark : succès | tests réussis | mal formées |
+| ------------------ | ----------------- | ------------- | ----------- | ------------------ | ------------- | ----------- |
+| Qwen3-0.6B         | 71,7 %            | 92,0 %        | 1,8 %       | 31,4 %             | 74,2 %        | 7,1 %       |
+| **Qwen3-1.7B**     | **76,9 %**        | **93,9 %**    | 1,8 %       | **39,0 %**         | **80,3 %**    | 4,8 %       |
+
+| Succès par difficulté | Held-out 0.6B | Held-out 1.7B | Benchmark 0.6B | Benchmark 1.7B |
+| --------------------- | ------------- | ------------- | -------------- | -------------- |
+| simples               | 108 / 137     | 121 / 137     | 40 / 60        | 44 / 60        |
+| intermédiaires        | 161 / 221     | 171 / 221     | 21 / 79        | 30 / 79        |
+| difficiles            | 48 / 84       | 48 / 84       | 5 / 71         | 8 / 71         |
+
+- **Le 1.7B bat nettement le 0.6B sur les deux évaluations** : held-out 45 gagnés / 22 perdus (p = 0,007),
+  benchmark 22 / 6 (p = 0,004). C'est le premier gain significatif au held-out, le juge indépendant de Claude.
+- **Le simple SFT du 1.7B dépasse tous les post-entraînements du 0.6B** (RFT, GRPO, données enrichies), sans écart
+  significatif face à chacun : passer à un modèle plus gros rapporte plus que changer de méthode.
+- **Les cas difficiles ne bougent pas** : 48 / 84 au held-out comme le 0.6B, 5 → 8 sur 71 au benchmark. La taille
+  aide sur les besoins simples et intermédiaires. Ni la taille, ni la méthode, ni les données écrites par Claude
+  n'ont amélioré les difficiles : le goulot reste la couverture de ces besoins dans les données, à vérifier sur un
+  benchmark indépendant des deux générateurs.
+- Suite : un RFT sur le 1.7B (la méthode la plus rentable sur le 0.6B), et un benchmark indépendant avant toute
+  nouvelle génération de données difficiles.
 
 ### Plus tard (hors de ce repo pour l'instant)
 
