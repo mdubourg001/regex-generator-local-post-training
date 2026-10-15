@@ -833,6 +833,37 @@ raisonne (`results/ceiling-claude-benchmark-gpt.jsonl`).
   débloquent. Hypothèse : ils demandent de raisonner avant de répondre, ce que nos modèles ne font pas (mode
   _thinking_ de Qwen3 désactivé pour la latence).
 
+**Mode _thinking_** : test de l'hypothèse sur le 1.7B brut, raisonnement activé (`eval.py --thinking` :
+`enable_thinking=True` et l'échantillonnage recommandé par Qwen3 pour ce mode, température 0,6, top-p 0,95, top-k 20,
+car en greedy le raisonnement boucle), sur 37 cas difficiles répartis dans toutes les catégories (un sur quatre,
+`data/eval/benchmark-gpt-hard-sample.jsonl`).
+
+```sh
+uv run scripts/eval.py --name base-1.7b-thinking-gpt-hard-sample --data data/eval/benchmark-gpt-hard-sample.jsonl \
+    --model Qwen/Qwen3-1.7B --thinking --max-tokens 8192 --batch-size 2   # ~36 min
+```
+
+- Un essai à 4 096 tokens : 5 cas sur 8 n'ont pas fini de raisonner. À 8 192 tokens, 33 sur 37 concluent.
+- Le modèle brut ne respecte pas le format après son raisonnement (pattern sans `/…/`) : toutes les réponses sont
+  mal formées en lecture stricte. Une lecture tolérante (dernier littéral de la réponse, ou pattern nu entouré de
+  `/…/`) mesure le raisonnement seul.
+
+| 37 cas difficiles du benchmark GPT       | Succès                       | Tests réussis |
+| ---------------------------------------- | ---------------------------- | ------------- |
+| 1.7B brut, _thinking_ (8 192 tokens)     | 0 / 37 (lecture tolérante 0) | 58,1 %        |
+| SFT 1.7B, sans raisonnement              | 1 / 37                       | 72,2 %        |
+| SFT 0.6B, sans raisonnement              | 0 / 37                       | 65,0 %        |
+| Plafond Claude                           | 37 / 37                      | 100 %         |
+
+- **Le raisonnement ne débloque rien** : aucune regex entièrement juste, et moins de tests réussis que le SFT qui
+  répond directement. Il coûte ~17 000 caractères et près d'une minute par cas, incompatible avec un usage
+  interactif.
+- Limites : modèle brut, pas entraîné sur la tâche ; une seule tentative par cas ; 37 cas. Un raisonnement distillé
+  ferait mieux, mais le modèle ne trouve pas la réponse même en réfléchissant longuement.
+- Conclusion : les cas difficiles de ce benchmark (souvent des casse-têtes, 29 % de backreferences) dépassent un
+  modèle de 1.7B, qu'il raisonne ou non. Pour un usage réel, l'objectif réaliste est les besoins simples et
+  intermédiaires (71 % et 18 % pour le SFT 1.7B ici), avec repli sur un modèle frontier pour le reste.
+
 ### Plus tard (hors de ce repo pour l'instant)
 
 - Comparaison avec des modèles frontier (qualité, latence, coût par requête).
