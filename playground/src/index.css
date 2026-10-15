@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@keyframes indeterminate {
+  from {
+    left: -33%;
+  }
+  to {
+    left: 100%;
+  }
+}
