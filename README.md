@@ -674,6 +674,66 @@ au train d'origine), mais seulement 11 backreferences et 4 groupes nommés.
   restent à 7,1 %, là où le RFT les fait baisser : les deux leviers semblent complémentaires.
 - Conclusion d'étape : sur le 0.6B, des données ciblées rapportent plus que le passage du SFT au RL. Suite : un RFT
   sur ce SFT enrichi, pour cumuler les deux.
+- **Réserve, découverte à l'étape 9 quater** : le benchmark est écrit par Claude (section 5), et ces données aussi.
+  Ce complément enfreint donc la règle « l'auteur du benchmark ne sert à rien d'autre ». Le gain au benchmark peut
+  venir en partie d'un style commun (formulations, interprétations), que la décontamination (même regex ou
+  description proche) ne détecte pas. Le held-out, écrit par DeepSeek, est le seul juge indépendant de ces données :
+  il ne montre pas de gain significatif (+2,1 points, p = 0,26).
+
+### Étape 9 quater : pilote de besoins difficiles, et plafond du benchmark
+
+- **Faire** : mesurer le plafond du benchmark, puis tester un pilote de 1 000 besoins difficiles avant d'en générer
+  4 000 de plus.
+- **Livrable** : `results/ceiling-claude-benchmark.jsonl`, `adapters/sft-0.6b-plus2/` et la décision de passage à
+  l'échelle.
+
+**Plafond du benchmark** : des agents Claude répondent aux 210 prompts du benchmark tels que les voit le modèle
+(description et exemples montrés, sans les tests cachés), en raisonnant et en vérifiant leurs regex sur les seuls
+exemples montrés. **208 / 210 (99 %)**, dont 100 % des cas difficiles. Les deux échecs portent sur une interprétation
+(`multiline-02` : `"\n\n"` compte-t-il comme une ligne vide entre deux lignes ; `multiline-07` : `TODODONE`).
+
+- Le benchmark n'est donc pas ambigu pour son auteur. Mais c'est Claude qui se note lui-même : ce n'est **pas** le
+  plafond d'un modèle frontier quelconque, et ce chiffre ne mesure pas la difficulté réelle.
+- Conséquence : des données écrites par Claude peuvent gagner au benchmark par alignement de style (voir la réserve
+  de l'étape 9 ter). Pour ces données, le juge indépendant est le held-out.
+
+**Pilote** (`claude_batches.py --prefix d --batches 200 --shards 8 --all-categories --difficulty hard=0.6,medium=0.4
+--constructs 0.6 --second-opinion`) :
+
+- toutes les catégories, 60 % de besoins difficiles et 40 % d'intermédiaires ;
+- 60 % des besoins reçoivent une construction imposée (backreference, groupes nommés, lookbehind, lookahead, flags
+  `m` et `s`, `\p{…}`, recherche non ancrée, plages numériques, `\b`) : la consigne générale de l'étape 9 ter avait
+  peu porté ;
+- 8 agents « descriptions », puis 8 agents « tests » et 8 agents « second avis » qui ne voient que les descriptions.
+  Le second avis écrit sa propre regex ; `validate.py` rejette le besoin si elle échoue aux tests (garde-fou
+  « désaccord avec le second avis », appliqué aux compléments qui ont un `second_opinion.json`) ;
+- un agent « tests » (125 besoins) a été arrêté par un classifieur de sécurité ; le lot n'a pas été relancé.
+
+**Filtrage** : 667 besoins gardés sur 875 (76 %). Rejets : tests peu discriminants (116), ancrage non testé (60),
+référence en désaccord avec les tests (16), recoupe le benchmark (14), **désaccord avec le second avis (2)**. Les
+constructions imposées sont bien là : 64 backreferences, 34 groupes nommés, 63 lookbehind, 70 `\p{…}` (contre 11, 4,
+36 et 20 à l'étape 9 ter). Le second avis ne filtre presque rien : un même modèle est presque toujours d'accord avec
+lui-même. Il faudrait un second avis d'une autre famille.
+
+**Décision fixée avant les résultats** : passer à 4 000 besoins de plus seulement si, face à `sft-0.6b-plus` (même
+recette, sans le pilote), le held-out gagne au moins 1 point avec plus de cas gagnés que perdus, sans baisse sur les
+cas difficiles, et sans baisse au benchmark.
+
+| Qwen3-0.6B, SFT       | Held-out : succès | tests réussis | mal formées | difficiles | Benchmark : succès | tests réussis | mal formées | difficiles |
+| --------------------- | ----------------- | ------------- | ----------- | ---------- | ------------------ | ------------- | ----------- | ---------- |
+| d'origine             | 71,7 %            | 92,0 %        | 1,8 %       |            | 31,4 %             | 74,2 %        | 7,1 %       |            |
+| enrichi (9 ter)       | 73,8 %            | 91,8 %        | 2,0 %       | 51 / 84    | 36,2 %             | 76,7 %        | 7,1 %       | 5 / 71     |
+| + pilote (9 quater)   | 73,3 %            | 92,4 %        | 1,8 %       | 47 / 84    | 37,1 %             | 77,8 %        | 5,2 %       | 8 / 71     |
+
+- Held-out face à l'enrichi : 22 gagnés, 24 perdus (p = 0,88) ; difficiles 3 gagnés, 7 perdus. **Critère non
+  rempli : pas de passage à l'échelle.**
+- Benchmark : 14 gagnés, 12 perdus (p = 0,85), difficiles 5 → 8 sur 71. Face au SFT d'origine : 17 gagnés, 5 perdus
+  (p = 0,02), mais avec la réserve de style ci-dessus.
+- Lecture : 667 besoins difficiles écrits par Claude n'aident pas sur les besoins difficiles écrits par DeepSeek.
+  Soit ils n'apprennent rien de transférable au 0.6B, soit l'effet est trop petit pour 84 cas. Dans les deux cas, on
+  ne peut pas le mesurer sans un benchmark indépendant des deux générateurs.
+- Suite proposée : un benchmark indépendant (demandes réelles, relecture humaine) avant toute nouvelle génération,
+  puis le 1.7B.
 
 ### Étape 10 : passage au 1.7B et bilan
 
@@ -701,15 +761,15 @@ au train d'origine), mais seulement 11 backreferences et 4 groupes nommés.
 ├── NOTES.md          # notes de cours (SFT, LoRA, overfitting…)
 ├── pyproject.toml
 ├── .node-version
-├── configs/          # taxonomy.yaml, sft.yaml, sft-plus.yaml, dpo.yaml, rft.yaml
-├── data/             # raw/, raw-claude/, sft/, sft-plus/, eval/, dpo/, rft/ (ignoré par git)
+├── configs/          # taxonomy.yaml, sft.yaml, sft-plus.yaml, sft-plus2.yaml, dpo.yaml, rft.yaml
+├── data/             # raw/, raw-claude/, raw-claude-hard/, sft/, sft-plus/, sft-plus2/, eval/, dpo/, rft/ (ignoré par git)
 ├── scripts/
 │   ├── common.py          # prompt, parsing du littéral, métriques (partagé par toutes les étapes)
 │   ├── regex_runner.mjs   # worker Node : exécute les regex sur les tests, avec timeout
 │   ├── eval.py            # succès complet / taux de tests réussis sur un JSONL
 │   ├── generate.py        # taxonomie → professeur (OpenRouter) → data/raw/
 │   ├── validate.py        # garde-fous → data/sft/
-│   ├── claude_batches.py  # complément écrit par des agents Claude, au format de generate.py
+│   ├── claude_batches.py  # compléments écrits par des agents Claude, au format de generate.py
 │   ├── generate_pairs.py  # échantillonnage + paires chosen/rejected
 │   ├── rft.py             # réponses justes échantillonnées → données du RFT
 │   ├── grpo.py            # entraînement GRPO (étape 9)

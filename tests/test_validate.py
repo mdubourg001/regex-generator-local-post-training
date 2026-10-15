@@ -3,7 +3,8 @@ import yaml
 
 from common import RegexRunner
 from generate import CONFIG, TAXONOMY, build_descriptions_messages, build_tests_messages, parse_items, plan
-from validate import add_examples, check, decontaminate, features, is_anchored, mutants, scan, split_of, unanchored
+from validate import (add_examples, check, decontaminate, features, is_anchored, mutants, scan, second_opinion, split_of,
+                      unanchored)
 
 CFG = yaml.safe_load(CONFIG.read_text())
 TAX = yaml.safe_load(TAXONOMY.read_text())
@@ -161,3 +162,11 @@ def test_decontaminate_drops_same_regex_or_close_description():
     ]
     kept, n = decontaminate(examples, benchmark)
     assert n == 2 and [e["description"] for e in kept] == ["French postal code"]
+
+
+def test_second_opinion_keeps_agreements_and_unconcerned(runner):
+    tests = {"match": ["abc", "abd"], "no_match": ["ab", "abcd"]}
+    examples = [{"id": i, "tests": tests} for i in ("ok", "wrong", "missing", "malformed", "main")]
+    opinions = {"ok": "/^ab[cd]$/", "wrong": "/^ab/", "missing": None, "malformed": "^ab[cd]$"}
+    kept, n = second_opinion(examples, opinions, runner)
+    assert [e["id"] for e in kept] == ["ok", "main"] and n == 3  # « main » n'a pas de second avis prévu

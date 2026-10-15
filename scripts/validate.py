@@ -296,6 +296,23 @@ def add_examples(e: dict, cfg: dict, share: float) -> dict:
     return {**e, "examples": shown, "tests": {"match": match, "no_match": no_match}}
 
 
+def second_opinion(examples: list[dict], opinions: dict[str, str | None], runner: RegexRunner) -> tuple[list[dict], int]:
+    """Garde-fou des compléments qui ont un second avis : une regex écrite par un autre agent, à partir de la seule
+    description, doit passer tous les tests. Sinon la description est ambiguë, ou la référence et les tests partagent
+    la même erreur. Les exemples sans second avis prévu (`opinions` sans leur id) passent tels quels.
+    """
+    concerned = [e for e in examples if e["id"] in opinions]
+    parsed = {e["id"]: parse_literal(opinions[e["id"]] or "") for e in concerned}
+    to_run = [e for e in concerned if parsed[e["id"]]]
+    jobs = [{"pattern": parsed[e["id"]][0], "flags": parsed[e["id"]][1], **e["tests"]} for e in to_run]
+    agree = {
+        e["id"] for e, r in zip(to_run, runner.run(jobs))
+        if "error" not in r and not r.get("timeout") and all(r["match"]) and all(r["no_match"])
+    }
+    kept = [e for e in examples if e["id"] not in opinions or e["id"] in agree]
+    return kept, len(examples) - len(kept)
+
+
 def sft_lengths(conversations: list[list[dict]]) -> list[int]:
     """Longueur en tokens de chaque conversation, telle que mlx_lm.lora la tokenise."""
     from transformers import AutoTokenizer
@@ -313,7 +330,8 @@ def split_of(batch: str, split: dict) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--raw-dir", type=Path, default=RAW_DIR, help="dossier des journaux de generate.py")
-    parser.add_argument("--extra-raw-dir", type=Path, help="complément hors plan principal : tous ses lots vont au train")
+    parser.add_argument("--extra-raw-dir", type=Path, action="append", default=[],
+                        help="complément hors plan principal (répétable) : tous ses lots vont au train")
     parser.add_argument("--prepared-dir", type=Path, default=PREPARED_DIR)
     parser.add_argument("--sft-dir", type=Path, default=SFT_DIR)
     parser.add_argument("--stats-only", action="store_true", help="affiche les statistiques sans écrire les données")
@@ -323,16 +341,21 @@ def main() -> None:
     examples, rejected = candidates(args.raw_dir)
     # Après le plan principal : en cas de doublon, c'est l'exemple du complément qui est écarté. Ses lots vont tous au
     # train, pour que valid et held-out restent comparables d'un run à l'autre.
-    extra_batches = set()
-    if args.extra_raw_dir:
-        extra, extra_rejected = candidates(args.extra_raw_dir)
+    extra_batches, opinions = set(), {}
+    for extra_dir in args.extra_raw_dir:
+        extra, extra_rejected = candidates(extra_dir)
         examples += extra
         rejected += extra_rejected
-        extra_batches = {e["batch"] for e in extra}
+        extra_batches |= {e["batch"] for e in extra}
+        if (path := extra_dir / "second_opinion.json").exists():
+            opinions |= {e["id"]: None for e in extra} | json.loads(path.read_text())
     generated = len(examples) + sum(rejected.values())
     with RegexRunner() as runner:
         kept, more = check(examples, cfg, runner)
-    rejected += more
+        rejected += more
+        kept, n_disagree = second_opinion(kept, opinions, runner)
+    if n_disagree:
+        rejected["désaccord avec le second avis"] += n_disagree
     # Le benchmark est la référence figée : c'est le train qui s'écarte de lui, pas l'inverse.
     kept, n_contaminated = decontaminate(kept, load_benchmark())
     if n_contaminated:
