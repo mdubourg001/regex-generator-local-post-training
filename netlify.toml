@@ -7,7 +7,7 @@
 
 [build.environment]
   NODE_VERSION = "22"
-  VITE_HUB_SFT_0_6B_PLUS = "maximedubourg/regex-sft-qwen3-0.6b-onnx@4a6d54a4461a6253e6d67fee008bf4852db49e20"
+  VITE_HUB_SFT_0_6B_PLUS = "maximedubourg/regex-sft-qwen3-0.6b-onnx@8aef944a7e1c2599bb4668a5f35796f6e716fe35"
 
 # Fichiers de Vite nommés par hash de contenu, dont le runtime onnxruntime-web (~27 Mo) : cache permanent.
 [[headers]]

@@ -22,8 +22,10 @@ env.backends.onnx.wasm!.wasmPaths = { mjs: ortMjs, wasm: ortWasm };
 
 /** `local` : public/models/<id>/ (scripts/export_models.py). `hub` : repo public, à une révision figée. */
 export type ModelSource = { kind: "local" } | { kind: "hub"; repo: string; revision: string };
+export type Dtype = "fp16" | "q4f16";
+/** `model` : identifiant renvoyé dans `ready` ; `files` : dossier de l'export, partagé par ses variantes (dtype). */
 export type ToWorker =
-  | { type: "load"; model: string; source: ModelSource }
+  | { type: "load"; model: string; files: string; dtype: Dtype; source: ModelSource }
   | ({ type: "generate"; id: number } & Request);
 export type FromWorker =
   | { type: "progress"; loaded: number; total: number }
@@ -71,7 +73,7 @@ async function resolve(name: string, source: ModelSource): Promise<{ path: strin
   return { path: name };
 }
 
-async function load(name: string, source: ModelSource) {
+async function load(name: string, files: string, dtype: Dtype, source: ModelSource) {
   stopping.interrupt();
   await generation.catch(() => {});
   await current?.model.dispose();
@@ -79,10 +81,11 @@ async function load(name: string, source: ModelSource) {
   const progress_callback = (info: { status: string; loaded?: number; total?: number }) => {
     if (info.status === "progress_total") post({ type: "progress", loaded: info.loaded!, total: info.total! });
   };
-  const { path, revision } = await resolve(name, source);
+  // Cache par dossier d'export : les variantes d'un même export se partagent la clé sans s'effacer.
+  const { path, revision } = await resolve(files, source);
   const [tokenizer, model] = await Promise.all([
     AutoTokenizer.from_pretrained(path, { revision }),
-    AutoModelForCausalLM.from_pretrained(path, { revision, device: "webgpu", dtype: "fp16", progress_callback }),
+    AutoModelForCausalLM.from_pretrained(path, { revision, device: "webgpu", dtype, progress_callback }),
   ]);
   current = { name, tokenizer, model };
   post({ type: "ready", model: name });
@@ -126,7 +129,7 @@ self.onmessage = (event: MessageEvent<ToWorker>) => {
   const message = event.data;
   const fail = (error: unknown) => post({ type: "error", message: error instanceof Error ? error.message : String(error) });
   if (message.type === "load") {
-    loading = loading.then(() => load(message.model, message.source)).catch(fail);
+    loading = loading.then(() => load(message.model, message.files, message.dtype, message.source)).catch(fail);
   } else {
     pending = message;
     stopping.interrupt();

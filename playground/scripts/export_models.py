@@ -25,8 +25,6 @@ import time
 from pathlib import Path
 
 import onnx
-from huggingface_hub import snapshot_download
-from optimum.exporters.onnx import main_export
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = Path(__file__).resolve().parents[1] / "public" / "models"
@@ -100,6 +98,10 @@ def write_chunked(src: Path, dst_dir: Path, name: str) -> int:
 
 
 def export(name: str) -> None:
+    # Imports locaux : scripts/quantize_models.py réutilise write_chunked sans optimum ni torch.
+    from huggingface_hub import snapshot_download
+    from optimum.exporters.onnx import main_export
+
     fused = ROOT / "models" / name
     if not fused.exists():
         sys.exit(f"{fused} introuvable : fusionner l'adapter d'abord (voir l'en-tête du script)")

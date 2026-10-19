@@ -1,0 +1,285 @@
+{"id":"gpt-code-syntax-01","output":"/^CFG_[A-Z]{6}$/"}
+{"id":"gpt-code-syntax-02","output":"/^_test[a-z]{4}$/"}
+{"id":"gpt-code-syntax-03","output":"/^E[0-9]{4}$/"}
+{"id":"gpt-code-syntax-04","output":"/^#0x[0-9a-f]{8}$/"}
+{"id":"gpt-code-syntax-05","output":"/^[a-z]{8}_class$/"}
+{"id":"gpt-code-syntax-06","output":"/^[a-z]{2,8}(?:_[a-z]{2,8}){1,3}$/"}
+{"id":"gpt-code-syntax-07","output":"/^(?!(?:null|true)$)[A-Za-z_$][A-Za-z0-9_$]{2,15}$/"}
+{"id":"gpt-code-syntax-08","output":"/^(?:[1-9]\\d{0,59}|[1-9]\\d?|1)\\d{0,59}|[1-9]\\d?|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|3"}
+{"id":"gpt-code-syntax-09","output":"/^[a-z]{2,6}-[a-z]{2,6}-[a-z]{2,6}$/"}
+{"id":"gpt-code-syntax-10","output":"/^test_[a-z][a-z0-9]{2,11}$/"}
+{"id":"gpt-code-syntax-11","output":"/export=[A-Za-z0-9]+;[a-z4-8]+$/"}
+{"id":"gpt-code-syntax-12","output":"/^(?:[0-9]|[1-9][0-9]|3[0-2][0-9]|31)$/"}
+{"id":"gpt-code-syntax-13","output":"/^[A-Z][a-z]{1,5}(?:[A-Z][a-z]{1,5})?$/"}
+{"id":"gpt-code-syntax-14","output":"/^[a-z]{3,8} == \\1\\.length$/"}
+{"id":"gpt-code-syntax-15","output":"/^(?!(?:null|true)$)[\\\"]*[a-z]{3,8}\\[/"}
+{"id":"gpt-code-syntax-16","output":"/^tag_[\\p{L}\\p{M}]+(?:-[\\p{L}\\p{M}]+)*$/u"}
+{"id":"gpt-code-syntax-17","output":"/^CODE{[a-z]{2,6}:.*\\r?\\n[^\\r\\n]*:CODE{[a-z]{2,6}}$/"}
+{"id":"gpt-code-syntax-18","output":"/^(?:(?:'[^']*'|\"[a-z]{3,8}\")\\s*symbol=([^\"\\r\\n]*=\\s*[a-z]+) ?\\s*symbol=([^\"\\r\\n]*=\\s*[a-z]+)\\s*$/"}
+{"id":"gpt-code-syntax-19","output":"/^(?!(?:NULL|TRUE)$)[A-Z]{3,8}_[A-Z]?\\d$/"}
+{"id":"gpt-code-syntax-20","output":"/^fn [a-z]{3,8}(?:\\([a-z]{3,8}\\))?: [^:]+$/"}
+{"id":"gpt-dates-times-01","output":"/^yr\\d{4}$/"}
+{"id":"gpt-dates-times-02","output":"/^\\d{5}ms$/"}
+{"id":"gpt-dates-times-03","output":"/^\\d+([eE]s|s)?\\s?(\\d+([eE]s|s)?\\s?|\\d+([eE]s|s)?\\s?|\\d+([eE]s|s)?\\s?|\\d+([eE]s|s)?\\s?|\\d+([eE]s|s)?\\s?|\\d+([eE]s|s)?\\s?|\\d+([eE]s|s)?\\s?|\\d+([eE]s|s)?\\s?|\\"}
+{"id":"gpt-dates-times-04","output":"/^D[0-9]{7}$/"}
+{"id":"gpt-dates-times-05","output":"/^T[0-9]{6}Z$/"}
+{"id":"gpt-dates-times-06","output":"/^wait=([5-9]|[1-9]\\d{4,})$/"}
+{"id":"gpt-dates-times-07","output":"/^(?:[01]\\d|2[0-3]):[0-5]\\d [UTC|GMT]$/"}
+{"id":"gpt-dates-times-08","output":"/^\\d{4}\\/(0[1-9]|1[0-2])\\s*all$/"}
+{"id":"gpt-dates-times-09","output":"/^(0[1-9]|[12]\\d|3[01])-(0[1-9]|1[0-2]) ?$/"}
+{"id":"gpt-dates-times-10","output":"/^(?:[+|-]14[00-59]?\\d{2}:[00-59]\\d{2})?$/"}
+{"id":"gpt-dates-times-11","output":"/minute=00;|minute=59;|minute=12;|minute=18;|minute=24;|minute=30;|minute=36;|minute=42;|minute=48;|minute=54;|minute=60;|minute=66;|minute=72;|minute=78;|minute=84;|minute=90;|minute=96;|minute=108;|minute=114;|minute=120;|minute=12"}
+{"id":"gpt-dates-times-12","output":"/^hour[0-9]([0-9]?)[0-9]$/"}
+{"id":"gpt-dates-times-13","output":"/^(?:[1-9]\\d|0)[0-5]\\d:[0-5]\\d$/"}
+{"id":"gpt-dates-times-14","output":"/^(?:[01]\\d|2[0-3]):[0-5]\\d\\s(?:[01]\\d|2[0-3]):[0-5]\\d$/"}
+{"id":"gpt-dates-times-15","output":"/^(?:[0-9]{4})[\\/-](?:0[1-9]|1[0-2])(?:[\\/-])(?:0[1-9]|[1-9]\\d)?$/"}
+{"id":"gpt-dates-times-16","output":"/^(?:\\p{L}[\\p{M}]?|\\p{L}[\\p{M}]+)(?:-(?:\\p{L}[\\p{M}]?|\\p{L}[\\p{M}]+))*$/u"}
+{"id":"gpt-dates-times-17","output":"/^TIME[ae]gi:.*:.*\\b*tick\\b.*TIME$/u"}
+{"id":"gpt-dates-times-18","output":"/^(?:[\\\"'])(?:[01]\\d|2[0-3]):[0-5]\\d[\\\"']$/m"}
+{"id":"gpt-dates-times-19","output":"/^(?:[01]\\d|2[0-3]):[01]\\d|2[0-3]):[01]\\d|2[0-3])(?:,[01]\\d|2[0-3])(?:,[01]\\d|2[0-3])(?:,[01]\\d|2[0-3])(?:,[01]\\d|2[0-3])(?:,[01]\\d|2[0-3])(?:,[01]\\d|2[0-3])(?:,[01]\\d|2[0-"}
+{"id":"gpt-dates-times-20","output":"/^(?:[01]\\d|2[0-3]):[0-5]\\d-(?:[01]\\d|2[0-3]):[0-5]\\d$/"}
+{"id":"gpt-dev-tooling-01","output":"/^[0-9a-f]{10}$/"}
+{"id":"gpt-dev-tooling-02","output":"/^ci-[0-9]{8}\\.[A-Za-z0-9]{3}$|^ci-[0-9]{8}\\.[A-Za-z]{3,}$/"}
+{"id":"gpt-dev-tooling-03","output":"/^PR[0-9]{6}$/"}
+{"id":"gpt-dev-tooling-04","output":"/^task:[a-z0-9]{5}$/"}
+{"id":"gpt-dev-tooling-05","output":"/^[0-9a-f]{64}$/"}
+{"id":"gpt-dev-tooling-06","output":"/^worker-[1-9]\\d{0,2}(?:-[1-9]\\d{0,2})?$/"}
+{"id":"gpt-dev-tooling-07","output":"/^deploy\\/[a-z]{3,8}-[1-9]\\d$/"}
+{"id":"gpt-dev-tooling-08","output":"/^passed=(?:[1-9]\\d+),failed=(?:[1-9]\\d+)$/"}
+{"id":"gpt-dev-tooling-09","output":"/^@[a-z0-9]+(?:-[a-z0-9]+)*(?:\\/[a-z]+(?:-[a-z0-9]+)*)?$/"}
+{"id":"gpt-dev-tooling-10","output":"/^(?!0{3,12}_[a-z]{1,25}$)[0-9]+[A-Za-z]{1,25}\\.[sql]$/"}
+{"id":"gpt-dev-tooling-11","output":"/^build=(?:[1-9]|[1-9]\\d{1,5}|[1-9]\\d{1,63});$/"}
+{"id":"gpt-dev-tooling-12","output":"/^(?:[0-9a-f]{8})$/"}
+{"id":"gpt-dev-tooling-13","output":"/^registry\\.test\\/[a-z]{3,8}:[1-9]\\d{0,23}$/"}
+{"id":"gpt-dev-tooling-14","output":"/^(?:[0-9a-f]{8})\\/(?:[0-9a-f]{8})$/"}
+{"id":"gpt-dev-tooling-15","output":"/^(?!(?:000000|000000)$)[0-9a-f]{6} -> [0-9a-f]{6}$/"}
+{"id":"gpt-dev-tooling-16","output":"/^job:([A-Za-z]+(?:\\u20ac[^\\u20ac]+)*)+$/u"}
+{"id":"gpt-dev-tooling-17","output":"/^CI[a-z]{2,6}:.*:.*CI[ae]$/"}
+{"id":"gpt-dev-tooling-18","output":"/^(?:'[^\"\\n]*'|\"[^\"\\n]*\") branch=(?:[a-z]{3,8}) copy= and branch= same line as first line$/"}
+{"id":"gpt-dev-tooling-19","output":"/^(?:fix|feat)(?:\\([a-z3-8]\\))\\s+done$/"}
+{"id":"gpt-dev-tooling-20","output":"/^job:[a-z]{3,8} > [a-z]{3,8} >$/"}
+{"id":"gpt-email-accounts-01","output":"/^@[a-z]{6}$/"}
+{"id":"gpt-email-accounts-02","output":"/^[a-z]{4}+bot@ops\\.test$/"}
+{"id":"gpt-email-accounts-03","output":"/^acct_[0-9]{8}$/"}
+{"id":"gpt-email-accounts-04","output":"/^r-[0-9a-f]{8}$/"}
+{"id":"gpt-email-accounts-05","output":"/^[A-Z]{5}@STAFF$/"}
+{"id":"gpt-email-accounts-06","output":"/^bot[1-9]\\d{0,39}$/"}
+{"id":"gpt-email-accounts-07","output":"/^[a-z]{3,10}(?:\\+[0-9]{1,3})?@[a-z0-9]+\\.test$/"}
+{"id":"gpt-email-accounts-08","output":"/^@(?=[a-z][a-z0-9_]*[a-z0-9])[a-z][a-z0-9]*(?:[a-z0-9_]*[a-z0-9])?$/"}
+{"id":"gpt-email-accounts-09","output":"/^\\d{10,72}@internal$/"}
+{"id":"gpt-email-accounts-10","output":"/^(?!(?:guest|admin)$)[a-z0-9]{6,14}$/"}
+{"id":"gpt-email-accounts-11","output":"/^user=([^;]+)$/"}
+{"id":"gpt-email-accounts-12","output":"/^[a-z][a-z0-9]{1,23}$/"}
+{"id":"gpt-email-accounts-13","output":"/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/"}
+{"id":"gpt-email-accounts-14","output":"/^(?=[a-z]{3,8}$)[a-z]+(?:\\/[a-z]+)*$/"}
+{"id":"gpt-email-accounts-15","output":"/^[a-z]{3,8}->[a-z]{3,8}$/"}
+{"id":"gpt-email-accounts-16","output":"/^(?:\\p{L}[\\p{M}]?|\\p{L}[\\p{M}]+)(?:-(?:(?:\\p{L}[\\p{M}]?|\\p{L}[\\p{M}]+)*)?)*$/u"}
+{"id":"gpt-email-accounts-17","output":"/^(?:[a-z]{3,8})\\n?$/"}
+{"id":"gpt-email-accounts-18","output":"/^(?:handle=\\\"@[a-z]{4}\\\"|handle=\\\"@[a-z]{4}\\\")\\n(?:copy=\\\"@[a-z]{4}\\\"|handle=\\\"@[a-z]{4}\\\")$/"}
+{"id":"gpt-email-accounts-19","output":"/^(?!(?:[a-z][a-z0-9]{2,6})$)(?!root)(?:[a-z][a-z0-9]{2,6}:)(?:[a-z][a-z0-9]{2,6})$/"}
+{"id":"gpt-email-accounts-20","output":"/^[a-z]{3,8}([a-z]{2,6})?@team\\.test$/"}
+{"id":"gpt-exclusions-01","output":"/^(?!(?:null|_)?[a-z]{4}$)[a-z]{4}$/"}
+{"id":"gpt-exclusions-02","output":"/^(?!0{6}$)[0-9]+$/"}
+{"id":"gpt-exclusions-03","output":"/^(?!tmp)[a-z]{5}$/"}
+{"id":"gpt-exclusions-04","output":"/^(?!.*[IO]){8}$/"}
+{"id":"gpt-exclusions-05","output":"/^[a-z]{5}(?=[a-z])$/"}
+{"id":"gpt-exclusions-06","output":"/^(?!.*test$)(?!.*admin$)[a-z]{6,12}$/"}
+{"id":"gpt-exclusions-07","output":"/^(?=.*[A-Za-z])[A-Za-z0-9]{8}(?!(?:[0-9]*[0-9])$)[A-Za-z0-9]*$/i"}
+{"id":"gpt-exclusions-08","output":"/^(?!tmp-|[^a-z0-9]+-old$)[a-z][a-z0-9-]{2,11}$/"}
+{"id":"gpt-exclusions-09","output":"/^(?:[1-9]|[1-9]\\d|1[0-7]\\d|2[0-3]\\d|3[01]\\d|4[0-3]\\d|5[0-4]\\d|6[0-5]\\d|7[0-9]|[1-9]\\d|13[0-9]|42[0-9])$/"}
+{"id":"gpt-exclusions-10","output":"/^(?!$)(?:[0-9a-f]{8})$/"}
+{"id":"gpt-exclusions-11","output":"/^(?!(?:tmp|null)$)[a-z]{3,8};$/"}
+{"id":"gpt-exclusions-12","output":"/^(?:[a-z]+)?:\\s*$/"}
+{"id":"gpt-exclusions-13","output":"/^(?=[A-Za-z][A-Za-z0-9_]*$)[A-Za-z][A-Za-z0-9_]{2,14}$/"}
+{"id":"gpt-exclusions-14","output":"/^(?!(?:[a-z]*[a-z]?)$)(?:[a-z]{3,8})/"}
+{"id":"gpt-exclusions-15","output":"/^(?!123)\\d{6}$/"}
+{"id":"gpt-exclusions-16","output":"/^(?=[\\p{L}\\p{M}]*[A-Za-z]{4,12}$)(?=[\\p{L}\\p{M}]*[A-Za-z]{4,12}$)(?=[\\p{L}\\p{M}]*[A-Za-z]{4,12}$)(?=[\\p{L}\\p{M}]*[A-Za-z]{4,12}$)(?=[\\p{L}\\p{M}]*[A-Za-z]{4,12}$)(?=[\\p{L}\\p{M}"}
+{"id":"gpt-exclusions-17","output":"/^SAFE{[a-z]{2,6}}:.*:SAFE{[a-z]{2,6}}$/u"}
+{"id":"gpt-exclusions-18","output":"/^(?:[A-Za-z][A-Za-z]*[A-Za-z])?(?:\\([^\"\\x00\\x08]+\\x20[=]\\x20[=]\\x20[=]\\x20[=]\\x20[=]\\x20[=]\\x20[=]\\x20[=]\\x20[=]\\x20[=]\\x20[=]\\x20[=]\\x20[=]\\x20[=]\\x20[=]\\x20[=]\\x2"}
+{"id":"gpt-exclusions-19","output":"/^(?:[a-z][a-z]{2,7}:)[a-z][a-z]{2,7}:[a-z][a-z]{2,7}$/"}
+{"id":"gpt-exclusions-20","output":"/^START\\n(?:[a-z]{3,8}\\n)*[a-z]{3,8}\\nEND$/"}
+{"id":"gpt-files-paths-01","output":"/^thumb-[0-9a-f]{8}\\.[avif}$/"}
+{"id":"gpt-files-paths-02","output":"/^spool[0-9]{6}\\.dat$/"}
+{"id":"gpt-files-paths-03","output":"/^[a-z]{8}\\.[mjs]$/"}
+{"id":"gpt-files-paths-04","output":"/^.env[a-z]{4}$/"}
+{"id":"gpt-files-paths-05","output":"/^T[0-9]{5}\\.[Tt]MP$/"}
+{"id":"gpt-files-paths-06","output":"/^(?:[1-9]\\d{0,2}|[1-9]\\d{1,2}|[1-9]\\d{3})\\.log$/"}
+{"id":"gpt-files-paths-07","output":"/^[a-z][a-z0-9]{0,11}\\.(?:png|webp)$/"}
+{"id":"gpt-files-paths-08","output":"/^[a-z]{1,8}\\/[a-z]{1,8}\\.[jt]s$/"}
+{"id":"gpt-files-paths-09","output":"/^[a-z]{3,8}\\.(?:[1-9]\\d*)$/"}
+{"id":"gpt-files-paths-10","output":"/^(?!(?:null|true)$)[a-z0-9_][a-z0-9_\\-]{0,15}\\.(?:json)$/"}
+{"id":"gpt-files-paths-11","output":"/^lowercase spool= \\d{6} ;$/"}
+{"id":"gpt-files-paths-12","output":"/backup[0-9]{1,48}$/"}
+{"id":"gpt-files-paths-13","output":"/^C:\\\\temp\\\\[a-z]{1,8}\\.(txt)$/"}
+{"id":"gpt-files-paths-14","output":"/^(?:(?:'[^'\"]*'|\"[a-z0-9._-]+\")\\/)*[a-z0-9._-]+$/"}
+{"id":"gpt-files-paths-15","output":"/^\\/(?!(?:tmp|cache)$)[a-z]{3,8}\\/[a-z]{3,8}\\.txt$/"}
+{"id":"gpt-files-paths-16","output":"/^(?:\\p{L}[\\p{M}]*)(?:-(?:\\p{L}[\\p{M}]*))*\\p{L}[\\p{M}]*\\p{L}[\\p{M}]*\\p{L}[\\p{M}]*\\p{L}[\\p{M}]*\\p{L}[\\p{M}]*\\p{L}[\\p{M}]*\\p{L}[\\p{M}]*\\p{L}[\\p{M}]*\\p{L}[\\p{M}"}
+{"id":"gpt-files-paths-17","output":"/^FILE[ae]([a-z]{2,6}):[^\\n]+:.*\\bpath\\b.*\\b[ae]([a-z]{2,6})\\b$/"}
+{"id":"gpt-files-paths-18","output":"/^(?:file=\\\"[a-z0-9]{3,8}\\.(?:txt|bat|csv|xml|json|yaml|cfg|xls|xlsx|csv|txt|bat|csv|xml|json|yaml|cfg|xls|xlsx|csv|txt|bat|csv|xml|json|yaml|cfg|xls|xlsx|csv|txt|bat|csv|xml|json|yaml|cfg|xls|xlsx|csv|txt|bat|csv|xml|json|yaml|cfg|xls|xlsx|csv|txt|bat|csv|xml|json|"}
+{"id":"gpt-files-paths-19","output":"/^(?!(?:tmp|cache)$)[a-z]{3,8}\\/[a-z]{2,4}(?:\\/[a-z]{2,4})?item.txt$/"}
+{"id":"gpt-files-paths-20","output":"/^[a-z]{3,8}:[0-9a-f]{6}$/"}
+{"id":"gpt-identifiers-01","output":"/^EX[0-9A-F]{8}$/"}
+{"id":"gpt-identifiers-02","output":"/^q[a-z]{6}$/"}
+{"id":"gpt-identifiers-03","output":"/^WH\\d{5}X$/"}
+{"id":"gpt-identifiers-04","output":"/^[0-9a-f]{10}\\.[a-f]{2}\\.sha$/"}
+{"id":"gpt-identifiers-05","output":"/^tmp:ABCDEFGHIJKLMNOPQRSTUVWXYZ{8}$/"}
+{"id":"gpt-identifiers-06","output":"/^shard-[1-9]|[1-9]\\d{0,5}[0-9]$/"}
+{"id":"gpt-identifiers-07","output":"/^(?!0{4}$)[A-Z]{2}-[0-9]{4}$/"}
+{"id":"gpt-identifiers-08","output":"/^[0-9a-f]{12}-[0-9a-f]{6}$/"}
+{"id":"gpt-identifiers-09","output":"/^JOB\\/(?:100|[1-9]?\\d|101-120|120-140|140-160|160-180|180-200|200-220|220-250)$/"}
+{"id":"gpt-identifiers-10","output":"/^[a-z][a-z0-9]{7,15}$/"}
+{"id":"gpt-identifiers-11","output":"/^digest=([0-9a-f]{8});$/"}
+{"id":"gpt-identifiers-12","output":"/^shard[0-9]$/"}
+{"id":"gpt-identifiers-13","output":"/^(?=.*[A-Z])(?=.*[0-9])[A-Z0-9]{12}$/"}
+{"id":"gpt-identifiers-14","output":"/^(?:[0-9a-f]{6}:)[0-9a-f]{6}:[0-9a-f]{6}$/"}
+{"id":"gpt-identifiers-15","output":"/^[A-Z]{3}([A-Z]{3}){2}$/"}
+{"id":"gpt-identifiers-16","output":"/^(?:\\p{L}[\\p{L}\\p{M}]*)(?:-(?:\\p{L}[\\p{L}\\p{M}]*))*$/u"}
+{"id":"gpt-identifiers-17","output":"/^ID{[a-z]{2,6}:.*:ID{[a-z]{2,6}}$/"}
+{"id":"gpt-identifiers-18","output":"/^(?:(?:[A-Z]+)=[A-Z]{4})\\n(?:[A-Z]+=[A-Z]{4})$/"}
+{"id":"gpt-identifiers-19","output":"/^[A-Z](?:(?!\\1\\1)[0-9]+)-[A-Z](?!\\1\\1)[0-9]+$/"}
+{"id":"gpt-identifiers-20","output":"/^(?:east|west):[0-9]{2}\\/[west|east]$/"}
+{"id":"gpt-logs-01","output":"/^EVT: \\d{6}$/"}
+{"id":"gpt-logs-02","output":"/^TRACE [0-9a-f]{8}$/"}
+{"id":"gpt-logs-03","output":"/^BOOT[A-Z]{4}\\.$/"}
+{"id":"gpt-logs-04","output":"/^log\\/\\d{5}\\/ready$/"}
+{"id":"gpt-logs-05","output":"/^pid=[0-9]{7}$/"}
+{"id":"gpt-logs-06","output":"/^depth=63$/"}
+{"id":"gpt-logs-07","output":"/^HTTP\\/\\d+\\.\\d+ [45]\\d{2} \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+ \\S+"}
+{"id":"gpt-logs-08","output":"/^(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d (?:WARN|ERROR)$/"}
+{"id":"gpt-logs-09","output":"/^worker=(?:[1-9]\\d{0,2}|[1-9]\\d{1,2}|1-32) state=([a-z]*)(?:\\b(?:[a-z]*\\b)*[a-z])?$/"}
+{"id":"gpt-logs-10","output":"/^path=([^\\/\\n]+) bytes=(?:[0-9]\\d{1,2})?$/"}
+{"id":"gpt-logs-11","output":"/^(?:[1-9]|[1-9]\\d|1[0-9]\\d|2[0-3]\\d|3[01]\\d|4[0-9]\\d|5[0-4]\\d|6[0-4]\\d)\\x00[;]*$/"}
+{"id":"gpt-logs-12","output":"/^[0-9A-F]{8}$/"}
+{"id":"gpt-logs-13","output":"/\\bERROR: \\S+\\b/"}
+{"id":"gpt-logs-14","output":"/^(?:[0-9a-f]{8})/"}
+{"id":"gpt-logs-15","output":"/^OPEN \\w{3,8} CLOSE \\w{3,8}$/"}
+{"id":"gpt-logs-16","output":"/^src=[\\p{L}]+(?:[\\p{L}\\p{M}]+)*(?:-[\\p{L}\\p{M}]+)*$/u"}
+{"id":"gpt-logs-17","output":"/^LOG[abc]{2,6}:.*\\berror\\b.*:LOG$/"}
+{"id":"gpt-logs-18","output":"/^(?:\"trace\"|\"trace\")[0-9a-f]{8}(?:[ \"]\\n\"trace\"|\"trace\")[0-9a-f]{8}$/"}
+{"id":"gpt-logs-19","output":"/^(?:1-99;1;0-99)$/"}
+{"id":"gpt-logs-20","output":"/^BEGIN\\s+\"[a-z]{3,8}\"END\\s*$/"}
+{"id":"gpt-measurements-01","output":"/^\\d{4}mm$/"}
+{"id":"gpt-measurements-02","output":"/^M[0-9]{5}g$/"}
+{"id":"gpt-measurements-03","output":"/^[0-9a-f]{6}\\/raw$/"}
+{"id":"gpt-measurements-04","output":"/^W\\d{4}px$/"}
+{"id":"gpt-measurements-05","output":"/^P\\d{3}\\.\\d+kPa$/"}
+{"id":"gpt-measurements-06","output":"/^(?:[0-9]|[1-8][0-9]|90-95)[°]$/"}
+{"id":"gpt-measurements-07","output":"/^(?:[1-9]|[1-9]\\d|100)%(?:0|[1-9]\\d?|100)$/"}
+{"id":"gpt-measurements-08","output":"/^-?(?:0|[1-9]\\d?|10-40)°C$/"}
+{"id":"gpt-measurements-09","output":"/^\\d+(?:\\.\\d+)?\\s[ML]$/i"}
+{"id":"gpt-measurements-10","output":"/^(?:[1-9]\\d{2})x(?:[1-9]\\d{2})$/"}
+{"id":"gpt-measurements-11","output":"/^humidity=100(?:%)?$/"}
+{"id":"gpt-measurements-12","output":"/^heading[0-9][0-9]$/"}
+{"id":"gpt-measurements-13","output":"/^(?:[1-9]|[1-9]\\d{1,2})\\.\\d{1,2} ?(?:ms|s)$/"}
+{"id":"gpt-measurements-14","output":"/^(?:[1-9]\\d{1,2})\\s*[1-9]\\d{1,2}\"/"}
+{"id":"gpt-measurements-15","output":"/^x[1-9]\\d? \\d+$/"}
+{"id":"gpt-measurements-16","output":"/^(?:\\p{L}[\\p{M}]*)(?:-(?:\\p{L}[\\p{M}]*))*$/u"}
+{"id":"gpt-measurements-17","output":"/^MEAS{[a-z]{2,6}:[^\\n]+:MEAS$/"}
+{"id":"gpt-measurements-18","output":"/^(?:[1-9]\\d{1,2}|[1-9]\\d{1,2})\\s*=\\s*[1-9]\\d{1,2}\\s*=\\s*[1-9]\\d{1,2}\\s*$/"}
+{"id":"gpt-measurements-19","output":"/^(?:[1-9]\\d|1[0-7]\\d|2[0-3]\\d|3[0-1]\\d|31)(?:,(?:[1-9]\\d|1[0-7]\\d|2[0-3]\\d|3[0-1]\\d|31))$/"}
+{"id":"gpt-measurements-20","output":"/^(?:[NS])\\:(?:[0-9]|[1-8][0-9])(?:\\.[0-9]{2})? ;(?:[EW])\\:(?:[0-9]|[1-9][0-9])(?:\\.[0-9]{2})?$/"}
+{"id":"gpt-money-01","output":"/^[A-Z]USD \\d{4}\\.\\d{2}$/"}
+{"id":"gpt-money-02","output":"/^€[0-9]{3}$/"}
+{"id":"gpt-money-03","output":"/^\\d{3}JPY$/"}
+{"id":"gpt-money-04","output":"/^GBP:\\d{5}$/"}
+{"id":"gpt-money-05","output":"/^\\p{L} ?\\p{Nd}+\\.\\d{2}$/u"}
+{"id":"gpt-money-06","output":"/^EUR [1-9]\\d{1,2}\\s*[1-9]\\d{1,2}$/"}
+{"id":"gpt-money-07","output":"/^(?:0|[1-9]\\d{0,2})(?:\\.\\d{2})?$/"}
+{"id":"gpt-money-08","output":"/^\\d+,\\d{2}\\u00A0€$/"}
+{"id":"gpt-money-09","output":"/^\\d+\\.\\d{2}(\\(\\d+\\.\\d{2}\\))?$/"}
+{"id":"gpt-money-10","output":"/^PLN:([1-9]|[1-9]\\d|10-75)$/"}
+{"id":"gpt-money-11","output":"/^\\bCents=(?:0|[1-9]\\d+);$/"}
+{"id":"gpt-money-12","output":"/^(?:USD|EUR)(?:\\/[A-Za-z]?|\\S)?$/"}
+{"id":"gpt-money-13","output":"/^AUD (?:[1-9]\\d{0,2})\\.\\d{2}$/"}
+{"id":"gpt-money-14","output":"/^(?:[1-9]\\d?|0[1-9])\\.\\d{2}\\/(?:[1-9]\\d?|0[1-9])\\.\\d{2}$/"}
+{"id":"gpt-money-15","output":"/^(?:EUR|USD):[1-9]\\d+\\/[1-9]\\d+$/"}
+{"id":"gpt-money-16","output":"/^(?:\\p{L}[\\p{M}]?|\\p{L}[\\p{M}]+)(?:-(?:\\p{L}[\\p{M}]?|\\p{L}[\\p{M}]+))*$/u"}
+{"id":"gpt-money-17","output":"/^PAY[a-z]{2,6}:.*:paid[^\\n]*\\nPAY$/"}
+{"id":"gpt-money-18","output":"/^(?:currency=EUR|USD|JPY|GBP|CHF|CAD|AUD|PLN)\\nconfirm=EUR|USD|JPY|GBP|CHF|CAD|AUD|PLN$/"}
+{"id":"gpt-money-19","output":"/^(?:[1-9]\\d{0,2}(?:,\\[1-9]\\d{0,2})?|[1-9]\\d{1,2}(?:,\\[1-9]\\d{0,2})?|[1-9]\\d{2}(?:,\\[1-9]\\d{0,2})?|[1-9]\\d{3}(?:,\\[1-9]\\d{0,2})?|[1-9]\\d{4}(?:,\\[1-9]\\d{0,2})?|[1-9]\\d"}
+{"id":"gpt-money-20","output":"/^(?:'EUR:([1-9]\\d{0,4})'|EUR:([1-9]\\d{0,4})$/"}
+{"id":"gpt-multiline-01","output":"/^BEGIN\\n[A-Z]{4}$/"}
+{"id":"gpt-multiline-02","output":"/^[0-9]+[Ll]\\n[0-9]{4}$/"}
+{"id":"gpt-multiline-03","output":"/^open[ae]([a-z]{4})close$/"}
+{"id":"gpt-multiline-04","output":"/^READY\\r\\n[0-9A-F]{4}$/"}
+{"id":"gpt-multiline-05","output":"/^[a-z]+[a-z]+[a-z]+[a-z]\\n[a-z]+[a-z]+[a-z]+[a-z]$/"}
+{"id":"gpt-multiline-06","output":"/^[0-9]{3}(?:\\n[0-9]{3}){1,3}$/"}
+{"id":"gpt-multiline-07","output":"/\\bTASK:\\d{1,32}\\b/"}
+{"id":"gpt-multiline-08","output":"/^mode=(?:fast|safe)\\nretries=(?:0|[1-9])$/"}
+{"id":"gpt-multiline-09","output":"/^[A-Za-z]{2,6} *=\\S*$/m"}
+{"id":"gpt-multiline-10","output":"/^(?:[a-z]{1,12})\\n(?:[a-z]{1,12})\\n$/"}
+{"id":"gpt-multiline-11","output":"/^[A-Z]{4}\\n/"}
+{"id":"gpt-multiline-12","output":"/^(?:OK:\\d{4}(?:\\r?\\n)?)/m"}
+{"id":"gpt-multiline-13","output":"/^[x ][a-z]{2,8}(?:\\n[ x ][a-z]{2,8}){1,3}$/"}
+{"id":"gpt-multiline-14","output":"/^(?:\"[a-z]{3,8}\"|\"[a-z]{3,8}\")=([^\"\\r\\n]*[a-z]{3,8})$/"}
+{"id":"gpt-multiline-15","output":"/^START:\\s*[a-z]{3,8}\\s*[0-9]{4}\\s*END:\\s*[a-z]{3,8}\\s*$/"}
+{"id":"gpt-network-01","output":"/^pkt:[0-9A-F]{8}$/"}
+{"id":"gpt-network-02","output":"/^sw-[a-z]{4}$/"}
+{"id":"gpt-network-03","output":"/^RX=[0-9]{6}$/"}
+{"id":"gpt-network-04","output":"/^[0-9a-f]{6}\\/vendor$/"}
+{"id":"gpt-network-05","output":"/^V[A-Z]{5}$/"}
+{"id":"gpt-network-06","output":"/^(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)\\.7\\.\\.9$/"}
+{"id":"gpt-network-07","output":"/^[0-9A-F]{2}:^[0-9A-F]{2}:^[0-9A-F]{2}:^[0-9A-F]{2}:^[0-9A-F]{2}:^[0-9A-F]{2}L2$/"}
+{"id":"gpt-network-08","output":"/^vlan=([1-9]\\d{0,5}|10-64)$/"}
+{"id":"gpt-network-09","output":"/^eth[0-9]{1,15}(?:\\.[0-9]{1,5})?(?:[1-9]\\d{0,2})?$/"}
+{"id":"gpt-network-10","output":"/^tcp://node\\.test:9[0-9]{2}$/"}
+{"id":"gpt-numbers-01","output":"/^[+-]?\\d{4}$/"}
+{"id":"gpt-numbers-02","output":"/^(?:0|[1-9]\\d*0)$/"}
+{"id":"gpt-numbers-03","output":"/^(?:[0-9]{8})$/"}
+{"id":"gpt-numbers-04","output":"/^[0-9]+[0-9]\\.[0-9]{3}$/"}
+{"id":"gpt-numbers-05","output":"/^0x[0-9A-Fa-f]{6}$/"}
+{"id":"gpt-numbers-06","output":"/^(?:[3-9]|[3-9]\\d|10\\d|11\\d|12\\d|13\\d|14\\d|15\\d|16\\d|17\\d|18\\d|19\\d|20\\d|21\\d|22\\d|23\\d|24\\d|25\\d|26\\d|27\\d|28\\d|29\\d|30\\d|31\\d|32\\d|33\\d|34\\d|35\\d|36\\d|37\\d|38"}
+{"id":"gpt-numbers-07","output":"/^(?:0|[1-9]\\d*)(?:\\.\\d{1,2})?$/"}
+{"id":"gpt-numbers-08","output":"/^(?:100(?:\\.0{1})?|(?:[1-9]\\d?)(?:\\.\\d{1})?)%$/"}
+{"id":"gpt-numbers-09","output":"/^(?:[1-9]\\d{0,2}(?:,\\d{3})*)$/"}
+{"id":"gpt-numbers-10","output":"/^[e][+-]?\\d*[1-9]\\d{0,23}[e]$/"}
+{"id":"gpt-passwords-01","output":"/^[0-9]{6}$/"}
+{"id":"gpt-passwords-02","output":"/^tmp-[a-z]{8}$/"}
+{"id":"gpt-passwords-03","output":"/^[0-9A-F]{12}$/"}
+{"id":"gpt-passwords-04","output":"/^K:\\d{8}$/"}
+{"id":"gpt-passwords-05","output":"/^[a-z]{10}!$/"}
+{"id":"gpt-passwords-06","output":"/^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)[A-Za-z0-9]{8,16}$/"}
+{"id":"gpt-passwords-07","output":"/^(?=.*[a-z])[a-z0-9]{6,10}$/"}
+{"id":"gpt-passwords-08","output":"/^(?!.*__)[A-Za-z0-9_]{8,12}(?<!_)$/"}
+{"id":"gpt-passwords-09","output":"/^(?!([0-9])\\1{7}$)[0-9]{8}$/"}
+{"id":"gpt-passwords-10","output":"/^(?!.*[a-z0-9]{10,20}$)[a-z0-9]+$/"}
+{"id":"gpt-phone-numbers-01","output":"/^ext[0-9]{4}$/"}
+{"id":"gpt-phone-numbers-02","output":"/^#[0-9]{7}$/"}
+{"id":"gpt-phone-numbers-03","output":"/^R[0-9]{6}voice$/"}
+{"id":"gpt-phone-numbers-04","output":"/^\\+999[0-9]{8}$/"}
+{"id":"gpt-phone-numbers-05","output":"/^sip: \\d{5}@pbx\\.test$/"}
+{"id":"gpt-phone-numbers-06","output":"/^x[1-9]\\d{1,2}$/"}
+{"id":"gpt-phone-numbers-07","output":"/^0[67]\\d{2} ?\\d{2} ?\\d{2}$/"}
+{"id":"gpt-phone-numbers-08","output":"/^\\+1[2-9]\\d{2} \\d{3}-\\d{4}$/"}
+{"id":"gpt-phone-numbers-09","output":"/^(?:\\+?[1-9]\\d{0,2}) \\d{6,10}$/"}
+{"id":"gpt-phone-numbers-10","output":"/^0800-[0-9]{6}(?: [0-9]{1,3})?$/"}
+{"id":"gpt-postal-official-01","output":"/^POST-\\d{5}$/"}
+{"id":"gpt-postal-official-02","output":"/^P[A-Z]{8}$/"}
+{"id":"gpt-postal-official-03","output":"/^([0-9]{10})$/"}
+{"id":"gpt-postal-official-04","output":"/^[0-9A-F]{6}$/"}
+{"id":"gpt-postal-official-05","output":"/^[A-Z]{4}/DIST/"}
+{"id":"gpt-postal-official-06","output":"/^OF-[1-9]|[1-9]\\d|100-72$/"}
+{"id":"gpt-postal-official-07","output":"/^\\d{5}(?:-\\d{4})?$/"}
+{"id":"gpt-postal-official-08","output":"/^(?!CA[DFIOQU] )[A-Z]\\d[A-Z] \\d[A-Z]\\d$/"}
+{"id":"gpt-postal-official-09","output":"/^DOC\\/\\d{4}\\/[1-9]\\d{1,2}\\/[1-9]\\d{1,2}$/"}
+{"id":"gpt-postal-official-10","output":"/^PP:([A-Z]{2})[0-9]{7}(?!\\1)$/"}
+{"id":"gpt-structured-data-01","output":"/^[a-z]{6};$/"}
+{"id":"gpt-structured-data-02","output":"/^\\s*([0-9a-f]{8})\\s*$/"}
+{"id":"gpt-structured-data-03","output":"/^[A-Za-z0-9]{1,5},[A-Za-z0-9]+$/"}
+{"id":"gpt-structured-data-04","output":"/^<id>[A-Z]{4}</id>$/"}
+{"id":"gpt-structured-data-05","output":"/^\\d{6}$/"}
+{"id":"gpt-structured-data-06","output":"/^\\{\"count\": (?:63|[0-9]?\\d)\\}$/"}
+{"id":"gpt-structured-data-07","output":"/^(?:[a-z][a-z]*)(?:,(?:[a-z][a-z]*)){0,3}$/"}
+{"id":"gpt-structured-data-08","output":"/^(?:[1-9]\\d|0)(?:\\.(?:[1-9]\\d|0))$/"}
+{"id":"gpt-structured-data-09","output":"/^(?!(?:null|_|^|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|$|_|"}
+{"id":"gpt-structured-data-10","output":"/^\\d+ \\s*(?:true|false)$/"}
+{"id":"gpt-text-01","output":"/^[a-z]{8}$/"}
+{"id":"gpt-text-02","output":"/^Y[0-9A-Z]{3}$/"}
+{"id":"gpt-text-03","output":"/^\\d{5}$/"}
+{"id":"gpt-text-04","output":"/^[A-Za-z]*\\*[A-Za-z]*\\*[A-Za-z]*\\*[A-Za-z]*\\*[A-Za-z]*\\*[A-Za-z]*$/"}
+{"id":"gpt-text-05","output":"/^H:[A-Z]{6}\\.$/"}
+{"id":"gpt-text-06","output":"/^[a-z]{1,8}(?: [a-z]{1,8}){1,4}\\.$/"}
+{"id":"gpt-text-07","output":"/^(?:pending|approved|rejected) ?(?:[1-9]\\d?)$/"}
+{"id":"gpt-text-08","output":"/^\\d{1,64} /"}
+{"id":"gpt-text-09","output":"/^[A-Za-z](?:[A-Za-z ])*[A-Za-z]$/"}
+{"id":"gpt-text-10","output":"/^[a-z]{1,6}(?:,[a-z]{1,6}){0,3}(?: \\S+)?$/"}

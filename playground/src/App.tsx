@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { parseAnswer, type Request } from "./prompt";
 import { HowItWorks } from "./HowItWorks";
 import { TestArea } from "./TestArea";
-import type { FromWorker, ModelSource, ToWorker } from "./worker";
+import type { Dtype, FromWorker, ModelSource, ToWorker } from "./worker";
 
 /** `owner/repo@revision` (variable VITE_HUB_*, voir .env.example) → source Hub ; absente → public/models/ en local. */
 function source(hub: string | undefined): ModelSource {
@@ -12,13 +12,26 @@ function source(hub: string | undefined): ModelSource {
   return { kind: "hub", repo, revision };
 }
 
-const ALL_MODELS = [
+// `files` : dossier de l'export (public/models/<files>/ ou repo du Hub) ; `dtype` : variante des poids dans onnx/.
+const ALL_MODELS: { id: string; label: string; size: string; files: string; dtype: Dtype; source: ModelSource }[] = [
   // Meilleur 0.6B au benchmark indépendant (GPT) : SFT sur données enrichies, étape 9 ter.
   {
     id: "sft-0.6b-plus",
     label: "SFT Qwen3-0.6B",
     size: "1.6 GB",
+    files: "sft-0.6b-plus",
+    dtype: "fp16",
     source: source(import.meta.env.VITE_HUB_SFT_0_6B_PLUS),
+  },
+  // Même modèle quantizé en 4 bits (scripts/quantize_models.py) : held-out inchangé, ~10 points de moins sur les
+  // cas difficiles du benchmark. Local uniquement pour l'instant : absent du build de production.
+  {
+    id: "sft-0.6b-plus-q4f16",
+    label: "SFT Qwen3-0.6B, light (4-bit)",
+    size: "0.65 GB",
+    files: "sft-0.6b-plus",
+    dtype: "q4f16",
+    source: { kind: "local" },
   },
   // { id: "sft-1.7b", label: "SFT Qwen3-1.7B", size: "4.7 GB", source: source(import.meta.env.VITE_HUB_SFT_1_7B) },
 ];
@@ -86,8 +99,8 @@ export default function App() {
     setOutput("");
     setGeneratedKey(null);
     setStatus({ kind: "loading", loaded: 0, total: 0 });
-    const { source } = MODELS.find((m) => m.id === model)!;
-    worker.current?.postMessage({ type: "load", model, source } satisfies ToWorker);
+    const { files, dtype, source } = MODELS.find((m) => m.id === model)!;
+    worker.current?.postMessage({ type: "load", model, files, dtype, source } satisfies ToWorker);
   };
 
   const selectModel = (id: string) => {

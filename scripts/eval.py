@@ -7,6 +7,8 @@ exécution dans Node sur les tests cachés (succès complet, taux de tests réus
     uv run scripts/eval.py --name sft-0.6b --data data/eval/benchmark.jsonl --adapter adapters/sft
     uv run scripts/eval.py --name baseline-1.7b --data data/eval/benchmark.jsonl --model Qwen/Qwen3-1.7B
     uv run scripts/eval.py --name reference --data tests/fixtures/cases.jsonl --reference  # sans modèle, contrôle des données
+    uv run scripts/eval.py --name sft-0.6b-plus-q4f16-gpt --data data/eval/benchmark-gpt.jsonl \
+        --outputs results/onnx/sft-0.6b-plus-q4f16-gpt.jsonl  # réponses déjà générées (ONNX, playground/scripts/generate.ts)
 
 Sorties :
     results/<name>.jsonl  détail par cas (réponse brute, statut, tests ratés)
@@ -63,6 +65,7 @@ def main() -> None:
     parser.add_argument("--model", default="Qwen/Qwen3-0.6B")
     parser.add_argument("--adapter", default=None, help="dossier d'un adapter LoRA")
     parser.add_argument("--reference", action="store_true", help="note les regex de référence au lieu d'un modèle")
+    parser.add_argument("--outputs", type=Path, default=None, help="JSONL {id, output} déjà généré : note sans modèle")
     parser.add_argument("--few-shot", action="store_true", help="ajoute au prompt les exemples fixes de common.FEW_SHOT")
     parser.add_argument("--thinking", action="store_true", help="active le raisonnement de Qwen3 (prévoir --max-tokens élevé)")
     parser.add_argument("--n", type=int, default=None, help="nombre de cas (pour un test rapide)")
@@ -75,6 +78,9 @@ def main() -> None:
     start = time.monotonic()
     if args.reference:
         outputs = [e["regex"] for e in examples]
+    elif args.outputs:
+        generated = {r["id"]: r["output"] for r in map(json.loads, args.outputs.open())}
+        outputs = [generated[e["id"]] for e in examples]
     else:
         outputs = generate(args.model, args.adapter, examples, args.max_tokens, args.batch_size, args.few_shot, args.thinking)
     gen_time = time.monotonic() - start
@@ -89,7 +95,7 @@ def main() -> None:
             f.write(json.dumps({**record, "output": out, **g}, ensure_ascii=False) + "\n")
     summary = {
         "name": args.name,
-        "model": "reference" if args.reference else args.model,
+        "model": "reference" if args.reference else str(args.outputs) if args.outputs else args.model,
         "adapter": args.adapter,
         "few_shot": args.few_shot,
         "thinking": args.thinking,

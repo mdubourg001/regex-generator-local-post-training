@@ -1,0 +1,105 @@
+{"id":"code-syntax-01","output":"/^[a-z][a-zA-Z0-9]*$/"}
+{"id":"code-syntax-03","output":"/^[a-z0-9]+(?:-[a-z0-9]+)*\\.vue$/"}
+{"id":"code-syntax-05","output":"/^[ \\s]*\\/\\/[ \\s]*[A-Z]+\\bTODO|[A-Z]+\\bTODO[ \\s]*\\([^[\\s]+\\)[\\s\\S]*\\)$/"}
+{"id":"code-syntax-07","output":"/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:__[a-z][a-z0-9]*(?:-[a-z0-9]+)*)?(?:--[a-z][a-z0-9]*(?:-[a-z0-9]+)*)?$/"}
+{"id":"code-syntax-09","output":"/^[ \\t]*@[A-Za-z_]\\w*(?:\\.[A-Za-z_]\\w*)*\\([A-Za-z_]\\w*(?:\\.[A-Za-z_]\\w*)*\\)?$/"}
+{"id":"dates-times-01","output":"/^(?:[01]\\d|2[0-3]):[0-5]\\d$/"}
+{"id":"dates-times-03","output":"/^(0?[1-9]|1[0-2]):[0-5]\\d [AaPp]Mm$/"}
+{"id":"dates-times-05","output":"/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,9})?Z$/"}
+{"id":"dates-times-07","output":"/^(?:\\d{4}-\\d{2}-\\d{2}) to (?:\\d{4}-\\d{2}-\\d{2})$/"}
+{"id":"dates-times-09","output":"/^(?:[1-9]\\d|0?[1-9]\\d)(?::[0-5]\\d)?$/"}
+{"id":"dev-tooling-01","output":"/^(?:feat|fix|docs|chore|refactor|test|ci)(?:\\([a-z0-9-]+\\))?: [^ ]\\S.*$/"}
+{"id":"dev-tooling-03","output":"/^(?!.*[.-])[A-Za-z0-9_.-]{1,128}$/"}
+{"id":"dev-tooling-05","output":"/^[A-Z]{2,6}-[1-9]\\d* [A-Z][A-Z0-9]*[A-Z0-9]*[A-Z0-9]*[A-Z0-9]*[A-Z0-9]*[A-Z0-9]*[A-Z0-9]*[A-Z0-9]*[A-Z0-9]*[A-Z0-9]*[A-Z0-9]*[A-Z0-9]*[A-Z0-9]*[A-Z0-9]*[A-Z0-9]*[A-Z0"}
+{"id":"dev-tooling-07","output":"/^[a-z0-9]+(?:-[a-z0-9]+)*$/"}
+{"id":"dev-tooling-09","output":"/^(?:[a-z0-9-]+(?:\\.[a-z0-9-]+)*)(?::\\d+)?\\/(?:[a-z0-9]+(?:-[a-z0-9]+)*\\/)*[a-z0-9]+(?:-[a-z0-9]+)*[a-zA-Z0-9_](?:[a-zA-Z0-9._-]*[a-zA-Z0-9_])?$/"}
+{"id":"email-accounts-01","output":"/^[a-z][a-z0-9_]{2,15}$/"}
+{"id":"email-accounts-03","output":"/^(?:[^\\s]+@)[A-Za-z0-9_]{1,15}(?!\\s)[A-Za-z0-9_]/"}
+{"id":"email-accounts-05","output":"/^(?!\\.)(?!.*\\.\\.)[A-Za-z0-9._%+-]{1,64}(?<!\\.)@(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\\.)+[A-Za-z]{2,24}$/i"}
+{"id":"email-accounts-07","output":"/^(?:[^\\s@]+\\@)[^\\s@]+(?:\\.[^\\s@]+)*\\.[^\\s@]+$/i"}
+{"id":"email-accounts-09","output":"/^(?:@[A-Za-z0-9_.]{1,29}[A-Za-z0-9_.])?$/"}
+{"id":"exclusions-01","output":"/^(?!.*TODO).*$/s"}
+{"id":"exclusions-03","output":"/^(?!(?:select|from|where|insert|update|delete)$)[A-Za-z_]+$/i"}
+{"id":"exclusions-05","output":"/^(?=.*[a-z])[A-Za-z0-9]{3,16}$/"}
+{"id":"exclusions-07","output":"/^(?!.*(.)\\1{2,})[A-Za-z0-9!#$%&'*+\\/=?^_`{|}~-]{8,32}$/"}
+{"id":"exclusions-09","output":"/\\berror\\b/i"}
+{"id":"files-paths-01","output":"/^[^\\/\\\\]+(?:\\.[^\\/\\\\]+)*\\.(?:png|jpe?g|gif|webp)$/i"}
+{"id":"files-paths-03","output":"/^[A-Za-z]:\\\\(?:[^< >:\"\\/\\\\|\\?*\\r\\n]+(?:\\\\[^< >:\"\\/\\\\|\\?*\\r\\n]+)*)?$/"}
+{"id":"files-paths-05","output":"/^[A-Za-z0-9_.-]+(?:\\.(?:test|spec)\\.(?:js|jsx|ts|tsx))?$/"}
+{"id":"files-paths-07","output":"/^docs\\/(?:[a-z0-9-]+\\/)*[a-z0-9-]+(?:\\.(?:md|dx))?$/"}
+{"id":"files-paths-09","output":"/^[^\\/\\\\:*?\"<>|\\x00-\\x1f]+(?<![ .])$/"}
+{"id":"identifiers-01","output":"/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/"}
+{"id":"identifiers-03","output":"/^[A-Z][A-Z0-9]{1,9}-[1-9]\\d*$/"}
+{"id":"identifiers-05","output":"/^[a-z0-9]+(?:-[a-z0-9]+)*$/"}
+{"id":"identifiers-07","output":"/^(?!(?:[A-Za-z0-9_])\\1+$)[A-Za-z0-9_]*[A-Za-z0-9_]*$|^[A-Za-z0-9_]*[A-Za-z0-9_]*$/"}
+{"id":"identifiers-09","output":"/^[A-Z]{2}-(?:20[0-9]|200[0-9]|201[0-9])-[1-9]\\d{3}$|^[A-Z]{2}-20[0-9]-(?:0|[1-9]\\d{3})$/"}
+{"id":"logs-01","output":"/\\bERROR\\b/"}
+{"id":"logs-03","output":"/^(?:5[0-9]|6[0-9]|7[0-9]|8[0-9]|9[0-9])$/"}
+{"id":"logs-05","output":"/^(?:[1-9]\\d{2,}|[1-9]\\d{3,})ms$/"}
+{"id":"logs-07","output":"/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z (?:debug|info|warn|error)\\b/"}
+{"id":"logs-09","output":"/^(?:[a-z][a-z0-9]*)(?:\\.[a-z][a-z0-9]*)*\\.([^[\\w]+)(?:\\.[a-z][a-z0-9]*)?)*Exception|.*Error$/"}
+{"id":"measurements-01","output":"/^-?\\d{1,3}(?:\\.\\d)?°[CF]$/"}
+{"id":"measurements-03","output":"/^[1-9]\\d{0,4}(?:[xX]\\d{1,5})?$/"}
+{"id":"measurements-05","output":"/^\\d+(?:\\.\\d{1,2})? ?(?:B|KB|MB|GB|TB)$/"}
+{"id":"measurements-07","output":"/^(?:[1-9]\\d{0,2})h(?:[0-5]\\d{1,2})m?$/"}
+{"id":"measurements-09","output":"/^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:px|em|rem|%|vh|vw)$/"}
+{"id":"money-01","output":"/^\\$(?:\\d+(?:\\.\\d{2})?|\\d+)$/"}
+{"id":"money-03","output":"/^[A-Z]{3} \\d+(\\.\\d{2})?$/"}
+{"id":"money-05","output":"/^(?:0|[1-9]\\d*)(?:\\.\\d{1,8})? BTC$/"}
+{"id":"money-07","output":"/^\\u20ac(0|[1-9]\\d{0,2}(,\\d{3})*)\\.\\d{2}$|^0\\.00$/"}
+{"id":"money-09","output":"/^\\$(?:[0-9]+)\\.[01]\\d{2}(?!\\d)$/"}
+{"id":"multiline-01","output":"/^[0-9]+(?:\\n[0-9]+)*$/"}
+{"id":"multiline-03","output":"/^#.*$/m"}
+{"id":"multiline-05","output":"/-----BEGIN CERTIFICATE-----\\n(?:[A-Za-z0-9+\\s+\\.\\s*]{1,64}\\n)+-----END CERTIFICATE-----\\n?$/"}
+{"id":"multiline-07","output":"/\\bTODO\\b\\n(?:.*\\bTODO\\b)*\\bDONE\\b/"}
+{"id":"multiline-09","output":"/^- [^\\n]*\\n(?:- [^\\n]*)*$/"}
+{"id":"network-01","output":"/^(?:(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)$/"}
+{"id":"network-03","output":"/^[0-9A-Fa-f]{2}(?::[0-9A-Fa-f]{2}){5}$/"}
+{"id":"network-05","output":"/^(?:(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)\\/(?:3[0-2]|[12]?\\d)$/"}
+{"id":"network-07","output":"/^(?:10\\.(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)\\.(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)\\/8|172\\.(?:1[6-9]|2[0-9]|3[01])\\.(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)\\/12|1"}
+{"id":"network-09","output":"/^(?:127\\.(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)\\.)*\\d{1,3}(:[1-9]\\d{1,3}|[1-5]\\d{2}|6[0-4]\\d|65[0-4]\\d|655[0-2]\\d|6553[0-5])$/"}
+{"id":"numbers-01","output":"/^(?:[1-9]|[1-9]\\d|2[0-9]|3[0-9]|4[0-9]|5[0-9]|6[0-9]|7[0-9]|8[0-9]|9[0-9])$/"}
+{"id":"numbers-03","output":"/^\\d+\\.\\d{1,2}$/"}
+{"id":"numbers-05","output":"/^(?:0x|0X)(?:[0-9A-Fa-f]{1,3})+$/"}
+{"id":"numbers-07","output":"/^-?(?:0|[1-9]\\d{0,2}(?:,\\d{3})*)$/"}
+{"id":"numbers-09","output":"/^-?(?:0|[1-9]\\d*)(?:\\s?\\/(?:[1-9]\\d*))(?:\\s?)$/"}
+{"id":"passwords-01","output":"/^(?=.*[A-Za-z])[A-Za-z0-9]{8,}$/"}
+{"id":"passwords-03","output":"/^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{10,64}$/"}
+{"id":"passwords-05","output":"/^(?:sk_live_|sk_test_)\\w{24}$/"}
+{"id":"passwords-07","output":"/^[a-z]{3,}(?:[ -][a-z]{3,}){3,}$/"}
+{"id":"passwords-09","output":"/^(?=.*[A-Z])(?=.*[0-9])[A-Z0-9]{12}$/"}
+{"id":"phone-numbers-01","output":"/^0[1-9]\\d{8}$/"}
+{"id":"phone-numbers-03","output":"/^(?:0[67]\\d{2})[ .-]?\\d{4}$/"}
+{"id":"phone-numbers-05","output":"/^(?:07\\s?\\d{5}\\s?\\d{6}|\\+44\\s?\\d{7})$/"}
+{"id":"phone-numbers-07","output":"/^0[67](?:[ .]?\\d{2}){4}$/"}
+{"id":"phone-numbers-09","output":"/^\\+\\d{1,3}\\s?\\d{6,12}$/"}
+{"id":"postal-official-01","output":"/^(?:9[7]|9[72]|9[73]|9[74]|9[76])\\d{3}$/"}
+{"id":"postal-official-03","output":"/^[ABCEGHJKLMNPRSTVXY]\\d[ABCEGHJKLMNPRSTVXY]\\d ?\\d[ABCEGHJKLMNPRSTVXY]\\d$/"}
+{"id":"postal-official-05","output":"/^(?:\\d{2} ?\\d{4} ?\\d{2})?$/"}
+{"id":"postal-official-07","output":"/^(DE|FR|IT)\\d{9}$|^(DE|FR|IT)\\d{11}$/"}
+{"id":"postal-official-09","output":"/^[1-9]\\d{3}(?: ?[A-Z]{2})?$/"}
+{"id":"structured-data-01","output":"/^\\d+(,\\d+)*$/"}
+{"id":"structured-data-03","output":"/^[A-Za-z0-9_-]+=[A-Za-z0-9_.~%][A-Za-z0-9_.~%]*(&[A-Za-z0-9_-]+=[A-Za-z0-9_.~%][A-Za-z0-9_.~%]*)*$/"}
+{"id":"structured-data-05","output":"/^(?:(?:\"([^\"\\n]+)\"|[^,\"'\\n]*)(?:,(?:\"([^\"\\n]+)\"|[^,\"'\\n]*))*$)/"}
+{"id":"structured-data-07","output":"/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}),(?:#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}))*$/"}
+{"id":"structured-data-09","output":"/^\\[(?:-?(?:0|[1-9]\\d*)(?: \\-?)(?:,-?(?:0|[1-9]\\d*))*)(?: \\-?)(?:,-?(?:0|[1-9]\\d*))*\\]$/"}
+{"id":"text-01","output":"/\\bdeprecated\\b/i"}
+{"id":"text-03","output":"/\\b(\\w+)\\s+\\1\\b/i"}
+{"id":"text-05","output":"/^\\S+(?: \\S+){0,4}$/"}
+{"id":"text-07","output":"/^#[\\p{L}\\p{N}_]+$/u"}
+{"id":"text-09","output":"/^(?=.*\\p{L}[\\p{L} ]{21,})\\p{L}[\\p{L} ]+$/u"}
+{"id":"unicode-01","output":"/^\\p{L}+$/u"}
+{"id":"unicode-03","output":"/^[A-Za-z][A-Za-z0-9_]{1,19}$/"}
+{"id":"unicode-05","output":"/[\\p{Pictographic}]+/u"}
+{"id":"unicode-07","output":"/^(?:\\p{L}\\p{L}\\p{L}[-]\\p{L}\\p{L}\\p{L})$/u"}
+{"id":"unicode-09","output":"/^#[\\p{L}\\p{N}_]{1,30}$/u"}
+{"id":"versions-01","output":"/^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$/"}
+{"id":"versions-03","output":"/^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:[0-9A-Za-z-]+)(?:\\.[0-9A-Za-z-]+)*))?(?:\\+((?:[0-9A-Za-z-]+)(?:\\.[0-9A-Za-z-]+)*))?$/"}
+{"id":"versions-05","output":"/^[A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?(\\s*(?:==|>=|<=|~=|!=|>||<)\\s*(?:\\d+(?:\\.\\d+)*|0|[1-9]\\d*)(?:\\s*|)$)/"}
+{"id":"versions-07","output":"/^(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\u2019 (?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)$/"}
+{"id":"versions-09","output":"/^(?:3\\.(?:8|9|10|11|12|13)\\.(?:0|[1-9]\\d*)?)?$/"}
+{"id":"web-01","output":"/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/"}
+{"id":"web-03","output":"/^(?:\\/|\\/[a-z0-9-]+(?:\\/[a-z0-9-]+)*)$/"}
+{"id":"web-05","output":"/^<h[1-6]>\\s*[^<>]*<\\/h[1-6]>$/"}
+{"id":"web-07","output":"/^[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]{8}(\\.[a-z]{2})?$/"}
+{"id":"web-09","output":"/utm_source=[^\\s&?#]+$/"}
