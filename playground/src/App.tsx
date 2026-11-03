@@ -18,7 +18,7 @@ const ALL_MODELS: {
   id: string;
   label: string;
   files: string;
-  sizes: Record<Variant["dtype"], string>;
+  sizes: Partial<Record<Variant["dtype"], string>>;
   source: ModelSource;
 }[] = [
   // SFT de Qwen3.5-0.8B (configs/sft-qwen3.5-0.8b.yaml), quantizé en 4 bits : remplace le Qwen3-0.6B en fp16
@@ -29,6 +29,15 @@ const ALL_MODELS: {
     files: "sft-qwen3.5-0.8b",
     sizes: { q4f16: "584 MB", q4: "648 MB" },
     source: source(import.meta.env.VITE_HUB_SFT_QWEN3_5_0_8B),
+  },
+  // SFT de Qwen3-1.7B (configs/sft.yaml), q4f16 seulement (scripts/export_qwen3_q4f16.py) : meilleur au benchmark
+  // regex101 (25,8 % en 4 bits) et ~4 fois plus rapide sur WebGPU (graphe fusionné, sans If/Scan), mais 1,43 Go.
+  {
+    id: "sft-1.7b",
+    label: "SFT Qwen3-1.7B",
+    files: "sft-1.7b",
+    sizes: { q4f16: "1.43 GB" },
+    source: source(import.meta.env.VITE_HUB_SFT_QWEN3_1_7B),
   },
 ];
 // En production, public/models/ n'est pas publié : seuls les modèles hébergés sur le Hub sont proposés.
@@ -80,6 +89,10 @@ export default function App() {
     w.onmessage = (event: MessageEvent<FromWorker>) => {
       const m = event.data;
       if (m.type === "progress") setStatus({ kind: "loading", loaded: m.loaded, total: m.total });
+      else if (m.type === "unloaded") {
+        setReady(null);
+        setStatus({ kind: "unloaded" });
+      }
       else if (m.type === "ready") {
         setReady(m.model);
         setStatus({ kind: "idle" });
@@ -100,8 +113,22 @@ export default function App() {
     setGeneratedKey(null);
     setStatus({ kind: "loading", loaded: 0, total: 0 });
     if (!variant) return;
-    const { files, source } = MODELS.find((m) => m.id === model)!;
+    const { files, source, sizes } = MODELS.find((m) => m.id === model)!;
+    if (!sizes[variant.dtype]) {
+      setStatus({ kind: "error", message: `${model} only exists in ${Object.keys(sizes).join(", ")} (WebGPU with shader-f16)` });
+      return;
+    }
     worker.current?.postMessage({ type: "load", model, files, variant, source } satisfies ToWorker);
+  };
+
+  // Libère la mémoire GPU et supprime les poids du cache du navigateur : le prochain chargement les retélécharge.
+  const unload = () => {
+    requestId.current++; // ignore la fin d'une génération en cours
+    setReady(null);
+    setOutput("");
+    setGeneratedKey(null);
+    setStatus({ kind: "unloaded" });
+    worker.current?.postMessage({ type: "unload" } satisfies ToWorker);
   };
 
   const selectModel = (id: string) => {
@@ -190,7 +217,10 @@ export default function App() {
               {MODELS.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.label}
-                  {variant && ` · ${m.sizes[variant.dtype]}`}
+                  {variant &&
+                    (m.sizes[variant.dtype]
+                      ? ` · ${variant.dtype} · ${m.sizes[variant.dtype]}`
+                      : ` · ${Object.keys(m.sizes).join(", ")} only, unavailable here`)}
                 </option>
               ))}
             </select>
@@ -203,6 +233,16 @@ export default function App() {
               {loading && <Spinner />}
               {loading ? "Loading…" : loaded ? "Loaded" : "Load model"}
             </button>
+            {loaded && (
+              <button
+                type="button"
+                onClick={unload}
+                title="Free GPU memory and delete the cached weights from this browser"
+                className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+              >
+                Unload
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -342,9 +382,8 @@ export default function App() {
               {variant.device === "wasm" && ": no WebGPU here, so generation is slower"})
             </>
           )}
-          . Once loaded, its weights are cached for this origin (scheme, host and port)
-          {variant && <>, {MODELS.map((m) => m.sizes[variant.dtype]).join(" + ")}</>}: clear this
-          site's data to free the space.
+          . Once loaded, the weights of the selected model are cached for this origin (scheme, host and port),
+          one model at a time: Unload frees the memory and deletes them.
         </p>
       </main>
     </div>

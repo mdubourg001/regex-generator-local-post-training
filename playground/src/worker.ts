@@ -27,10 +27,12 @@ export type Variant = { dtype: "q4" | "q4f16"; device: "webgpu" | "wasm" };
 /** `model` : identifiant renvoyé dans `ready` ; `files` : dossier de l'export, partagé par ses variantes. */
 export type ToWorker =
   | { type: "load"; model: string; files: string; variant: Variant; source: ModelSource }
+  | { type: "unload" }
   | ({ type: "generate"; id: number } & Request);
 export type FromWorker =
   | { type: "progress"; loaded: number; total: number }
   | { type: "ready"; model: string }
+  | { type: "unloaded"; freed: number }
   | { type: "token"; id: number; text: string }
   | { type: "done"; id: number; text: string; ms: number }
   | { type: "error"; message: string };
@@ -76,6 +78,23 @@ async function resolve(name: string, source: ModelSource): Promise<{ path: strin
   }
   await useCacheFor(name, (await config.json()).playground_export_id ?? "unversioned");
   return { path: name };
+}
+
+/** Libère le modèle (mémoire GPU) et supprime ses poids du Cache API. Retourne le nombre de caches supprimés. */
+async function unload(): Promise<number> {
+  stopping.interrupt();
+  await generation.catch(() => {});
+  await current?.model.dispose();
+  current = null;
+  let freed = 0;
+  try {
+    for (const key of await caches.keys()) {
+      if (key.startsWith("regex-playground/") && (await caches.delete(key))) freed++;
+    }
+  } catch {
+    // Cache API indisponible : rien n'a été mis en cache.
+  }
+  return freed;
 }
 
 async function load(name: string, files: string, { dtype, device }: Variant, source: ModelSource) {
@@ -138,6 +157,9 @@ self.onmessage = (event: MessageEvent<ToWorker>) => {
   const fail = (error: unknown) => post({ type: "error", message: error instanceof Error ? error.message : String(error) });
   if (message.type === "load") {
     loading = loading.then(() => load(message.model, message.files, message.variant, message.source)).catch(fail);
+  } else if (message.type === "unload") {
+    pending = null;
+    loading = loading.then(unload).then((freed) => post({ type: "unloaded", freed })).catch(fail);
   } else {
     pending = message;
     stopping.interrupt();

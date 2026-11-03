@@ -48,6 +48,25 @@ Scores (succès complet, `results/scores.jsonl`) : regex101 26,0 % en MLX bf16, 
 Node (`scripts/generate.mjs`, ORT CPU) à partir des prompts du tokenizer Python. `src/prompt.ts` produit ces prompts
 au caractère près (vérifié sur les 842 cas de regex101 et du held-out).
 
+### SFT Qwen3-1.7B (q4f16)
+
+Second modèle proposé : SFT de Qwen3-1.7B (`configs/sft.yaml`), en q4f16 seulement (WebGPU avec `shader-f16`, 1,43 Go).
+Sur un navigateur sans fp16, l'option du select l'indique et le chargement est refusé.
+
+```sh
+uv run scripts/export_qwen3_q4f16.py sft-1.7b           # → public/models/sft-1.7b/ (~15 s, pic ~4 Go)
+uv run scripts/export_qwen3_q4f16.py sft-1.7b --check   # requantifie la base et compare à onnx-community
+```
+
+Pas d'optimum : le script greffe les 196 matrices du LoRA, requantifiées (MatMulNBits, 4 bits, blocs de 32,
+symétrique), sur le graphe q4f16 d'`onnx-community/Qwen3-1.7B-ONNX` (`GroupQueryAttention` fusionné). Ce graphe tourne
+entièrement sur WebGPU : ~0,7 s par regex contre ~3 s pour le Qwen3.5-0.8B, dont les `If`/`Scan` des couches Gated
+DeltaNet retombent sur le CPU (mesure dans Node, WebGPU, 20 prompts regex101). Scores (MLX 4 bits, groupes de 32, en
+approximation de l'export) : regex101 25,8 %, held-out 70,8 % (bf16 : 26,5 %, 76,9 %).
+
+Publié : `maximedubourg/regex-sft-qwen3-1.7b-onnx@4a9fe6eb6e9d23c869959b0b01903af53fc707cf`
+(`VITE_HUB_SFT_QWEN3_1_7B`).
+
 L'ancien SFT Qwen3-0.6B (`sft-0.6b-plus`, fp16, `scripts/export_models.py`) n'est plus proposé ; son repo
 `maximedubourg/regex-sft-qwen3-0.6b-onnx` reste en ligne.
 
@@ -71,6 +90,7 @@ VITE_HUB_SFT_QWEN3_5_0_8B=maximedubourg/regex-sft-qwen3.5-0.8b-onnx@<sha> pnpm b
 - `src/worker.ts` : chargement (à la demande, bouton « Load model ») et génération dans un Web Worker ; une nouvelle
   requête interrompt la génération en cours, et la regex s'affiche token par token. Le runtime onnxruntime-web est
   servi en local, pas depuis jsDelivr.
+- « Unload » libère le modèle (mémoire GPU) et supprime ses poids du Cache API.
 - Cache : les fichiers du modèle sont gardés dans le Cache API du navigateur (par origine), sous une clé qui inclut
   `playground_export_id` (écrit dans `config.json` par l'export). Un nouvel export invalide donc l'ancien cache, qui
   est supprimé, comme tout autre cache du playground (dont celui de l'ancien 0.6B, 1,6 Go). Les variantes q4 et q4f16

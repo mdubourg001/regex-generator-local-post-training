@@ -1,9 +1,10 @@
-// Section « How it works » : SFT Qwen3.5-0.8B (configs/sft-qwen3.5-0.8b.yaml) ; limites mesurées sur le benchmark
+// Section « How it works » : SFT Qwen3.5-0.8B (configs/sft-qwen3.5-0.8b.yaml) et Qwen3-1.7B (configs/sft.yaml) ;
+// limites mesurées pour le 0.8B sur le benchmark
 // regex101 (data/eval/benchmark-regex101.jsonl) avec l'export q4f16, par difficulté : 67/162, 26/199, 3/39.
 
 const TRAINING = [
-  "Base model: Qwen3.5-0.8B, a small open model.",
-  "About 9,400 synthetic examples (description → regex), written by larger LLMs.",
+  "Base model: Qwen3.5-0.8B or Qwen3-1.7B (picked above), small open models.",
+  "About 8,300 to 9,400 synthetic examples (description → regex), written by larger LLMs.",
   "Each example is kept only if its regex passes test strings written separately.",
   "Fine-tuned with LoRA on a MacBook, then quantized to 4 bits.",
 ];
