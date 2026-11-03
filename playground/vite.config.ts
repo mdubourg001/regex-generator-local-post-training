@@ -5,7 +5,7 @@ import { defineConfig, loadEnv } from "vite";
 export default defineConfig(({ command, mode }) => {
   // Un build public charge les modèles depuis le Hub : sans repo configuré, il ne proposerait aucun modèle.
   if (command === "build" && !Object.keys(loadEnv(mode, process.cwd(), "VITE_HUB_")).length) {
-    throw new Error("No model on the Hugging Face Hub: set VITE_HUB_SFT_0_6B_PLUS=owner/repo@revision (see .env.example)");
+    throw new Error("No model on the Hugging Face Hub: set VITE_HUB_SFT_QWEN3_5_0_8B=owner/repo@revision (see .env.example)");
   }
   return {
     plugins: [react(), tailwindcss()],

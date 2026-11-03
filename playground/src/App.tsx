@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { parseAnswer, type Request } from "./prompt";
 import { HowItWorks } from "./HowItWorks";
 import { TestArea } from "./TestArea";
-import type { Dtype, FromWorker, ModelSource, ToWorker } from "./worker";
+import { pickVariant, variantLabel } from "./variant";
+import type { FromWorker, ModelSource, ToWorker, Variant } from "./worker";
 
 /** `owner/repo@revision` (variable VITE_HUB_*, voir .env.example) → source Hub ; absente → public/models/ en local. */
 function source(hub: string | undefined): ModelSource {
@@ -12,28 +13,23 @@ function source(hub: string | undefined): ModelSource {
   return { kind: "hub", repo, revision };
 }
 
-// `files` : dossier de l'export (public/models/<files>/ ou repo du Hub) ; `dtype` : variante des poids dans onnx/.
-const ALL_MODELS: { id: string; label: string; size: string; files: string; dtype: Dtype; source: ModelSource }[] = [
-  // Meilleur 0.6B au benchmark indépendant (GPT) : SFT sur données enrichies, étape 9 ter.
+// `files` : dossier de l'export (public/models/<files>/ ou repo du Hub) ; `sizes` : téléchargement par variante.
+const ALL_MODELS: {
+  id: string;
+  label: string;
+  files: string;
+  sizes: Record<Variant["dtype"], string>;
+  source: ModelSource;
+}[] = [
+  // SFT de Qwen3.5-0.8B (configs/sft-qwen3.5-0.8b.yaml), quantizé en 4 bits : remplace le Qwen3-0.6B en fp16
+  // (26,0 % contre 22,8 % au benchmark regex101, pour un téléchargement 2,5 fois plus léger).
   {
-    id: "sft-0.6b-plus",
-    label: "SFT Qwen3-0.6B",
-    size: "1.6 GB",
-    files: "sft-0.6b-plus",
-    dtype: "fp16",
-    source: source(import.meta.env.VITE_HUB_SFT_0_6B_PLUS),
+    id: "sft-qwen3.5-0.8b",
+    label: "SFT Qwen3.5-0.8B",
+    files: "sft-qwen3.5-0.8b",
+    sizes: { q4f16: "584 MB", q4: "648 MB" },
+    source: source(import.meta.env.VITE_HUB_SFT_QWEN3_5_0_8B),
   },
-  // Même modèle quantizé en 4 bits (scripts/quantize_models.py) : held-out inchangé, ~10 points de moins sur les
-  // cas difficiles du benchmark. Local uniquement pour l'instant : absent du build de production.
-  {
-    id: "sft-0.6b-plus-q4f16",
-    label: "SFT Qwen3-0.6B, light (4-bit)",
-    size: "0.65 GB",
-    files: "sft-0.6b-plus",
-    dtype: "q4f16",
-    source: { kind: "local" },
-  },
-  // { id: "sft-1.7b", label: "SFT Qwen3-1.7B", size: "4.7 GB", source: source(import.meta.env.VITE_HUB_SFT_1_7B) },
 ];
 // En production, public/models/ n'est pas publié : seuls les modèles hébergés sur le Hub sont proposés.
 const MODELS = import.meta.env.PROD
@@ -43,7 +39,8 @@ const MODELS = import.meta.env.PROD
 const ua = navigator.userAgent;
 const isFirefox = /firefox|fxios/i.test(ua);
 const isSafari = /safari/i.test(ua) && !/chrome|chromium|crios|edg|android/i.test(ua);
-const UNSUPPORTED = isFirefox || isSafari || !("gpu" in navigator);
+// Sans WebGPU, le modèle tourne sur WASM (CPU), plus lentement. Firefox et Safari restent exclus : non testés.
+const UNSUPPORTED = isFirefox || isSafari;
 
 const lines = (text: string) => text.split("\n").filter((l) => l !== "");
 
@@ -58,6 +55,8 @@ type Status =
 export default function App() {
   const [model, setModel] = useState(MODELS[0].id);
   const [ready, setReady] = useState<string | null>(null);
+  // Variante (dtype, backend) détectée au démarrage : null tant que la détection de WebGPU n'a pas abouti.
+  const [variant, setVariant] = useState<Variant | null>(null);
   const [status, setStatus] = useState<Status>({ kind: "unloaded" });
   const [description, setDescription] = useState(
     "a hexadecimal color code: a # followed by 3 or 6 hex digits, any case",
@@ -76,6 +75,7 @@ export default function App() {
 
   useEffect(() => {
     if (UNSUPPORTED) return;
+    pickVariant().then(setVariant);
     const w = new Worker(new URL("./worker.ts", import.meta.url), { type: "module" });
     w.onmessage = (event: MessageEvent<FromWorker>) => {
       const m = event.data;
@@ -99,8 +99,9 @@ export default function App() {
     setOutput("");
     setGeneratedKey(null);
     setStatus({ kind: "loading", loaded: 0, total: 0 });
-    const { files, dtype, source } = MODELS.find((m) => m.id === model)!;
-    worker.current?.postMessage({ type: "load", model, files, dtype, source } satisfies ToWorker);
+    if (!variant) return;
+    const { files, source } = MODELS.find((m) => m.id === model)!;
+    worker.current?.postMessage({ type: "load", model, files, variant, source } satisfies ToWorker);
   };
 
   const selectModel = (id: string) => {
@@ -164,9 +165,7 @@ export default function App() {
           role="alert"
           className="bg-amber-400 px-4 py-2.5 text-center text-sm font-medium text-amber-950"
         >
-          {isFirefox || isSafari
-            ? "Firefox and Safari are not supported. Please use a Chromium-based browser (Chrome, Edge, Brave, Arc…)."
-            : "WebGPU is not available in this browser. Please use a recent Chromium-based browser."}
+          Firefox and Safari are not supported. Please use a Chromium-based browser (Chrome, Edge, Brave, Arc…).
         </div>
       )}
 
@@ -180,7 +179,7 @@ export default function App() {
             <p className="text-xs text-zinc-500 pt-2">Generate regexes from natural language.</p>
           </div>
           <div className="flex w-full flex-wrap items-center gap-3 sm:ml-auto sm:w-auto">
-            <ModelStatus status={status} />
+            <ModelStatus status={status} variant={variant} />
             <select
               value={model}
               onChange={(e) => selectModel(e.target.value)}
@@ -190,14 +189,15 @@ export default function App() {
             >
               {MODELS.map((m) => (
                 <option key={m.id} value={m.id}>
-                  {m.label} · {m.size}
+                  {m.label}
+                  {variant && ` · ${m.sizes[variant.dtype]}`}
                 </option>
               ))}
             </select>
             <button
               type="button"
               onClick={load}
-              disabled={UNSUPPORTED || loading || loaded}
+              disabled={UNSUPPORTED || !variant || loading || loaded}
               className="inline-flex min-w-28 items-center justify-center gap-2 rounded-md bg-sky-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-600 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-400"
             >
               {loading && <Spinner />}
@@ -334,16 +334,24 @@ export default function App() {
         <HowItWorks />
 
         <p className="text-xs text-zinc-500">
-          Models run locally in your browser. Once loaded, their weights are cached for this origin
-          (scheme, host and port), up to {MODELS.map((m) => m.size).join(" + ")}: clear this site's
-          data to free the space.
+          The model runs locally in your browser
+          {variant && (
+            <>
+              {" "}
+              ({variantLabel(variant)}
+              {variant.device === "wasm" && ": no WebGPU here, so generation is slower"})
+            </>
+          )}
+          . Once loaded, its weights are cached for this origin (scheme, host and port)
+          {variant && <>, {MODELS.map((m) => m.sizes[variant.dtype]).join(" + ")}</>}: clear this
+          site's data to free the space.
         </p>
       </main>
     </div>
   );
 }
 
-function ModelStatus({ status }: { status: Status }) {
+function ModelStatus({ status, variant }: { status: Status; variant: Variant | null }) {
   if (status.kind === "unloaded")
     return <span className="text-xs whitespace-nowrap text-zinc-500">Not loaded</span>;
   if (status.kind === "loading") {
@@ -361,7 +369,7 @@ function ModelStatus({ status }: { status: Status }) {
         {pct === null
           ? "Fetching…"
           : pct < 100
-            ? `${(status.loaded / 1e9).toFixed(2)} / ${(status.total / 1e9).toFixed(1)} GB`
+            ? `${Math.round(status.loaded / 1e6)} / ${Math.round(status.total / 1e6)} MB`
             : "Initializing…"}
       </div>
     );
@@ -378,7 +386,7 @@ function ModelStatus({ status }: { status: Status }) {
       <span
         className={`size-2 rounded-full ${status.kind === "generating" ? "animate-pulse bg-sky-500" : "bg-emerald-500"}`}
       />
-      {status.kind === "generating" ? "Generating" : "Ready · WebGPU"}
+      {status.kind === "generating" ? "Generating" : `Ready · ${variant ? variantLabel(variant) : ""}`}
     </span>
   );
 }

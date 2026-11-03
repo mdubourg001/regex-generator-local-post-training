@@ -20,12 +20,13 @@ env.localModelPath = "/models/";
 env.useBrowserCache = true;
 env.backends.onnx.wasm!.wasmPaths = { mjs: ortMjs, wasm: ortWasm };
 
-/** `local` : public/models/<id>/ (scripts/export_models.py). `hub` : repo public, à une révision figée. */
+/** `local` : public/models/<id>/ (scripts/export_qwen35.py). `hub` : repo public, à une révision figée. */
 export type ModelSource = { kind: "local" } | { kind: "hub"; repo: string; revision: string };
-export type Dtype = "fp16" | "q4f16";
-/** `model` : identifiant renvoyé dans `ready` ; `files` : dossier de l'export, partagé par ses variantes (dtype). */
+/** Variante des poids (onnx/*_<dtype>.onnx) et backend d'exécution, choisis selon le navigateur (voir variant.ts). */
+export type Variant = { dtype: "q4" | "q4f16"; device: "webgpu" | "wasm" };
+/** `model` : identifiant renvoyé dans `ready` ; `files` : dossier de l'export, partagé par ses variantes. */
 export type ToWorker =
-  | { type: "load"; model: string; files: string; dtype: Dtype; source: ModelSource }
+  | { type: "load"; model: string; files: string; variant: Variant; source: ModelSource }
   | ({ type: "generate"; id: number } & Request);
 export type FromWorker =
   | { type: "progress"; loaded: number; total: number }
@@ -42,12 +43,16 @@ let pending: (ToWorker & { type: "generate" }) | null = null;
 let running = false;
 let generation: Promise<unknown> = Promise.resolve();
 
-/** Un cache (Cache API) par modèle et par version : les poids d'une version précédente sont supprimés. */
+/**
+ * Un cache (Cache API) par dossier d'export et par version. Un seul modèle est proposé : tout autre cache du playground
+ * (version précédente, ancien modèle comme le Qwen3-0.6B en fp16, 1,6 Go) est supprimé.
+ */
 async function useCacheFor(name: string, version: string) {
-  const prefix = `regex-playground/${name}/`;
-  env.cacheKey = prefix + version;
+  env.cacheKey = `regex-playground/${name}/${version}`;
   try {
-    for (const key of await caches.keys()) if (key.startsWith(prefix) && key !== env.cacheKey) await caches.delete(key);
+    for (const key of await caches.keys()) {
+      if (key.startsWith("regex-playground/") && key !== env.cacheKey) await caches.delete(key);
+    }
   } catch {
     // Cache API indisponible (navigation privée…) : transformers.js charge alors sans cache.
   }
@@ -67,13 +72,13 @@ async function resolve(name: string, source: ModelSource): Promise<{ path: strin
   // Fichier absent : Vite répond index.html (repli SPA) au lieu d'un 404, d'où un test sur le type de contenu.
   const config = await fetch(`${env.localModelPath}${name}/config.json`, { cache: "no-store" });
   if (!config.headers.get("content-type")?.includes("json")) {
-    throw new Error(`${name} is not exported: run \`uv run scripts/export_models.py ${name}\``);
+    throw new Error(`${name} is not exported: run \`uv run scripts/export_qwen35.py\``);
   }
   await useCacheFor(name, (await config.json()).playground_export_id ?? "unversioned");
   return { path: name };
 }
 
-async function load(name: string, files: string, dtype: Dtype, source: ModelSource) {
+async function load(name: string, files: string, { dtype, device }: Variant, source: ModelSource) {
   stopping.interrupt();
   await generation.catch(() => {});
   await current?.model.dispose();
@@ -81,11 +86,14 @@ async function load(name: string, files: string, dtype: Dtype, source: ModelSour
   const progress_callback = (info: { status: string; loaded?: number; total?: number }) => {
     if (info.status === "progress_total") post({ type: "progress", loaded: info.loaded!, total: info.total! });
   };
-  // Cache par dossier d'export : les variantes d'un même export se partagent la clé sans s'effacer.
+  // Cache par dossier d'export : les variantes (q4, q4f16) ont des fichiers distincts et partagent la clé.
   const { path, revision } = await resolve(files, source);
+  // GatherBlockQuantized (embeddings q4) manque au build WASM d'onnxruntime-web : sur WASM, les mêmes poids q4
+  // déquantifiés par des opérateurs standard (embed_tokens_uint8, voir scripts/export_qwen35.py).
+  const dtypes = device === "wasm" ? { embed_tokens: "uint8" as const, decoder_model_merged: dtype } : dtype;
   const [tokenizer, model] = await Promise.all([
     AutoTokenizer.from_pretrained(path, { revision }),
-    AutoModelForCausalLM.from_pretrained(path, { revision, device: "webgpu", dtype, progress_callback }),
+    AutoModelForCausalLM.from_pretrained(path, { revision, device, dtype: dtypes, progress_callback }),
   ]);
   current = { name, tokenizer, model };
   post({ type: "ready", model: name });
@@ -129,7 +137,7 @@ self.onmessage = (event: MessageEvent<ToWorker>) => {
   const message = event.data;
   const fail = (error: unknown) => post({ type: "error", message: error instanceof Error ? error.message : String(error) });
   if (message.type === "load") {
-    loading = loading.then(() => load(message.model, message.files, message.dtype, message.source)).catch(fail);
+    loading = loading.then(() => load(message.model, message.files, message.variant, message.source)).catch(fail);
   } else {
     pending = message;
     stopping.interrupt();

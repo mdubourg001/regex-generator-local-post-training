@@ -1,21 +1,22 @@
-// Section « How it works » : chiffres repris du README racine (étapes 6, 9 ter et 10 bis).
+// Section « How it works » : SFT Qwen3.5-0.8B (configs/sft-qwen3.5-0.8b.yaml) ; limites mesurées sur le benchmark
+// regex101 (data/eval/benchmark-regex101.jsonl) avec l'export q4f16, par difficulté : 67/162, 26/199, 3/39.
 
 const TRAINING = [
-  "Base model: Qwen3-0.6B, a small open model.",
-  "About 8,700 synthetic examples (description → regex), written by larger LLMs.",
+  "Base model: Qwen3.5-0.8B, a small open model.",
+  "About 9,400 synthetic examples (description → regex), written by larger LLMs.",
   "Each example is kept only if its regex passes test strings written separately.",
-  "Fine-tuned with LoRA in about an hour on a MacBook.",
+  "Fine-tuned with LoRA on a MacBook, then quantized to 4 bits.",
 ];
 
 const IN_THIS_PAGE = [
-  "The model runs on your GPU (WebGPU): nothing leaves your machine.",
+  "The model runs on your GPU (WebGPU), or on the CPU without it: nothing leaves your machine.",
   "The regex is regenerated 400 ms after you stop typing.",
   "Each test line is checked with RegExp.test.",
 ];
 
 const LIMITS = [
-  "About 6 in 10 simple requests fully right.",
-  "About 1 in 10 intermediate ones, almost none of the hard ones.",
+  "On real-world regexes, about 4 in 10 simple requests fully right.",
+  "About 1 in 8 intermediate ones, under 1 in 10 hard ones.",
   "Always check the result against your own test strings.",
 ];
 
