@@ -21,6 +21,16 @@ const ALL_MODELS: {
   sizes: Partial<Record<Variant["dtype"], string>>;
   source: ModelSource;
 }[] = [
+  // SFT de Qwen3-1.7B (configs/sft.yaml), q4f16 seulement (scripts/export_qwen3_q4f16.py) : meilleur au benchmark
+  // regex101 (25,8 % en 4 bits) et ~4 fois plus rapide sur WebGPU (graphe fusionné, sans If/Scan), mais 1,43 Go.
+  // Premier de la liste : proposé par défaut.
+  {
+    id: "sft-1.7b",
+    label: "SFT Qwen3-1.7B",
+    files: "sft-1.7b",
+    sizes: { q4f16: "1.43 GB" },
+    source: source(import.meta.env.VITE_HUB_SFT_QWEN3_1_7B),
+  },
   // SFT de Qwen3.5-0.8B (configs/sft-qwen3.5-0.8b.yaml), quantizé en 4 bits : remplace le Qwen3-0.6B en fp16
   // (26,0 % contre 22,8 % au benchmark regex101, pour un téléchargement 2,5 fois plus léger).
   {
@@ -29,15 +39,6 @@ const ALL_MODELS: {
     files: "sft-qwen3.5-0.8b",
     sizes: { q4f16: "584 MB", q4: "648 MB" },
     source: source(import.meta.env.VITE_HUB_SFT_QWEN3_5_0_8B),
-  },
-  // SFT de Qwen3-1.7B (configs/sft.yaml), q4f16 seulement (scripts/export_qwen3_q4f16.py) : meilleur au benchmark
-  // regex101 (25,8 % en 4 bits) et ~4 fois plus rapide sur WebGPU (graphe fusionné, sans If/Scan), mais 1,43 Go.
-  {
-    id: "sft-1.7b",
-    label: "SFT Qwen3-1.7B",
-    files: "sft-1.7b",
-    sizes: { q4f16: "1.43 GB" },
-    source: source(import.meta.env.VITE_HUB_SFT_QWEN3_1_7B),
   },
 ];
 // En production, public/models/ n'est pas publié : seuls les modèles hébergés sur le Hub sont proposés.
