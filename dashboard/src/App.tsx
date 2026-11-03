@@ -21,6 +21,18 @@ type Run = Score & { line: number; latest: boolean };
 
 const POLL_MS = 5000;
 
+const LEVELS = ["simple", "medium", "hard"] as const;
+type Level = (typeof LEVELS)[number];
+/** Par nom de run : cas et succès par difficulté (cf. difficulty.ts, dernier run du nom seulement). */
+type Breakdown = Record<Level, { n: number; ok: number }>;
+const LEVEL_LABEL: Record<Level, string> = { simple: "facile", medium: "moyen", hard: "difficile" };
+/** Clair → foncé = facile → difficile, dans la teinte de la barre. */
+const SEGMENT: Record<"trained" | "baseline" | "new", Record<Level, string>> = {
+  trained: { simple: "bg-sky-300 dark:bg-sky-300", medium: "bg-sky-500 dark:bg-sky-500", hard: "bg-sky-800 dark:bg-sky-700" },
+  baseline: { simple: "bg-zinc-300 dark:bg-zinc-500", medium: "bg-zinc-400 dark:bg-zinc-600", hard: "bg-zinc-600 dark:bg-zinc-700" },
+  new: { simple: "bg-amber-300", medium: "bg-amber-500", hard: "bg-amber-700" },
+};
+
 const DATASETS = [
   { id: "regex101", label: "regex101 « réel »", match: (d: string) => d === "data/eval/benchmark-regex101.jsonl" },
   { id: "heldout", label: "held-out", match: (d: string) => d === "data/prepared/heldout.jsonl" },
@@ -95,6 +107,7 @@ export default function App() {
   const [invalid, setInvalid] = useState(0);
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [breakdowns, setBreakdowns] = useState<Record<string, Breakdown>>({});
   const initialLines = useRef<number | null>(null);
 
   const [dataset, setDataset] = useState<DatasetId>("regex101");
@@ -116,6 +129,11 @@ export default function App() {
         setInvalid(parsed.invalid);
         setUpdatedAt(new Date());
         setError(null);
+        // Ventilation par difficulté : facultative, on garde la précédente en cas d'échec.
+        fetch("/api/difficulty", { cache: "no-store" })
+          .then((r) => (r.ok ? r.json() : Promise.reject()))
+          .then((b) => alive && setBreakdowns(b))
+          .catch(() => {});
       } catch (e) {
         if (alive) setError(String(e));
       }
@@ -224,25 +242,46 @@ export default function App() {
             <p className="text-sm text-zinc-500">Aucun run pour ces filtres.</p>
           ) : (
             <div className="space-y-1">
-              {byName.map((r) => (
+              {byName.map((r) => {
+                const kind = isNew(r) ? "new" : isBaseline(r) ? "baseline" : "trained";
+                // results/<name>.jsonl est écrasé à chaque run : pas de ventilation pour les runs remplacés.
+                const b = r.latest ? breakdowns[r.name] : undefined;
+                const total = b ? LEVELS.reduce((t, l) => t + b[l].n, 0) : 0;
+                const detail = b
+                  ? LEVELS.filter((l) => b[l].n > 0)
+                      .map((l) => `${LEVEL_LABEL[l]} : ${b[l].ok}/${b[l].n} (${pct(b[l].ok / b[l].n)})`)
+                      .join("\n")
+                  : undefined;
+                return (
                 <div key={r.line} className="flex items-center gap-2 text-xs">
                   <div className={`w-64 shrink-0 truncate text-right ${r.latest ? "" : "text-zinc-400"}`} title={r.name}>
                     {isNew(r) && <span className="mr-1 font-semibold text-amber-600 dark:text-amber-400">nouveau</span>}
                     {r.name}
                   </div>
-                  <div className="h-4 flex-1 rounded-sm bg-zinc-100 dark:bg-zinc-900">
-                    <div
-                      className={`h-full rounded-sm ${isNew(r) ? "bg-amber-500" : isBaseline(r) ? "bg-zinc-400 dark:bg-zinc-600" : "bg-sky-600 dark:bg-sky-500"}`}
-                      style={{ width: `${(r.success_rate / maxSuccess) * 100}%` }}
-                    />
+                  <div className="h-4 flex-1 rounded-sm bg-zinc-100 dark:bg-zinc-900" title={detail}>
+                    {b && total > 0 ? (
+                      <div className="flex h-full overflow-hidden rounded-sm" style={{ width: `${(r.success_rate / maxSuccess) * 100}%` }}>
+                        {LEVELS.map((l) => (
+                          <div key={l} className={`h-full ${SEGMENT[kind][l]}`} style={{ flexGrow: b[l].ok }} />
+                        ))}
+                      </div>
+                    ) : (
+                      <div
+                        className={`h-full rounded-sm ${kind === "new" ? "bg-amber-500" : kind === "baseline" ? "bg-zinc-400 dark:bg-zinc-600" : "bg-sky-600 dark:bg-sky-500"}`}
+                        style={{ width: `${(r.success_rate / maxSuccess) * 100}%` }}
+                      />
+                    )}
                   </div>
                   <div className="w-14 shrink-0 tabular-nums">{pct(r.success_rate)}</div>
                 </div>
-              ))}
+                );
+              })}
               <p className="pt-1 text-xs text-zinc-500 dark:text-zinc-400">
                 Échelle relative au meilleur run affiché. <span className="text-sky-600 dark:text-sky-500">■</span> entraîné ·{" "}
                 <span className="text-zinc-400 dark:text-zinc-600">■</span> baseline ·{" "}
-                <span className="text-amber-500">■</span> nouveau depuis l'ouverture de la page
+                <span className="text-amber-500">■</span> nouveau depuis l'ouverture de la page. Chaque barre est découpée
+                en succès sur cas <span className="text-sky-300">■</span> faciles, <span className="text-sky-500">■</span> moyens et{" "}
+                <span className="text-sky-800 dark:text-sky-700">■</span> difficiles (taux par niveau au survol).
               </p>
             </div>
           )}

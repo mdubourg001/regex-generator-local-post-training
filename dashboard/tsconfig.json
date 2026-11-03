@@ -11,5 +11,5 @@
     "isolatedModules": true,
     "types": ["vite/client", "node"]
   },
-  "include": ["src", "vite.config.ts", "training.ts"]
+  "include": ["src", "vite.config.ts", "training.ts", "difficulty.ts"]
 }

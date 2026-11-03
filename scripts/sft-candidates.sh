@@ -3,7 +3,7 @@
 # ~3 h 30–4 h pour les 4, pic mémoire 5–8 Go. Sans argument : tous ; sinon ex. `bash scripts/sft-candidates.sh coder-0.5b gemma3-270m`.
 cd "$(dirname "$0")/.."
 want=" $* "
-for spec in "coder-0.5b:Qwen/Qwen2.5-Coder-0.5B-Instruct" "gemma3-270m:unsloth/gemma-3-270m-it" "qwen3.5-0.8b:Qwen/Qwen3.5-0.8B" "gemma3-1b:unsloth/gemma-3-1b-it" "granite4-350m:ibm-granite/granite-4.0-350m"; do
+for spec in "coder-0.5b:Qwen/Qwen2.5-Coder-0.5B-Instruct" "gemma3-270m:unsloth/gemma-3-270m-it" "qwen3.5-0.8b:Qwen/Qwen3.5-0.8B" "gemma3-1b:unsloth/gemma-3-1b-it" "granite4-350m:ibm-granite/granite-4.0-350m" "llama3.2-1b:unsloth/Llama-3.2-1B-Instruct"; do
   n=${spec%%:*}; m=${spec#*:}
   [ -n "$*" ] && [[ "$want" != *" $n "* ]] && continue
   echo "### $(date +%H:%M) SFT $n"
