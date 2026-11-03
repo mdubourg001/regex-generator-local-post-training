@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+@keyframes flash {
+  from { background-color: rgb(250 204 21 / 0.35); }
+  to { background-color: transparent; }
+}

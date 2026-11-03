@@ -87,3 +87,42 @@ on n'en a pas besoin pour les tailles visées ici (0.6B et 1.7B).
 # L'overfitting
 
 L'overfitting (sur-apprentissage), c'est quand un modèle apprend par cœur ses exemples d'entraînement au lieu d'apprendre la règle générale derrière. Il devient excellent sur ce qu'il a vu, et moins bon sur ce qu'il n'a jamais vu.
+
+# Le DPO
+
+Le SFT ne montre au modèle que des bonnes réponses : il apprend « fais comme ça ». Le DPO (Direct Preference Optimization) lui montre des paires pour
+un même prompt : une réponse préférée (chosen) et une réponse rejetée (rejected). Il apprend « plutôt ça que ça ».
+
+La loss. Pour chaque paire, on regarde de combien le modèle entraîné a augmenté la probabilité de chaque réponse par rapport au modèle de référence.
+Ce modèle de référence est le SFT, gelé.
+
+marge = β × [ (log π(chosen) − log π_ref(chosen)) − (log π(rejected) − log π_ref(rejected)) ]
+loss = −log σ(marge)
+
+- La loss baisse quand le modèle fait monter chosen plus que rejected par rapport au modèle SFT.
+- β règle la laisse. Un β petit autorise le modèle à s'éloigner du SFT. Un β grand le garde proche. Sans cette ancre, le modèle pourrait dériver, par
+  exemple en dégradant le format pour gagner sur la marge.
+- C'est le seul moyen de faire baisser des erreurs précises. Le SFT ne pénalise jamais directement une mauvaise réponse.
+- Il n'y a pas besoin de modèle de récompense ni de RL. C'est un simple entraînement supervisé sur des paires, d'où le « Direct ».
+
+## La génération des paires
+
+On tire les paires du modèle SFT lui-même : on dit qu'elles sont on-policy.
+
+1. Échantillonner. Pour chaque exemple du train, le modèle SFT génère 8 réponses à température 1, pour qu'elles varient.
+2. Noter par exécution. Chaque regex passe les tests cachés dans Node. Le succès complet sépare les réponses justes des fausses.
+3. Choisir.
+   - chosen est la réponse juste la plus fréquente : celle que le modèle sait déjà produire, qu'on consolide.
+   - rejected est l'erreur la plus fréquente : celle que le modèle fait le plus volontiers, donc la plus utile à corriger.
+4. Filtrer. On écarte un exemple quand ses 8 réponses sont toutes justes (35 % : rien à corriger) ou toutes fausses (7 % : rien de juste à
+   renforcer).
+
+Pourquoi on-policy plutôt que la regex de référence contre une regex fausse inventée ? On corrige ainsi les erreurs que ce modèle commet vraiment, à
+des probabilités où il les commet. Une paire hors-distribution apprendrait à éviter des erreurs qu'il ne fait pas.
+
+Exemple réel (IPv6 complète) :
+
+- chosen : /^(?:[0-9A-Fa-f]{4}:){7}[0-9A-Fa-f]{4}$/
+- rejected : /^(?:[0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4}$/, trop permissive (de 1 à 4 chiffres par groupe)
+
+Le DPO va apprendre au modèle à préférer la première. C'est exactement le genre d'erreur « presque juste » qu'on voyait sur le benchmark.

@@ -1,0 +1,99 @@
+# Évaluation réelle (regex101, annotée par GPT 6.1 Sol), catégorie versions. Voir scripts/regex101.py.
+- id: real-x03119
+  difficulty: simple
+  status: ok
+  description: Validate a software version consisting of one, two or three dot-separated ASCII decimal components. Each component has 1 through 3 digits. Leading zeroes are allowed. No prefix, spaces, empty components, suffixes or extra characters are allowed.
+  regex: /^\d{1,3}(?:\.\d{1,3}){0,2}$(?!.)/s
+  match:
+  - '1'
+  - '001'
+  - '999'
+  - '1.1'
+  - 11.111.123
+  - 1.1.1
+  - 000.000.000
+  - '12.34'
+  no_match:
+  - '1111.1'
+  - 1.1.1.1
+  - '1.'
+  - 1..1
+  - x1.1
+  - 1.1x
+  - ''
+  - v1.1
+  - 1 1
+- id: real-x03210
+  difficulty: medium
+  status: ok
+  description: Validate a version string beginning with lowercase v and having one, two or three dot-separated components. All components except the final one are nonempty ASCII decimal digit sequences. The final component is either a nonempty ASCII decimal digit sequence or a single asterisk wildcard. Leading zeroes are allowed. Whitespace, uppercase prefixes and other characters are forbidden.
+  regex: /^v(?:\d+\.){0,2}(?:\d+|\*)$(?!.)/s
+  match:
+  - v1
+  - v1.0
+  - v1.0.1
+  - v*
+  - v1.*
+  - v1.2.*
+  - v001
+  - v123.456.789
+  no_match:
+  - V1
+  - v
+  - v1.2.3.4
+  - v*.1
+  - xv1.0
+  - v1.0x
+  - ''
+  - 1.0.1
+  - 'v1.0
+
+    '
+- id: real-x07312
+  difficulty: hard
+  status: ok
+  description: 'Validate a Semantic Versioning 2.0.0 version: three dot-separated nonnegative ASCII integers without leading zeros, optionally a hyphen followed by dot-separated prerelease identifiers, optionally a plus followed by dot-separated build identifiers. Identifiers are nonempty and use ASCII letters, digits or hyphens. Numeric prerelease identifiers cannot have leading zeros, but build identifiers can. No whitespace or surrounding characters are allowed.'
+  regex: /^(?:(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-(?!0[0-9]+(?:[.+]|(?!\s|\S)))[0-9A-Za-z-]+(?:\.(?!0[0-9]+(?:[.+]|(?!\s|\S)))[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?)(?!\s|\S)$/
+  match:
+  - 0.0.0
+  - 1.2.3
+  - 10.20.30
+  - 1.0.0-alpha
+  - 1.0.0-rc.1
+  - 1.2.3+001
+  - 1.0.0-a01+build.02
+  - 2.0.0-0.x-y+abc
+  no_match:
+  - '!1.2.3'
+  - 1.2.3!
+  - '1.2'
+  - 01.2.3
+  - 1.0.0-01
+  - 1.0.0-a_b
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x07321
+  difficulty: hard
+  status: ok
+  description: 'Validate a Semantic Versioning 2.0.0 version: three dot-separated nonnegative ASCII integers without leading zeros, optionally a hyphen followed by dot-separated prerelease identifiers, optionally a plus followed by dot-separated build identifiers. Identifiers are nonempty and use ASCII letters, digits or hyphens. Numeric prerelease identifiers cannot have leading zeros, but build identifiers can. No whitespace or surrounding characters are allowed.'
+  regex: /^(?:(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-(?!0[0-9]+(?:[.+]|(?!\s|\S)))[0-9A-Za-z-]+(?:\.(?!0[0-9]+(?:[.+]|(?!\s|\S)))[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?)(?!\s|\S)$/
+  match:
+  - 0.0.0
+  - 1.2.3
+  - 10.20.30
+  - 1.0.0-alpha
+  - 1.0.0-rc.1
+  - 1.2.3+001
+  - 1.0.0-a01+build.02
+  - 2.0.0-0.x-y+abc
+  no_match:
+  - '!1.2.3'
+  - 1.2.3!
+  - '1.2'
+  - 01.2.3
+  - 1.0.0-01
+  - 1.0.0-a_b
+  - ''
+  - unrelated input
+  - "\u2603"

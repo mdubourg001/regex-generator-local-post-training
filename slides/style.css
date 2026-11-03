@@ -180,3 +180,5 @@
   margin-left: 0.25rem;
   vertical-align: middle;
 }
+.tech.tried { opacity: 0.75; border-style: dashed; }
+.tech .tag.tried { background: rgba(127, 127, 127, 0.55); }

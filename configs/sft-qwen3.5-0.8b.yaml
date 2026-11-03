@@ -1,0 +1,57 @@
+# SFT de Qwen3.5-0.8B, successeur hybride de Qwen3 (couches Gated DeltaNet + attention) : uv run mlx_lm.lora --config configs/sft-qwen3.5-0.8b.yaml
+# Même recette que configs/sft-plus2.yaml (mêmes données, LoRA, LR et schedule) : seul le modèle de base change.
+# Mémoire plafonnée : uv run scripts/train_capped.py --sft --memory-gb 6 --config configs/sft-qwen3.5-0.8b.yaml
+
+model: Qwen/Qwen3.5-0.8B
+train: true
+data: data/sft-plus2           # data/sft-plus + pilote (--extra-raw-dir data/raw-claude --extra-raw-dir data/raw-claude-hard)
+adapter_path: adapters/sft-qwen3.5-0.8b
+seed: 0
+
+fine_tune_type: lora
+num_layers: -1                 # toutes les couches
+lora_parameters:
+  rank: 16
+  scale: 2.0                   # facteur appliqué à B·A (l'alpha / rang de la littérature : 32 / 16)
+  dropout: 0.05
+  keys:                        # attention et MLP ; 18 couches sur 24 sont linéaires (linear_attn) et n'ont pas de self_attn :
+                               # on y cible les projections équivalentes (in_proj_a/b, des portes de dimension 16, restent gelées)
+    - linear_attn.in_proj_qkv
+    - linear_attn.in_proj_z
+    - linear_attn.out_proj
+    - self_attn.q_proj
+    - self_attn.k_proj
+    - self_attn.v_proj
+    - self_attn.o_proj
+    - mlp.gate_proj
+    - mlp.up_proj
+    - mlp.down_proj
+
+# Loss sur la réponse seulement : on n'apprend pas au modèle à réécrire le prompt.
+mask_prompt: true
+max_seq_length: 512            # validate.py écarte les ~20 exemples plus longs
+
+# Mémoire : mlx_lm autorise le GPU à verrouiller jusqu'à 19 Go sur les 24 Go du Mac. Avec un batch de 8, le pic a
+# atteint 18,3 Go (surtout les logits : batch × longueur × 151k tokens de vocabulaire) et macOS a redémarré. D'où des
+# micro-batchs de 4 avec accumulation de gradient sur 2 (batch effectif de 8 inchangé) et le gradient checkpointing
+# (activations recalculées au backward, ~30 % plus lent).
+# Qwen3.5 : micro-batchs de 2 avec accumulation sur 4 (batch effectif de 8 inchangé), pour tenir sous le plafond
+# mémoire avec son vocabulaire de 248k tokens. Le schedule compte en mises à jour : il ne change pas, iters double.
+batch_size: 2
+grad_accumulation_steps: 4
+grad_checkpoint: true
+# 9 418 exemples : 4 709 micro-batchs par epoch, donc 2 epochs. Le schedule de LR avance à chaque mise à jour des
+# poids, soit tous les 4 micro-batchs : 2 355 mises à jour, comme dans sft-plus2.
+iters: 9420
+optimizer: adamw
+learning_rate: 2.0e-4
+lr_schedule:
+  name: cosine_decay
+  warmup: 100
+  warmup_init: 1.0e-6
+  arguments: [2.0e-4, 2355, 1.0e-6]
+
+steps_per_report: 40
+steps_per_eval: 800
+val_batches: -1                # tout le valid (504 exemples)
+save_every: 800

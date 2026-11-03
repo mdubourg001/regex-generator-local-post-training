@@ -1,0 +1,719 @@
+# Évaluation réelle (regex101, annotée par GPT 6.1 Sol), catégorie text. Voir scripts/regex101.py.
+- id: real-x00609
+  difficulty: simple
+  status: ok
+  description: 'Validate exactly six characters: one ASCII digit, four ASCII word characters (letters, digits or underscores), and a final period. No other characters or line terminators are allowed.'
+  regex: /^(?:[0-9][A-Za-z0-9_]{4}\.)(?![\s\S])$/
+  match:
+  - 3sssd.
+  - 0abcd.
+  - 9ABCD.
+  - '1____.'
+  - '21234.'
+  - 4a_B2.
+  - 5Z9_z.
+  - 7xxxx.
+  no_match:
+  - 3sss.
+  - 3sssss.
+  - asssd.
+  - 3sss-.
+  - ' 3sssd.'
+  - 3sssd.x
+  - ''
+  - '123456'
+  - '3sssd.
+
+    '
+- id: real-x00698
+  difficulty: simple
+  status: ok
+  description: Validate a name consisting of one or more nonempty ASCII-letter components separated by single hyphens. Uppercase and lowercase letters are allowed. Reject accents, digits, spaces, leading or trailing hyphens and adjacent hyphens.
+  regex: /^(?:[A-Za-z]+(?:-[A-Za-z]+)*)(?![\s\S])$/
+  match:
+  - Jean
+  - Jean-Pierre
+  - Jean-Marie-Pierre
+  - a
+  - ABC
+  - mary-jane
+  - A-b-C
+  - Name-Other
+  no_match:
+  - -Jean
+  - Jean-
+  - Jean--Pierre
+  - "J\xE9an"
+  - ' Jean'
+  - 'Jean '
+  - ''
+  - '123'
+  - 'Jean
+
+    '
+- id: real-x00811
+  difficulty: medium
+  status: ok
+  description: Validate template text where every opening brace belongs to a double-brace placeholder. Inside each placeholder allow optional ASCII spaces, a nonempty name of ASCII letters, digits or underscores, optional ASCII spaces and two closing braces. Outside placeholders any character except an opening brace is allowed, including closing braces and line breaks. Empty text is valid.
+  regex: /^(?:[^\{]*(?:\{\{ *[A-Za-z0-9_]+ *\}\}[^\{]*)*)(?![\s\S])$/
+  match:
+  - ''
+  - plain text
+  - Hello {{name}}
+  - '{{ user_1 }}'
+  - '{{x}}{{y}}'
+  - 'a
+
+    b{{z}}'
+  - '}}'
+  - '{{123}}!'
+  no_match:
+  - '{x}'
+  - '{{}}'
+  - '{{x}'
+  - '{{x-y}}'
+  - "{{\tx}}"
+  - '{{x}}{'
+  - '{'
+  - '{{'
+  - '{{{name}}}'
+- id: real-x01198
+  difficulty: simple
+  status: ok
+  description: Validate a single-line string ending in at least four ASCII digits. Content before the ending digit run may be any characters except line terminators, including other digits. No characters may follow the final digits.
+  regex: /^[^\r\n\u2028\u2029]*[0-9]{4}$/
+  match:
+  - 0000843755
+  - id884156546452
+  - abc1234
+  - '1234'
+  - x0000
+  - '!98765'
+  - a b1234
+  - "\xE9123456"
+  no_match:
+  - abc123
+  - '123'
+  - abc1234x
+  - 'abc1234 '
+  - 'abc
+
+    1234'
+  - "abc\uFF11\uFF12\uFF13\uFF14"
+  - ''
+  - text
+  - 'abc1234
+
+    '
+- id: real-x01783
+  difficulty: simple
+  status: ok
+  description: Validate a name spelling containing at least two consecutive A letters in any mixture of uppercase and lowercase, followed by the exact lowercase letters ron. No other characters, spaces or suffixes are allowed.
+  regex: /^(?:[Aa]{2,}ron)(?![\s\S])$/
+  match:
+  - AAron
+  - aaron
+  - Aaaron
+  - aAron
+  - AaAron
+  - AAAAAron
+  - aaaaaaaaron
+  - aAaAaAron
+  no_match:
+  - aron
+  - Aron
+  - aaronn
+  - aaroon
+  - ' aaron'
+  - 'aaron '
+  - ''
+  - aArOn
+  - 'aaron
+
+    '
+- id: real-x03250
+  difficulty: simple
+  status: ok
+  description: Validate three tokens. The first is exactly redbook, bluepen, or yellowglass. The remaining two tokens are greenapple and pinkglass in either order. Each adjacent pair is separated by exactly one JavaScript whitespace character. Token spelling is case-sensitive and no other characters are allowed.
+  regex: /^(?:redbook|bluepen|yellowglass)\s(?:greenapple\spinkglass|pinkglass\sgreenapple)(?!.)$/s
+  match:
+  - redbook greenapple pinkglass
+  - redbook pinkglass greenapple
+  - bluepen greenapple pinkglass
+  - bluepen pinkglass greenapple
+  - yellowglass greenapple pinkglass
+  - yellowglass pinkglass greenapple
+  - "bluepen\tgreenapple pinkglass"
+  - "redbook greenapple\tpinkglass"
+  no_match:
+  - xredbook greenapple pinkglass
+  - redbook greenapple pinkglassx
+  - redbook  greenapple pinkglass
+  - Redbook greenapple pinkglass
+  - redbook greenapple greenapple
+  - 'redbook greenapple pinkglass
+
+    '
+  - ''
+  - redbook
+  - pinkglass greenapple bluepen
+- id: real-x03270
+  difficulty: medium
+  status: ok
+  description: Validate a string of at least two characters whose first and last characters are the same lowercase ASCII vowel, one of a, e, i, o, or u. Interior characters may be anything except LF, CR, Unicode line separator, and Unicode paragraph separator. No characters may precede the first vowel or follow the last vowel.
+  regex: /^([aeiou])[^\r\n\u2028\u2029]*\1(?![\s\S])$/
+  match:
+  - aa
+  - ee
+  - ii
+  - oo
+  - uu
+  - applea
+  - e x e
+  - i123i
+  no_match:
+  - xaa
+  - aax
+  - a
+  - ae
+  - Aa
+  - 'aa
+
+    '
+  - ''
+  - bbb
+  - 'a
+
+    b a'
+- id: real-x03370
+  difficulty: simple
+  status: ok
+  description: 'Validate a nonempty form value containing only ASCII letters, ASCII digits, ASCII space, and these literal punctuation characters: at sign, number sign, dollar sign, caret, comma, colon, parentheses, underscore, plus sign, square brackets, curly braces, and tilde. No other characters or whitespace are allowed.'
+  regex: /^[A-Za-z0-9 @#$^,:()_+\[\]{}~]+(?![\s\S])$/
+  match:
+  - abc
+  - '123'
+  - ' '
+  - '@#$^'
+  - ',:()'
+  - _+[]
+  - '{}~'
+  - A1 B2 [x]
+  no_match:
+  - '!abc'
+  - abc!
+  - ''
+  - a-b
+  - "a\tb"
+  - 'abc
+
+    '
+  - "\xE9"
+  - <html>
+  - a/b
+- id: real-x03396
+  difficulty: simple
+  status: ok
+  description: Validate a nonempty string containing only uppercase or lowercase ASCII letters, underscores, and hyphens. Digits, spaces, all other whitespace, and every other character are forbidden.
+  regex: /^[A-Za-z_-]+(?![\s\S])$/
+  match:
+  - a
+  - Z
+  - abcXYZ
+  - _
+  - '-'
+  - a_b
+  - a-b
+  - _-ABC_xyz
+  no_match:
+  - 1abc
+  - abc1
+  - ''
+  - a b
+  - a.b
+  - 'abc
+
+    '
+  - '123'
+  - "\xE9"
+  - "\t"
+- id: real-x03493
+  difficulty: simple
+  status: ok
+  description: Validate a nonempty single-line string ending with lowercase ASCII z. Before that final letter allow any characters except LF, CR, Unicode line separator, and Unicode paragraph separator. No characters may follow the final z.
+  regex: /^[^\r\n\u2028\u2029]*z(?!.)$/s
+  match:
+  - z
+  - quiz
+  - buzz
+  - jazz
+  - Zz
+  - 123z
+  - ' z'
+  - "\xE9z"
+  no_match:
+  - quizx
+  - z!
+  - qui
+  - quiZ
+  - 'a
+
+    z'
+  - 'quiz
+
+    '
+  - ''
+  - abc
+  - '123'
+- id: real-x03494
+  difficulty: simple
+  status: ok
+  description: 'Validate a nonempty text value that contains none of these literal punctuation characters: exclamation mark, at sign, number sign, dollar sign, percent, caret, ampersand, asterisk, parentheses, plus, equals, square brackets, backslash, apostrophe, semicolon, comma, period, slash, braces, vertical bar, double quote, colon, angle brackets, or question mark. All other characters, including whitespace, digits, hyphen, umlauts, and sharp s, are permitted.'
+  regex: /^[^!@#$%^&*()+=\[\]\\\x27;,.\/{}|":<>?]+(?!.)$/s
+  match:
+  - hello
+  - "\xE4\xF6\xFC\xDF"
+  - a-b
+  - '123'
+  - ' '
+  - 'a
+
+    b'
+  - "\xE9"
+  - _~`
+  no_match:
+  - '!hello'
+  - hello!
+  - ''
+  - a.b
+  - a/b
+  - a@b
+  - '#'
+  - $
+  - ()
+- id: real-x04204
+  difficulty: simple
+  status: ok
+  description: Validate a nonempty string containing only ASCII letters, digits, underscore, hyphen, asterisk, plus, period, and comma. No whitespace or other characters are allowed.
+  regex: /^[A-Za-z0-9_*+.,-]+(?!.)$/s
+  match:
+  - abc
+  - '123'
+  - _
+  - '-'
+  - '*+'
+  - .,
+  - A1_b-2
+  - a+b,c.d
+  no_match:
+  - '!abc'
+  - abc!
+  - ''
+  - a b
+  - a/b
+  - 'abc
+
+    '
+  - '@'
+  - "\xE9"
+  - '###'
+- id: real-x04364
+  difficulty: medium
+  status: ok
+  description: Validate one or more name tokens separated by one or more ASCII spaces. Each token starts with one uppercase ASCII letter and continues with zero or more lowercase ASCII letters, digits, underscores, or hyphens. No leading or trailing spaces, other whitespace, or other characters are allowed.
+  regex: '/^[A-Z][a-z0-9_-]*(?: +[A-Z][a-z0-9_-]*)*(?!.)$/s'
+  match:
+  - Test Name
+  - Test-here Name-there
+  - Test-here Name-------there
+  - A
+  - A1 B2
+  - A  B
+  - Hello_world
+  - Z---
+  no_match:
+  - '!Test'
+  - Test!
+  - 'Test '
+  - TesT
+  - "Test\tName"
+  - 'Test
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x04403
+  difficulty: simple
+  status: ok
+  description: Validate a character-whitelisted input string. Allow ASCII letters, digits, underscore, whitespace, and the punctuation period, comma, semicolon, colon, question mark, exclamation mark, at sign, hash, dollar, percent, caret, ampersand, asterisk, parentheses, tilde, backtick, apostrophe, backslash, hyphen, slash and plus sign. Whitespace includes line terminators. The empty string is allowed. All other characters are forbidden. This filter does not guarantee XSS prevention.
+  regex: /^[\w\s.,;:?!@#$%^&*()~`'\\\/+\-]*$/
+  match:
+  - ''
+  - abc
+  - '123'
+  - a b
+  - 'a
+
+    b'
+  - '''test'''
+  - "AZ09_\t"
+  - \;alert(1);//
+  no_match:
+  - <abc
+  - abc>
+  - a"b
+  - a=b
+  - <
+  - '>'
+  - '"'
+  - '='
+  - <html>
+- id: real-x04472
+  difficulty: medium
+  status: ok
+  description: Validate a nonempty single-line string containing at least one character that is not an ASCII letter or digit. Underscore counts as such a special character. Other content is unrestricted except LF, CR, Unicode line separator, and Unicode paragraph separator, which are forbidden. No actual special-character security policy is implied.
+  regex: /^(?=.*[^A-Za-z0-9])[^\r\n\u2028\u2029]+(?!.)$/s
+  match:
+  - _
+  - '!'
+  - a b
+  - abc_123
+  - "\xE9"
+  - "\uFF10\uFF11\uFF12\uFF13"
+  - "\U0001F642"
+  - a-b
+  no_match:
+  - '
+
+    _'
+  - '_
+
+    '
+  - abc
+  - '123'
+  - A1
+  - 'abc
+
+    '
+  - ''
+  - ABC123
+  - '0'
+- id: real-x04876
+  difficulty: medium
+  status: ok
+  description: Validate an ASCII personal name with words separated by exactly one ordinary space. Each word begins with an uppercase letter and then either one or more lowercase letters or an apostrophe or hyphen segment. Each such segment has an optional uppercase first letter followed by at least one lowercase letter. Further apostrophe or hyphen segments are allowed. Single-letter words, consecutive separators, leading or trailing spaces and other characters are forbidden.
+  regex: '/^[A-Z](?:[a-z]+(?:[''-][A-Z]?[a-z]+)*|[''-][A-Z]?[a-z]+)(?: [A-Z](?:[a-z]+(?:[''-][A-Z]?[a-z]+)*|[''-][A-Z]?[a-z]+))*$(?![\s\S])/'
+  match:
+  - Kamal Manil
+  - Kamal O'Neil
+  - Kamal Al-Shaba
+  - Al-shaba
+  - Jo
+  - Jo Jo
+  - Ol'Neil
+  - Jesus Christ
+  no_match:
+  - A
+  - jo
+  - ' Kamal'
+  - 'Kamal '
+  - Kamal  Manil
+  - Kamal Al_Shaba
+  - ''
+  - '123'
+  - 'Jo
+
+    '
+- id: real-x04931
+  difficulty: simple
+  status: ok
+  description: Accept any string, including empty, consisting only of ASCII letters, ASCII digits, underscores and hyphens. No whitespace, periods or other characters are allowed.
+  regex: /^[A-Za-z0-9_-]*$(?![\s\S])/
+  match:
+  - ''
+  - test
+  - te-st
+  - te_st
+  - t0st
+  - test-_1
+  - '1'
+  - _-ABC
+  no_match:
+  - ' test'
+  - 'test '
+  - te st
+  - te.st
+  - test!
+  - "t\xE9st"
+  - +
+  - a/b
+  - 'test
+
+    '
+- id: real-x06130
+  difficulty: medium
+  status: ok
+  description: Validate an uppercase ASCII multiword name. It starts with one or more uppercase letters. Each additional item is either one ordinary space followed by one or more uppercase letters or full stops, or zero or more ordinary spaces followed by an opening parenthesis, one or more uppercase letters, and a closing parenthesis. No lowercase letters, digits, other punctuation, line terminators, or trailing spaces are allowed.
+  regex: '/^[A-Z]+(?: [A-Z.]+| *\([A-Z]+\))*(?![\s\S])$/'
+  match:
+  - ABCDE (ABCDE) AAAAA ASWSWS.
+  - ABC
+  - A B
+  - A B.C.
+  - A(B)
+  - A  (BC)
+  - A(B)(C)
+  - A .
+  no_match:
+  - aBC
+  - ABC1
+  - 'ABC '
+  - ABC ()
+  - ABC (A.)
+  - ABC  DEF
+  - '!ABC'
+  - ABC!
+  - 'ABC
+
+    '
+- id: real-x06145
+  difficulty: medium
+  status: ok
+  description: Validate a nonempty string containing only lowercase ASCII letters whose first and last letters are the same vowel from a, e, i, o, u. A single vowel is valid. Whitespace, uppercase letters, digits, and punctuation are forbidden.
+  regex: /^(?:([aeiou])[a-z]*\1|[aeiou])(?![\s\S])$/
+  match:
+  - a
+  - e
+  - i
+  - o
+  - u
+  - artta
+  - eve
+  - umbrellu
+  no_match:
+  - abce
+  - baab
+  - A
+  - a1a
+  - ab a
+  - ''
+  - '!aba'
+  - aba!
+  - 'aba
+
+    '
+- id: real-x06276
+  difficulty: medium
+  status: ok
+  description: Validate exactly two tokens separated by one or more whitespace characters, including line terminators. Exactly one token begins with one or more ASCII digits followed by zero or more ASCII letters, while the other token contains only one or more ASCII letters. Either order is allowed. No leading or trailing whitespace, punctuation, or extra tokens are allowed.
+  regex: /^(?:[0-9]+[A-Za-z]*\s+[A-Za-z]+|[A-Za-z]+\s+[0-9]+[A-Za-z]*)(?![\s\S])$/
+  match:
+  - 3rd Street
+  - house 2b
+  - 1 Road
+  - Road 1
+  - 12abc XYZ
+  - ABC 000
+  - "3\tStreet"
+  - 'house
+
+    2b'
+  no_match:
+  - house road
+  - 1 2b
+  - 3rd Street x
+  - 3-rd Street
+  - house a2
+  - house2b
+  - '!3rd Street'
+  - 3rd Street!
+  - '3rd Street
+
+    '
+- id: real-x06294
+  difficulty: medium
+  status: ok
+  description: Validate one or more nonempty ASCII alphanumeric words. Between adjacent words allow one ordinary space, or one hyphen with an optional single ordinary space on either side. Do not allow consecutive spaces or hyphens, leading or trailing spaces or hyphens, underscores, tabs, line terminators, or other punctuation.
+  regex: '/^[A-Za-z0-9]+(?: ?- ?[A-Za-z0-9]+| [A-Za-z0-9]+)*(?![\s\S])$/'
+  match:
+  - test
+  - test test
+  - test test test
+  - test-test
+  - test-test-test
+  - test - test
+  - test- test
+  - test -test
+  no_match:
+  - ' test'
+  - 'test '
+  - test--test
+  - test  test
+  - test_test
+  - "test\ttest"
+  - '!test'
+  - test!
+  - 'test
+
+    '
+- id: real-x06629
+  difficulty: simple
+  status: ok
+  description: Validate a nonempty string containing only ASCII letters and digits. Uppercase and lowercase letters are allowed. Spaces, punctuation, Unicode letters, and other characters are forbidden.
+  regex: /^[A-Za-z0-9]+(?![\s\S])$/
+  match:
+  - 21wefffffff
+  - a
+  - A
+  - '0'
+  - abc123
+  - ABC
+  - '123456'
+  - aZ09
+  no_match:
+  - ''
+  - a b
+  - a_b
+  - a-b
+  - a!
+  - "\xE9"
+  - '!abc'
+  - abc!
+  - 'abc
+
+    '
+- id: real-x07343
+  difficulty: simple
+  status: ok
+  description: 'Validate a comma-separated hashtag list. Each hashtag starts with # and contains one or more ASCII letters, digits, underscores or hyphens. After each comma, zero or more whitespace characters, including line terminators, are permitted. No leading or trailing whitespace or trailing comma is allowed.'
+  regex: /^#[A-Za-z0-9_-]+(?:,\s*#[A-Za-z0-9_-]+)*$/
+  match:
+  - '#hash,#tag'
+  - '#test,#teto'
+  - '#a'
+  - '#A_1-b'
+  - '#a, #b'
+  - '#1,#2,#3'
+  - "#a,\t#b"
+  - '#x,
+
+    #y'
+  no_match:
+  - '!#a'
+  - '#a!'
+  - '#'
+  - '#a,'
+  - '#a,b'
+  - '#a
+
+    '
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x07680
+  difficulty: medium
+  status: ok
+  description: Validate a comma-delimited list of nonempty tokens containing only ASCII letters, digits, underscores or hyphens. Each comma may be followed by zero or one ASCII space. No other whitespace, empty entry or trailing comma is allowed.
+  regex: /^(?:[A-Za-z0-9_-]+(?:, ?[A-Za-z0-9_-]+)*)(?!\s|\S)$/
+  match:
+  - Comma, Separated, List
+  - List,Without,Spaces
+  - SingleWord
+  - 1nclud3s, 07h3r, 4lph4Num
+  - a-b,c_d
+  - _
+  - a, b,c
+  - a--
+  no_match:
+  - '!a,b'
+  - a,b!
+  - a,,b
+  - a,  b
+  - a,b.c
+  - 'a,b
+
+    '
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x07687
+  difficulty: simple
+  status: ok
+  description: "Validate text containing only printable ASCII characters from space through tilde, carriage returns, line feeds, tabs and the Unicode typographic characters \u2019, \u201C and \u201D. The empty string is accepted. No other Unicode characters or control characters are allowed."
+  regex: "/^(?:[ -~\\r\\n\\t\u2019\u201C\u201D]*)(?!\\s|\\S)$/"
+  match:
+  - ''
+  - checked
+  - Hello 123!
+  - 'a
+
+    b'
+  - "\t"
+  - "\u201CHello\u201D"
+  - "it\u2019s fine"
+  - "\r\n"
+  no_match:
+  - "\xE9checked"
+  - "checked\xE9"
+  - "a\0b"
+  - "a\fb"
+  - "\u2018hello\u201D"
+  - "a\u2603b"
+  - "\u65E5\u672C"
+  - "\u2603"
+  - "\x01"
+- id: real-x07857
+  difficulty: medium
+  status: ok
+  description: Validate a single-line string containing two identical consecutive UTF-16 code units somewhere. All other characters are unrestricted except carriage return, line feed and Unicode line or paragraph separators. Matching is case-sensitive and covers the whole string.
+  regex: /^(?:(?=.*(.)\1).*)(?!\s|\S)$/
+  match:
+  - aa
+  - '11'
+  - abcddxyz
+  - hello
+  - a  b
+  - --
+  - z!!q
+  - "\xE9\xE9"
+  no_match:
+  - '
+
+    aa'
+  - 'aa
+
+    '
+  - ab
+  - aA
+  - '121'
+  - "\xE9x\xE9"
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x08098
+  difficulty: simple
+  status: ok
+  description: Validate a nonempty region-name string containing only ASCII letters, digits, underscores and ASCII spaces. Spaces may occur anywhere, including alone. No other whitespace, punctuation or Unicode letters are allowed.
+  regex: /^(?:[A-Za-z0-9_ ]+)(?!\s|\S)$/
+  match:
+  - cristina jesuitas
+  - North Region
+  - a
+  - '123'
+  - _
+  - ' '
+  - ' a '
+  - Region_1
+  no_match:
+  - '!a'
+  - a!
+  - a-b
+  - "a\tb"
+  - 'a
+
+    b'
+  - "\xE9"
+  - ''
+  - '!'
+  - "\u2603"

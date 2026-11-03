@@ -1,0 +1,839 @@
+# Évaluation réelle (regex101, annotée par GPT 6.1 Sol), catégorie email-accounts. Voir scripts/regex101.py.
+- id: real-x00676
+  difficulty: medium
+  status: ok
+  description: Validate a university email address ending in the exact lowercase domain unal.edu.co. The local part is nonempty and contains only ASCII letters, digits, periods, exclamation marks, hashes, dollar signs, percent signs, ampersands, apostrophes, asterisks, plus signs, slashes, equals signs, question marks, carets, underscores, backticks, braces, vertical bars, tildes or hyphens. No restrictions on local-part period placement are imposed. No whitespace or additional suffix is allowed.
+  regex: /^(?:[A-Za-z0-9.!#$%&\x27*+\/=?^_`{|}~-]+@unal\.edu\.co)(?![\s\S])$/
+  match:
+  - test@unal.edu.co
+  - A1@unal.edu.co
+  - a.b@unal.edu.co
+  - a+b@unal.edu.co
+  - _@unal.edu.co
+  - a..b@unal.edu.co
+  - '!@unal.edu.co'
+  - a-b@unal.edu.co
+  no_match:
+  - '@unal.edu.co'
+  - a@UNAL.edu.co
+  - a@unal.edu.com
+  - a:@unal.edu.co
+  - ' a@unal.edu.co'
+  - a@unal.edu.co.x
+  - ''
+  - test@example.com
+  - 'a@unal.edu.co
+
+    '
+- id: real-x01126
+  difficulty: medium
+  status: ok
+  description: Validate an email-like address with optional leading and trailing ASCII spaces. The local part has 1 to 25 ASCII letters, digits, underscores, periods or hyphens. After one at sign require two to four domain labels separated by periods, each of 1 to 25 ASCII letters, digits, underscores or hyphens. No additional placement restrictions apply. No other whitespace is allowed.
+  regex: '/^(?: *[A-Za-z0-9_.-]{1,25}@[A-Za-z0-9_-]{1,25}(?:\.[A-Za-z0-9_-]{1,25}){1,3} *)(?![\s\S])$/'
+  match:
+  - a@b.c
+  - ' a@b.c'
+  - 'a@b.c '
+  - '  a@b.c  '
+  - emanuel_on@catracalivre.com.br
+  - -@-.x
+  - aaaaaaaaaaaaaaaaaaaaaaaaa@b.c
+  - a@b.c.d.e
+  no_match:
+  - aaaaaaaaaaaaaaaaaaaaaaaaaa@b.c
+  - a@bbbbbbbbbbbbbbbbbbbbbbbbbb.c
+  - a@b.c.d.e.f
+  - a+z@b.c
+  - "\ta@b.c"
+  - "a@b.c\t"
+  - ''
+  - '@'
+  - 'a@b.c
+
+    '
+- id: real-x01233
+  difficulty: medium
+  status: ok
+  description: Validate an unquoted email address, ignoring ASCII letter case. The local part consists of nonempty runs of ASCII letters, digits, underscore, exclamation mark, hash, dollar, percent, ampersand, apostrophe, asterisk, plus, slash, equals, question mark, backtick, braces, vertical bar, tilde, caret or hyphen separated by single periods. Require one at sign, one or more nonempty domain labels of ASCII letters, digits or hyphens each followed by a period, and a final ASCII-letter suffix of 2 to 6 characters. No additional hyphen placement rules or whitespace are allowed.
+  regex: /^(?:[A-Za-z0-9_!#$%&\x27*+\/=?`{|}~^-]+(?:\.[A-Za-z0-9_!#$%&\x27*+\/=?`{|}~^-]+)*@(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,6})(?![\s\S])$/
+  match:
+  - edwin.allen@gmail.com
+  - A@B.CO
+  - x+y@sub.example.org
+  - a@-.com
+  - _@x.museum
+  - o'hara@x.io
+  - a-b@x.net
+  - a@b.travel
+  no_match:
+  - .a@b.co
+  - a..b@x.co
+  - a@b.c
+  - a@b.toolong
+  - ' a@b.co'
+  - 'a@b.co '
+  - ''
+  - a@b
+  - 'a@b.co
+
+    '
+- id: real-x01273
+  difficulty: hard
+  status: ok
+  description: Validate an address consisting of a canonical dotted IPv4 address, an at sign and lowercase pexipdemo.com or pexipdemo.cn, optionally with the lowercase subdomain au. before pexipdemo. IPv4 has four ASCII decimal octets from 0 to 255 with no leading zeroes except zero itself. No whitespace or other text is allowed.
+  regex: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?|0)(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?|0)){3}@(?:au\.)?pexipdemo\.(?:com|cn))(?![\s\S])$/
+  match:
+  - 213.221.115.114@pexipdemo.com
+  - 0.0.0.0@pexipdemo.cn
+  - 255.255.255.255@au.pexipdemo.com
+  - 1.2.3.4@au.pexipdemo.cn
+  - 10.0.0.1@pexipdemo.com
+  - 192.168.1.1@pexipdemo.cn
+  - 8.8.8.8@au.pexipdemo.com
+  - 1.1.1.1@pexipdemo.com
+  no_match:
+  - 256.1.1.1@pexipdemo.com
+  - 01.2.3.4@pexipdemo.com
+  - 1.2.3.4@pexipdemo.org
+  - 1.2.3.4@PEXIPDEMO.com
+  - ' 1.2.3.4@pexipdemo.com'
+  - '1.2.3.4@pexipdemo.com '
+  - ''
+  - 1.2.3.4.5@pexipdemo.com
+  - '1.2.3.4@pexipdemo.com
+
+    '
+- id: real-x01666
+  difficulty: medium
+  status: ok
+  description: Validate an email-like address whose local part has nonempty ASCII word-character runs separated by single periods or hyphens. Word characters are ASCII letters, digits and underscores. The domain likewise uses nonempty word-character runs separated by single periods or hyphens, ending in a period and an ASCII-letter suffix of at least two characters. No whitespace, plus tags or adjacent separators are allowed. No additional label or total-length restriction applies.
+  regex: /^(?:[A-Za-z0-9_]+(?:[.-][A-Za-z0-9_]+)*@[A-Za-z0-9_]+(?:[.-][A-Za-z0-9_]+)*\.[A-Za-z]{2,})(?![\s\S])$/
+  match:
+  - 12123123@123123gjlk1.co2123.casf
+  - a@b.co
+  - a-b@x-y.com
+  - a.b@x.co.uk
+  - _@_.ab
+  - A1@B2.COM
+  - abc@host.verylongsuffix
+  - a_b@x_y.io
+  no_match:
+  - a..b@x.co
+  - a-@x.co
+  - a+b@x.co
+  - a@b.c
+  - ' a@b.co'
+  - 'a@b.co '
+  - ''
+  - a@b
+  - 'a@b.co
+
+    '
+- id: real-x01733
+  difficulty: hard
+  status: ok
+  description: Validate an unquoted ASCII email address. The local part is a nonempty sequence of ASCII letters, digits, periods, exclamation marks, hashes, dollar signs, percent signs, ampersands, apostrophes, asterisks, plus signs, slashes, equals signs, question marks, carets, underscores, backticks, braces, vertical bars, tildes or hyphens. It cannot begin or end with a period and cannot contain adjacent periods. After one at sign, the domain is a nonempty sequence of ASCII letters, digits, underscores, hyphens or periods, then a final period and a 2 to 6 ASCII-letter suffix. The domain cannot begin with a period or contain adjacent periods. No additional hyphen rules or whitespace are allowed.
+  regex: /^(?:(?![^\r\n]*\.\.)(?!\.)[A-Za-z0-9.!#$%&\x27*+\/=?^_`{|}~-]+(?<!\.)@(?!\.)[A-Za-z0-9_.-]+\.[A-Za-z]{2,6})(?![\s\S])$/
+  match:
+  - pete@openanswers.co.uk
+  - pete.Davies@openanswers.co.uk
+  - pete.Da!#$%&'vies@openanswers.co.uk
+  - a+b@x.co
+  - _@_.com
+  - a@-.io
+  - A@B.MUSEUM
+  - a.b@x_y.net
+  no_match:
+  - .a@b.co
+  - a.@b.co
+  - a..b@b.co
+  - a@b..co
+  - ' a@b.co'
+  - 'a@b.co '
+  - a@b.c
+  - a@.co
+  - 'a@b.co
+
+    '
+- id: real-x02623
+  difficulty: medium
+  status: ok
+  description: Validate a URL username beginning with an ASCII letter. Subsequent characters are ASCII letters or digits, optionally separated into nonempty groups by single hyphens. A hyphen cannot begin or end the string and consecutive hyphens are forbidden. Letter case is unrestricted. No spaces or other punctuation are allowed.
+  regex: /^[A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)*$(?!.)/s
+  match:
+  - a
+  - A
+  - abc123
+  - a-b
+  - a-1
+  - abc-12-def
+  - sdf-asdfe22-ww-2dsdfas-df
+  - Z9-8
+  no_match:
+  - 1abc
+  - -abc
+  - abc-
+  - a--b
+  - '!abc'
+  - abc!
+  - ''
+  - a_b
+  - a b
+- id: real-x03388
+  difficulty: medium
+  status: ok
+  description: Validate a restricted case-sensitive email address. The local part has one or more nonempty dot-separated segments containing only ASCII letters, digits, underscore, and hyphen. After one at sign, allow zero or more nonempty dot-separated segments using that same alphabet, then a final domain label of 1 to 67 characters whose first character is an ASCII letter, digit, or underscore and whose rest may also include hyphens. End with a dot and 2 to 6 lowercase ASCII letters, optionally followed by another dot and exactly two lowercase ASCII letters. No other characters are allowed.
+  regex: /^[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*@(?:[A-Za-z0-9_-]+\.)*[A-Za-z0-9_][A-Za-z0-9_-]{0,66}\.[a-z]{2,6}(?:\.[a-z]{2})?(?![\s\S])$/
+  match:
+  - foo@dev.baz.com
+  - a@b.co
+  - A_1-b.c@x.org
+  - x@foo_bar.net
+  - a@b.travel
+  - a@b.co.uk
+  - a@b-.com
+  - x@a.b.c.eu
+  no_match:
+  - '!a@b.co'
+  - a@b.co!
+  - a@b.c
+  - a..b@c.co
+  - a@-b.co
+  - 'a@b.co
+
+    '
+  - ''
+  - a b@c.co
+  - a@@b.co
+- id: real-x03391
+  difficulty: medium
+  status: ok
+  description: Validate a restricted lowercase email address with exactly one at sign. The local part consists of nonempty runs of lowercase ASCII letters and digits, separated by single punctuation characters drawn from period, exclamation mark, number sign, dollar sign, percent, ampersand, apostrophe, asterisk, plus, slash, equals, question mark, caret, underscore, backtick, braces, vertical bar, tilde, and hyphen. The domain consists of nonempty lowercase alphanumeric runs separated by single periods or hyphens, then a final period and at least two lowercase ASCII letters. No surrounding whitespace or other characters are allowed.
+  regex: /^[a-z0-9]+(?:[.!#$%&'*+\/=?^_`{|}~-][a-z0-9]+)*@[a-z0-9]+(?:[.-][a-z0-9]+)*\.[a-z]{2,}(?![\s\S])$/
+  match:
+  - s!s!f@n.eu
+  - a@b.co
+  - a+b@c.com
+  - a/b@x.org
+  - a_b@foo-bar.net
+  - a.b@foo.bar.co
+  - a~b@x.travel
+  - a'b@1x.eu
+  no_match:
+  - '!a@b.co'
+  - a@b.co!
+  - a@b.c
+  - a..b@c.co
+  - A@b.co
+  - 'a@b.co
+
+    '
+  - ''
+  - a@@b.co
+  - a b@c.co
+- id: real-x03508
+  difficulty: simple
+  status: ok
+  description: Validate a Twitter handle consisting of an at sign followed by 1 to 15 ASCII letters, digits, or underscores. Uppercase and lowercase letters are allowed. No other characters or whitespace are permitted.
+  regex: /^@[A-Za-z0-9_]{1,15}(?!.)$/s
+  match:
+  - '@a'
+  - '@Z'
+  - '@0'
+  - '@_'
+  - '@hello'
+  - '@Hello_123'
+  - '@123456789012345'
+  - '@a_b_C'
+  no_match:
+  - x@a
+  - '@a!'
+  - '@'
+  - '@1234567890123456'
+  - '@a-b'
+  - '@a
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x03567
+  difficulty: medium
+  status: ok
+  description: Validate a practice email notation using ASCII letters, digits, and underscores in every word run. The local part is one or more nonempty word runs separated by single hyphens or periods; underscores may occur anywhere within a run. The domain begins with a nonempty word run, optionally a single hyphen and another nonempty word run, then a period and a label of two or three word characters, optionally followed by another period and a label of two or three word characters. No empty segments, additional hyphens in the domain, whitespace, or other characters are allowed.
+  regex: /^[A-Za-z0-9_]+(?:[-.][A-Za-z0-9_]+)*@[A-Za-z0-9_]+(?:-[A-Za-z0-9_]+)?\.[A-Za-z0-9_]{2,3}(?:\.[A-Za-z0-9_]{2,3})?(?!.)$/s
+  match:
+  - abc@mail.com
+  - abc@mail.nz
+  - abc@mail.co.nz
+  - abc123@mail.com
+  - abc.def@music.com
+  - abc-d@mail.com
+  - abc_def@mail.com
+  - abc.def@mail-archive.com
+  no_match:
+  - '!abc@mail.com'
+  - abc@mail.com!
+  - abc@mail.c
+  - abc..def@mail.com
+  - abc@mail..com
+  - 'abc@mail.com
+
+    '
+  - ''
+  - abc
+  - abc.com
+- id: real-x04205
+  difficulty: medium
+  status: ok
+  description: Validate a username of 4 to 32 ASCII characters drawn from letters, digits, underscore, period, and hyphen. First and last characters must be letters or digits. Forbid the adjacent pairs underscore-underscore, underscore-period, period-underscore, period-period, period-hyphen, and underscore-hyphen. Consecutive hyphens, hyphen-period, and hyphen-underscore are allowed. No whitespace or other characters are allowed.
+  regex: /^(?=.{4,32}(?!.))(?!.*[_.][_.-])[A-Za-z0-9][A-Za-z0-9_.-]*[A-Za-z0-9](?!.)$/s
+  match:
+  - abcd
+  - a_b1
+  - a.b1
+  - a--b
+  - a-.b
+  - a-_b
+  - A123
+  - aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  no_match:
+  - '!abcd'
+  - abcd!
+  - abc
+  - aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  - ab_-c
+  - 'abcd
+
+    '
+  - ''
+  - '@name'
+  - '###'
+- id: real-x04342
+  difficulty: simple
+  status: ok
+  description: Validate zero or more ASCII letters, digits, at signs, hyphens, or periods. The empty username is allowed and punctuation may appear anywhere or consecutively. No whitespace or other characters are allowed.
+  regex: /^[A-Za-z0-9@.-]*(?!.)$/s
+  match:
+  - ''
+  - t3st
+  - p@ssw0rd
+  - adv-admin
+  - a.b
+  - '@@@'
+  - '-'
+  - .
+  no_match:
+  - '!abc'
+  - abc!
+  - a_b
+  - a b
+  - a/b
+  - 'abc
+
+    '
+  - '#'
+  - "\xE9"
+  - 123$
+- id: real-x04482
+  difficulty: simple
+  status: ok
+  description: Validate a restricted email notation whose nonempty local part contains only ASCII letters, digits, period, exclamation mark, number sign, dollar sign, percent, ampersand, curly apostrophe, asterisk, plus, slash, equals, question mark, caret, underscore, backtick, braces, vertical bar, tilde, or hyphen. These characters may occur anywhere. After one at sign require one or more nonempty period-separated domain labels using ASCII letters, digits, and hyphen. A domain period is optional. No whitespace or other characters are allowed.
+  regex: "/^[A-Za-z0-9.!#$%&\u2019*+\\/=?^_`{|}~-]+@[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*(?!.)$/s"
+  match:
+  - Benren9347@gmail.com
+  - a@b
+  - .@-
+  - a+b@x.org
+  - "a\u2019b@x.co"
+  - a..b@c
+  - A@B.COM
+  - a/b@foo-bar
+  no_match:
+  - '! a@b'
+  - a@b!
+  - a@
+  - a@b..co
+  - a b@c
+  - 'a@b
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x04653
+  difficulty: simple
+  status: ok
+  description: Validate a Discord user-mention notation made of the exact opening characters <@, a nonempty ASCII digit sequence, and a closing greater-than sign. Leading zeros are allowed. No nickname marker, role marker, whitespace, or other characters are allowed.
+  regex: /^<@[0-9]+>(?!.)$/s
+  match:
+  - <@234>
+  - <@33>
+  - <@0>
+  - <@1>
+  - <@123456789012345678>
+  - <@001>
+  - <@999>
+  - <@42>
+  no_match:
+  - x<@33>
+  - <@33>x
+  - <@>
+  - <@a>
+  - <@!33>
+  - '<@33>
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x04921
+  difficulty: simple
+  status: ok
+  description: Validate a restricted lowercase email address. Require a nonempty local part of lowercase ASCII letters and digits, an at sign, a nonempty domain label of lowercase ASCII letters and digits, a period and one or more lowercase ASCII letters. Optionally append another period and exactly one lowercase ASCII letter. No other characters are permitted.
+  regex: /^[a-z0-9]+@[a-z0-9]+\.[a-z]+(?:\.[a-z])?$(?![\s\S])/
+  match:
+  - a@b.c
+  - foo@example.com
+  - a1@b2.net
+  - x@y.com.a
+  - 1@2.a
+  - user123@domain.info
+  - z@abc.xy.z
+  - abc@xyz.abc
+  no_match:
+  - a@b.c.ab
+  - a@b.
+  - ' a@b.c'
+  - a@b.c!
+  - A@b.c
+  - a_b@c.d
+  - ''
+  - a@@b.c
+  - 'a@b.c
+
+    '
+- id: real-x05236
+  difficulty: medium
+  status: ok
+  description: Validate a restricted lowercase email address. Each period-separated local-part segment has at least two characters, begins and ends with a lowercase ASCII letter or digit, and internally allows lowercase ASCII letters, digits, underscores and hyphens. The domain has at least two period-separated labels; each label contains lowercase ASCII letters and digits and at least two letters in total. No spaces or other characters are permitted.
+  regex: /^[a-z0-9][a-z0-9_-]*[a-z0-9](?:\.[a-z0-9][a-z0-9_-]*[a-z0-9])*@(?=[a-z0-9]*[a-z][a-z0-9]*[a-z])[a-z0-9]+(?:\.(?=[a-z0-9]*[a-z][a-z0-9]*[a-z])[a-z0-9]+)+$(?![\s\S])/
+  match:
+  - jessy2995@hotmail.com
+  - jessica.altamirano@epn.edu.ec
+  - ab@cd.ef
+  - a-b@12ab34.cd
+  - a_b@ab.cd
+  - 12@ab.cd
+  - ab.cd@ef.gh
+  - aa@aa.bb.cc
+  no_match:
+  - a@ab.cd
+  - ab@a.cd
+  - xab@ab.cd!
+  - ' ab@ab.cd'
+  - ab@ab.cd!
+  - a+@ab.cd
+  - ''
+  - unrelated
+  - 'jessy2995@hotmail.com
+
+    '
+- id: real-x05341
+  difficulty: medium
+  status: ok
+  description: Validate a restricted registration email. The local part uses ASCII letters, digits, underscores and hyphens, with periods additionally allowed internally but not at either end. The domain has at least two nonempty period-separated labels using ASCII letters, digits and hyphens; the last label has two through four characters. Leading or trailing domain-label hyphens are allowed. No whitespace or other characters are permitted.
+  regex: /^[A-Za-z0-9_-](?:[A-Za-z0-9_.-]*[A-Za-z0-9_-])?@(?:[A-Za-z0-9-]+\.)+[A-Za-z0-9-]{2,4}$(?![\s\S])/
+  match:
+  - john@gddg.com
+  - a@b.co
+  - a.b@c.info
+  - a..b@c.d.net
+  - _@-.--
+  - -@1.12
+  - A_1@B2.ABC
+  - x-y@z.abcd
+  no_match:
+  - a@b.c
+  - a@b.abcde
+  - ' a@b.co'
+  - a@b.co!
+  - a+@b.co
+  - .a@b.co
+  - ''
+  - unrelated
+  - 'john@gddg.com
+
+    '
+- id: real-x05414
+  difficulty: medium
+  status: ok
+  description: Validate a restricted Gmail spelling with the exact lowercase domain gmail.com. The local part uses lowercase ASCII letters and digits with optional single periods, plus signs or hyphens separating nonempty alphanumeric portions. No leading, trailing or consecutive separators, spaces or other characters are allowed. This checks spelling only, not account existence.
+  regex: /^[a-z0-9]+(?:[.+-][a-z0-9]+)*@gmail\.com$(?![\s\S])/
+  match:
+  - niceandsimple@gmail.com
+  - very.common@gmail.com
+  - disposable.style.email.with+symbol@gmail.com
+  - other.email-with-dash@gmail.com
+  - a@gmail.com
+  - 1@gmail.com
+  - a+b-c.d@gmail.com
+  - abc123@gmail.com
+  no_match:
+  - a..b@gmail.com
+  - -a@gmail.com
+  - ' a@gmail.com'
+  - a@gmail.com!
+  - A@gmail.com
+  - a_b@gmail.com
+  - ''
+  - unrelated
+  - 'niceandsimple@gmail.com
+
+    '
+- id: real-x05740
+  difficulty: simple
+  status: ok
+  description: Validate a restricted email spelling with a nonempty local part of ASCII letters, digits, hyphens, underscores and periods. Require one at sign, a domain label of two through sixty-three ASCII letters, digits or hyphens, a period and a suffix of two through sixty-three ASCII letters or digits. No spaces, additional domain labels or other characters are permitted.
+  regex: /^[A-Za-z0-9_.-]+@[A-Za-z0-9-]{2,63}\.[A-Za-z0-9]{2,63}$(?![\s\S])/
+  match:
+  - alainsouchet@smile.fr
+  - a@bc.de
+  - _@--.00
+  - a.b@domain.info
+  - A1@BC.XY
+  - -@12.34
+  - ..@ab.cd
+  - x-y@z9.abc
+  no_match:
+  - a@b.co
+  - a@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.co
+  - ' a@bc.de'
+  - a@bc.de!
+  - a+@bc.de
+  - a@bc.d
+  - ''
+  - unrelated
+  - 'alainsouchet@smile.fr
+
+    '
+- id: real-x05936
+  difficulty: simple
+  status: ok
+  description: Validate a restricted email-shaped string with a nonempty local part containing ASCII letters, digits, underscores, hyphens, plus signs, or full stops. After exactly one at sign, require a nonempty domain portion from the same character set, a full stop, and a final suffix of at least two ASCII letters in either case. Edge and repeated full stops, plus signs, underscores, and hyphens in those unrestricted portions are permitted. No whitespace or other characters are allowed; standard email validity is not claimed.
+  regex: /^[A-Za-z0-9_+.\-]+@[A-Za-z0-9_+.\-]+\.[A-Za-z]{2,}(?![\s\S])$/
+  match:
+  - a@b.co
+  - a+b@c.com
+  - a_b@c_d.info
+  - .@..CO
+  - a-b@c-d.net
+  - A@B.TEST
+  - 1@2.ab
+  - a@b.c.abcdef
+  no_match:
+  - '@b.co'
+  - a@.co
+  - a@b.c
+  - a@b.c0
+  - a!@b.co
+  - a@b!.co
+  - '!a@b.co'
+  - a@b.co!
+  - 'a@b.co
+
+    '
+- id: real-x06120
+  difficulty: hard
+  status: ok
+  description: 'Validate an HTML-style email shape. The nonempty local part uses ASCII letters, digits, or these characters: full stop, exclamation mark, hash, dollar, percent, ampersand, single quote, asterisk, plus, slash, equals, question mark, caret, underscore, backtick, braces, vertical bar, tilde, or hyphen. It is followed by exactly one at sign and one or more dot-separated domain labels. Each label is 1 through 63 ASCII letters, digits, or hyphens, with an alphanumeric first and last character. A single domain label is allowed. No whitespace, quoted local parts, or other characters are allowed.'
+  regex: /^[A-Za-z0-9.!#$%&\x27*+/=?^_`{|}~\-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*(?![\s\S])$/
+  match:
+  - me@example.com
+  - me@example.co.uk
+  - a@b
+  - A+B@EXAMPLE.COM
+  - a..b@c
+  - a/b@a-b.test
+  - .@localhost
+  - a@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  no_match:
+  - a@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  - a@-b
+  - a@b-
+  - a@b..c
+  - a @b
+  - a@b_c
+  - '! a@b'
+  - a@b!
+  - 'a@b
+
+    '
+- id: real-x06269
+  difficulty: medium
+  status: ok
+  description: Validate a restricted email-shaped string. The local part is one or more nonempty ASCII word-character runs separated by single characters from exclamation mark, dollar, percent, ampersand, apostrophe, either parenthesis, asterisk, plus, full stop, or hyphen. Word characters mean ASCII letters, digits, and underscore. After one at sign, the domain has at least two such word-character runs separated by single full stops or hyphens, with at least one full stop required. No whitespace, other characters, leading or trailing separators, or adjacent separators are allowed.
+  regex: /^[A-Za-z0-9_]+(?:[!$%&'()*+.\-][A-Za-z0-9_]+)*@[A-Za-z0-9_]+(?:[.-][A-Za-z0-9_]+)*\.[A-Za-z0-9_]+(?:[.-][A-Za-z0-9_]+)*(?![\s\S])$/
+  match:
+  - chandandsad(07@gmail.com
+  - a@b.c
+  - a+b@c.d
+  - a!b@c-d.e
+  - a_b@c_d.1
+  - A@B.C
+  - a*b@c.d-e
+  - a(b)c@d.e
+  no_match:
+  - a..b@c.d
+  - a+@c.d
+  - +a@c.d
+  - a@c-d
+  - a@c..d
+  - a@c.d-
+  - ?a@b.c
+  - a@b.c?
+  - 'a@b.c
+
+    '
+- id: real-x06994
+  difficulty: simple
+  status: ok
+  description: 'Validate a deliberately simplistic email shape: one or more characters other than an at sign, then an at sign, then one or more non-line-terminator characters. The first part may contain whitespace and line terminators; the final part may contain spaces and additional at signs. No domain structure or full email-standard validity is checked.'
+  regex: /^[^@]+@[^\r\n\u2028\u2029]+(?![\s\S])$/
+  match:
+  - andrew.forget@microsoft.com
+  - andydragon@live.com
+  - a@b
+  - ' @ '
+  - a@b@c
+  - '
+
+    a@b'
+  - 'a
+
+    b@c'
+  - "\xE9@\U0001F642"
+  no_match:
+  - '@a@b'
+  - a@
+  - abc
+  - 'a@b
+
+    '
+  - "a@b\r"
+  - "a@b\L"
+  - ''
+  - '@@'
+  - 'a@b
+
+    c'
+- id: real-x07002
+  difficulty: simple
+  status: ok
+  description: Validate a restricted lowercase email shape. A nonempty local part uses lowercase ASCII letters, digits, hyphens, underscores, or full stops. After one at sign, a nonempty domain portion uses lowercase letters, digits, hyphens, or full stops, followed by a full stop and two through four lowercase letters. Edge and repeated full stops in the unrestricted portions are allowed. No whitespace, uppercase letters, plus signs, or other characters are allowed.
+  regex: /^[a-z0-9_.-]+@[a-z0-9.-]+\.[a-z]{2,4}(?![\s\S])$/
+  match:
+  - test@mail.ru
+  - test-test@mail.ru
+  - test.test@mail.ru
+  - test@mm.mr.com
+  - _@a.co
+  - .@..co
+  - 1@2.info
+  - a@-b-.test
+  no_match:
+  - '@b.co'
+  - a@.co
+  - a@b.c
+  - a@b.abcde
+  - A@b.co
+  - a@b_.co
+  - '!a@b.co'
+  - a@b.co!
+  - 'a@b.co
+
+    '
+- id: real-x07192
+  difficulty: medium
+  status: ok
+  description: Validate a lowercase ASCII email address. The local part contains one or more letters, digits, dots, underscores or hyphens. The domain stem contains one or more letters, digits, underscores or hyphens and ends in exactly .com or .co.uk. No whitespace is permitted.
+  regex: /^(?:[a-z0-9._-]+@[a-z0-9_-]+\.(?:com|co\.uk))(?!\s|\S)$/
+  match:
+  - a@b.com
+  - michael.kindle@gmail.co.uk
+  - a-b@c-d.com
+  - a_b@c_d.co.uk
+  - 1@2.com
+  - ab.cd@host.com
+  - user99@site.co.uk
+  - x.y_z@a.com
+  no_match:
+  - '!a@b.com'
+  - a@b.com!
+  - a@b.net
+  - A@b.com
+  - a@.com
+  - 'a@b.co.uk
+
+    '
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x07704
+  difficulty: simple
+  status: ok
+  description: Validate a Minecraft username layout with one to sixteen ASCII letters, digits or underscores. Letter case is unrestricted. No spaces, punctuation or surrounding text are allowed. This checks only the stated format, not account existence.
+  regex: /^(?:[A-Za-z0-9_]{1,16})(?!\s|\S)$/
+  match:
+  - HighFructoseCorn
+  - a
+  - _
+  - '123'
+  - Player_1
+  - ABCDEFGHIJKLMNOP
+  - a_b_c
+  - '0000'
+  no_match:
+  - '!Player_1'
+  - Player_1!
+  - ABCDEFGHIJKLMNOPQ
+  - a-b
+  - a b
+  - 'Player_1
+
+    '
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x08321
+  difficulty: medium
+  status: ok
+  description: "Validate a simplified email address allowing ASCII letters and digits plus Cyrillic letters \u0410 through \u042F and \u0430 through \u044F. The nonempty local part additionally allows dot, underscore and hyphen. The domain has nonempty dot-separated labels using those letters, digits or hyphens; each label must start and end with a letter or digit. The final label contains at least two letters from the permitted alphabets. Whitespace and other characters, including \u0401 and \u0451, are forbidden. No allocation or deliverability checks apply."
+  regex: "/^(?:[A-Za-z0-9\u0410-\u042F\u0430-\u044F._-]+@(?:[A-Za-z0-9\u0410-\u042F\u0430-\u044F](?:[A-Za-z0-9\u0410-\u042F\u0430-\u044F-]*[A-Za-z0-9\u0410-\u042F\u0430-\u044F])?\\.)+[A-Za-z\u0410-\u042F\u0430-\u044F]{2,})(?!\\s|\\S)$/u"
+  match:
+  - "\u0434\u0441\u0430\u0446\u0441@\u0430\u0431\u0441\u0434.\u0431\u0433"
+  - a@b.co
+  - "\u0418\u0432\u0430\u043D@\u043F\u043E\u0447\u0442\u0430.\u0440\u0444"
+  - a_b@host-name.com
+  - x.y@a.b.net
+  - "ABC@\u0414\u041E\u041C.\u0420\u0424"
+  - 123@456.abc
+  - "a-b@\u0441\u0430\u0439\u0442.com"
+  no_match:
+  - '!a@b.co'
+  - a@b.co!
+  - a@b.c
+  - a@-b.co
+  - a@b..co
+  - a@b.c0
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x08347
+  difficulty: simple
+  status: ok
+  description: Validate a deliberately minimal single-line email shape with a nonempty portion before an @ sign and a nonempty portion on each side of a later dot. All characters except line terminators are otherwise allowed, including additional @ signs, dots and spaces. This does not enforce email-standard semantics or deliverability.
+  regex: /^(?:.[^@\r\n\u2028\u2029]*@.[^.\r\n\u2028\u2029]*\..+)(?!\s|\S)$/
+  match:
+  - a.b@c.d
+  - a@b.c
+  - user@example.com
+  - x y@z.q
+  - a@@b.c
+  - a@b..c
+  - "\u2603@\u2603.\u2603"
+  - 'a@b.c '
+  no_match:
+  - '
+
+    a@b.c'
+  - 'a@b.c
+
+    '
+  - '@b.c'
+  - a@.c
+  - a@b.
+  - 'a
+
+    @b.c'
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x08441
+  difficulty: simple
+  status: ok
+  description: Validate a restricted ASCII email layout. The local part is nonempty and uses letters, digits, dots, underscores or hyphens. The domain stem has at least two characters using letters, digits or hyphens. It is followed by one dot and a suffix of two to four ASCII letters. Case is unrestricted. No whitespace, additional domain labels or other characters are allowed.
+  regex: /^(?:[A-Za-z0-9._-]+@[A-Za-z0-9-]{2,}\.[A-Za-z]{2,4})(?!\s|\S)$/
+  match:
+  - aaa@aaaa.com
+  - a@bb.co
+  - A_B@HOST.ORG
+  - a-b@ab-c.info
+  - x.y@99.io
+  - _@--.aa
+  - 123@456.net
+  - a@bc.ABCD
+  no_match:
+  - '!a@bb.co'
+  - a@bb.co!
+  - a@b.co
+  - a@bb.abcde
+  - a@bb.c0
+  - 'a@bb.co
+
+    '
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x08511
+  difficulty: simple
+  status: ok
+  description: Validate a lowercase ASCII username of at least two characters. The first character is a letter or digit. All following characters are letters, digits or hyphens, and a trailing hyphen is permitted. No whitespace, uppercase letters or other punctuation are allowed.
+  regex: /^(?:[a-z0-9][a-z0-9-]+)(?!\s|\S)$/
+  match:
+  - ab
+  - a1
+  - 1a
+  - '12'
+  - user-name
+  - a-
+  - 0--
+  - longusername123
+  no_match:
+  - '!ab'
+  - ab!
+  - a
+  - -ab
+  - Ab
+  - 'ab
+
+    '
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x08541
+  difficulty: medium
+  status: ok
+  description: Validate a restricted email layout. The local part has at least two characters, starts with an ASCII letter or digit and otherwise contains ASCII letters, digits, dots or underscores. The domain comprises one or more lowercase ASCII letter labels separated by dots and a final lowercase alphabetic suffix of two to five letters. No hyphen, whitespace or other characters are permitted.
+  regex: /^(?:[A-Za-z0-9][A-Za-z0-9._]+@(?:[a-z]+\.)+[a-z]{2,5})(?!\s|\S)$/
+  match:
+  - ab@host.com
+  - A1@example.org
+  - a_b@site.net
+  - a.b@x.io
+  - 12@a.b.co
+  - user@host.abcde
+  - abc@host.co
+  - x_@y.zz
+  no_match:
+  - '!ab@host.com'
+  - ab@host.com!
+  - a@host.com
+  - ab@host.abcdef
+  - ab@host.c0
+  - 'ab@host.com
+
+    '
+  - ''
+  - unrelated input
+  - "\u2603"

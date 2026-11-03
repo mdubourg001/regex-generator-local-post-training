@@ -1,0 +1,225 @@
+# Évaluation réelle (regex101, annotée par GPT 6.1 Sol), catégorie money. Voir scripts/regex101.py.
+- id: real-x00231
+  difficulty: medium
+  status: ok
+  description: Amount with exactly two decimal places, optionally suffixed by lowercase k, m or b. The integer part is one to three digits followed by zero or more comma-separated groups of exactly three digits. Leading zeros are allowed. A dot separates the fraction. No sign or spaces.
+  regex: /^\d{1,3}(?:,\d{3})*\.\d{2}[kmb]?$/
+  match:
+  - '0.00'
+  - 123.12k
+  - 123,123,123.12m
+  - 123,123,123,123.00b
+  - '001.00'
+  - '1.99'
+  - 12,000.01k
+  - 999,999.99b
+  no_match:
+  - 123456.12k
+  - 123,1234.12b
+  - 1234,123.12m
+  - '1.0'
+  - x1.00
+  - 1.00x
+  - ''
+  - unrelated text
+  - "\U0001F642"
+- id: real-x00294
+  difficulty: simple
+  status: ok
+  description: Signed amount with one to nine integer digits and an optional fraction of one or two digits after a dot. Only a minus sign is optional; no plus sign, commas or spaces. Leading zeros and negative zero are allowed. Magnitude must not exceed 999999999.99.
+  regex: /^-?\d{1,9}(?:\.\d{1,2})?$/
+  match:
+  - '0'
+  - '1'
+  - '12.34'
+  - '123456789.12'
+  - '-12.23'
+  - '999999999.99'
+  - '-999999999.99'
+  - '000.1'
+  no_match:
+  - '1234567890.12'
+  - '12.345'
+  - '1.'
+  - '+1'
+  - x12.34
+  - 12.34x
+  - ''
+  - unrelated text
+  - "\U0001F642"
+- id: real-x02572
+  difficulty: medium
+  status: ok
+  description: Validate a positive payment amount using ASCII digits. The integer part starts with one through three digits, followed by any number of three-digit groups. Each later group may independently have a comma, one ASCII space or no separator. Leading zeroes and mixed grouping separators are allowed. An optional dot introduces one or more fractional digits. At least one digit must be nonzero. Signs, currency symbols and extra characters are forbidden.
+  regex: /^(?=[\d,. ]*[1-9])\d{1,3}(?:[ ,]?\d{3})*(?:\.\d+)?$(?!.)/s
+  match:
+  - '1000'
+  - 1,000
+  - 1,000.99
+  - '1000.00'
+  - 1,000,000.12
+  - '0.01'
+  - 1 000,000.1
+  - '001.999'
+  no_match:
+  - '0'
+  - 1,00
+  - '1.'
+  - 1 00
+  - x1,000
+  - 1,000x
+  - ''
+  - $1,000
+  - '-10'
+- id: real-x03206
+  difficulty: medium
+  status: ok
+  description: Validate an unsigned decimal cryptocurrency amount of at least 0.5. The integer part is mandatory, uses ASCII digits and has no leading zeroes except zero itself. A decimal point, if present, is followed by 1 through 8 ASCII fractional digits. For an integer part of zero the first fractional digit must be from 5 through 9. No signs, unit suffixes, whitespace or extra characters are allowed.
+  regex: /^(?:0\.[5-9]\d{0,7}|[1-9]\d*(?:\.\d{1,8})?)$(?!.)/s
+  match:
+  - '0.5'
+  - '0.50000000'
+  - '0.99999999'
+  - '1'
+  - '1.0'
+  - '1000.12345678'
+  - '99'
+  - '9999999999.01'
+  no_match:
+  - '0.49'
+  - '0'
+  - '01'
+  - '1.123456789'
+  - x0.5
+  - 0.5x
+  - ''
+  - '-1'
+  - 1 BTC
+- id: real-x03504
+  difficulty: simple
+  status: ok
+  description: Validate an unsigned amount with one or more ASCII integer digits, a decimal point, and exactly two ASCII fractional digits. Leading zeros are allowed. No sign, comma, currency symbol, whitespace, or other text is permitted.
+  regex: /^[0-9]+\.[0-9]{2}(?!.)$/s
+  match:
+  - '13.37'
+  - '4.20'
+  - '1.00'
+  - '0.00'
+  - '001.99'
+  - '9999.01'
+  - '7.50'
+  - '10.10'
+  no_match:
+  - x1.00
+  - 1.00x
+  - '1.0'
+  - '1.000'
+  - 1,00
+  - '1.00
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x04950
+  difficulty: medium
+  status: ok
+  description: Validate a nonnegative euro-style amount with an optional leading euro sign. The integer portion is either one or more ungrouped ASCII digits, or one to three ASCII digits followed by one or more period-separated groups of exactly three digits. An optional fractional portion begins with a comma and contains one or two ASCII digits. Leading zeros are allowed. No spaces, signs or other characters are permitted.
+  regex: "/^\u20AC?(?:[0-9]+|[0-9]{1,3}(?:\\.[0-9]{3})+)(?:,[0-9]{1,2})?$(?![\\s\\S])/"
+  match:
+  - 2345678914564644,61
+  - "\u20AC1.000.000,21"
+  - 1.123.123
+  - "\u20AC0000000"
+  - "\u20AC1.123.123,12"
+  - '0'
+  - "\u20AC001.002,3"
+  - 1234,56
+  no_match:
+  - '1.00'
+  - 1,123
+  - "\u20AC1.0000"
+  - " \u20AC1,00"
+  - "\u20AC1,00x"
+  - "\u20AC1a0"
+  - ''
+  - "\u20AC1,123,123"
+  - "\u20AC1,00\n"
+- id: real-x05965
+  difficulty: simple
+  status: ok
+  description: Validate a currency amount beginning with exactly one dollar, pound, or euro symbol. Follow it with one or more ASCII digits, optionally preceded by a decimal point and zero or more digits before that point. Fractions may have any positive number of digits. Signs, grouping separators, whitespace, and other characters are forbidden.
+  regex: "/^[$\xA3\u20AC](?:[0-9]*\\.)?[0-9]+(?![\\s\\S])$/"
+  match:
+  - $5.1
+  - $234.23
+  - $0.23
+  - $.64
+  - $45
+  - "\u20AC1.87"
+  - "\xA31.987"
+  - "\xA30"
+  no_match:
+  - '5.1'
+  - $1.
+  - $1.2.3
+  - $-1
+  - $1,000
+  - $ 1
+  - x$1
+  - $1x
+  - '$1
+
+    '
+- id: real-x06001
+  difficulty: hard
+  status: ok
+  description: Validate an amount beginning with exactly one Unicode currency-symbol character and a positive integer part with no leading zeros. The integer part may be ungrouped, or grouped in threes using a consistent comma, full stop, or ordinary space; the first group has one to three digits. An optional decimal separator is a comma or full stop followed by zero or more ASCII digits. If grouping uses commas, the decimal separator must be a full stop; if grouping uses full stops, it must be a comma. Signs, whitespace outside grouping, and other characters are forbidden.
+  regex: '/^\p{Sc}(?:[1-9][0-9]{0,2}(?:,[0-9]{3})+(?:\.[0-9]*)?|[1-9][0-9]{0,2}(?:\.[0-9]{3})+(?:,[0-9]*)?|[1-9][0-9]{0,2}(?: [0-9]{3})+(?:[.,][0-9]*)?|[1-9][0-9]*(?:[.,][0-9]*)?)(?![\s\S])$/u'
+  match:
+  - $1
+  - $1000
+  - $1,000.00
+  - "\u20AC1.000,00"
+  - "\xA31 000,25"
+  - "\xA5100."
+  - "\u20B91,00"
+  - "\u20BD1,000,000"
+  no_match:
+  - $0
+  - $01
+  - $1,00,00
+  - $1234,567,890
+  - $1,000,00
+  - '!1'
+  - x$1
+  - $1x
+  - '$1
+
+    '
+- id: real-x06739
+  difficulty: medium
+  status: ok
+  description: Validate an amount with one through six ASCII integer digits, optionally followed by a comma and one or two fractional digits. Alternatively, group the integer part as one through three digits, a full stop, and exactly three digits. Leading zeros are allowed. No sign, currency symbol, whitespace, or other characters are permitted.
+  regex: /^(?:[0-9]{1,3}\.[0-9]{3}|[0-9]{1,6})(?:,[0-9]{1,2})?(?![\s\S])$/
+  match:
+  - '1'
+  - '12'
+  - '123456'
+  - '1.234'
+  - '12.345'
+  - '123.456'
+  - 1,23
+  - 123.456,78
+  no_match:
+  - '1234567'
+  - '1.2345'
+  - '1.23'
+  - '1234.123'
+  - 1,234
+  - 1a
+  - x1
+  - 1x
+  - '1
+
+    '

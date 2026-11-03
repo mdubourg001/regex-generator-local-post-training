@@ -1,0 +1,391 @@
+# Évaluation réelle (regex101, annotée par GPT 6.1 Sol), catégorie code-syntax. Voir scripts/regex101.py.
+- id: real-x00067
+  difficulty: hard
+  status: ok
+  description: 'Discord eval command: lowercase eval followed by one or more ASCII spaces, then code enclosed in matching delimiters of one backtick or three backticks. Immediately after the opening delimiter an optional lowercase js marker is allowed. The code body may be empty and may contain any characters, including newlines and backticks. No text outside the command or its closing delimiter.'
+  regex: /^eval +(```|`)(?:js)?.*\1$/s
+  match:
+  - eval `1+2`
+  - eval ```jsreturn 1;```
+  - eval `jsa`
+  - 'eval ```a
+
+    b```'
+  - eval ``
+  - eval ``````
+  - eval  `x`
+  - eval `a`b`
+  no_match:
+  - Eval `1`
+  - "eval\t`1`"
+  - eval`1`
+  - eval '1'
+  - '!eval `1`'
+  - eval `1`!
+  - ''
+  - 'eval '
+  - "\U0001F642"
+- id: real-x00449
+  difficulty: medium
+  status: ok
+  description: 'Die-roll expression: optional count digits, lowercase d or uppercase D, and one or more ASCII digits for the die size. Optionally append a plus or minus sign and one or more modifier digits. Alternatively accept a standalone integer with an optional leading plus or minus. Leading zeros and zero counts or sizes are allowed. No whitespace, missing numeric operands or other characters.'
+  regex: /^(?:\d*[dD]\d+(?:[+-]\d+)?|[+-]?\d+)$/
+  match:
+  - d2
+  - d2+1
+  - d2-3
+  - 4D2
+  - 4d2+1
+  - 4d2-3
+  - '10'
+  - '+1'
+  no_match:
+  - d
+  - d2+
+  - 4d
+  - 4dd2
+  - '!4d2'
+  - 4d2!
+  - ''
+  - d2 +1
+  - 4d2+1-2
+- id: real-x00702
+  difficulty: medium
+  status: ok
+  description: Validate an uppercase constant identifier of at least two characters. Use only uppercase ASCII letters and underscores. Begin and end with a letter, and never use two consecutive underscores. An underscore is not required.
+  regex: /^(?:(?![A-Z_]*__)[A-Z][A-Z_]*[A-Z])(?![\s\S])$/
+  match:
+  - AB
+  - ABC_DEF
+  - A_B
+  - HELLO
+  - A_B_C
+  - LONG_CONSTANT_NAME
+  - XY_Z
+  - ABCDEF
+  no_match:
+  - A
+  - _AB
+  - AB_
+  - A__B
+  - ' Ab'
+  - 'AB '
+  - ''
+  - abc
+  - 'AB
+
+    '
+- id: real-x00780
+  difficulty: simple
+  status: ok
+  description: Validate a Bash-function declaration header containing a nonempty ASCII word-character name, optional JavaScript whitespace, an opening parenthesis, optional JavaScript whitespace and a closing parenthesis. ASCII word characters are letters, digits and underscores; no restriction is placed on the first character. No body, leading whitespace or trailing text is accepted.
+  regex: /^(?:[A-Za-z0-9_]+\s*\(\s*\))(?![\s\S])$/
+  match:
+  - fct_function()
+  - a()
+  - name ()
+  - foo( )
+  - 123()
+  - _()
+  - "f\t(\t)"
+  - 'Func(
+
+    )'
+  no_match:
+  - ()
+  - foo(x)
+  - ' foo()'
+  - 'foo() '
+  - foo-1()
+  - foo(
+  - ''
+  - function foo()
+  - 'foo()
+
+    '
+- id: real-x00837
+  difficulty: medium
+  status: ok
+  description: Validate an instruction with exactly two operands. The instruction name is a nonempty ASCII alphanumeric run. Each operand is nonempty and excludes spaces, tabs and line terminators. Separate the three fields with one or more ASCII spaces or tabs. No leading or trailing whitespace is permitted.
+  regex: /^(?:[A-Za-z0-9]+[ \t]+[^ \t\r\n\u2028\u2029]+[ \t]+[^ \t\r\n\u2028\u2029]+)(?![\s\S])$/
+  match:
+  - int2char GF@lel bool@true
+  - add a b
+  - "OP\tx\ty"
+  - x  1  2
+  - A1 a_b c-d
+  - MOVE @x @y
+  - 'a : ?'
+  - "foo\tbar  baz"
+  no_match:
+  - op a
+  - op a b c
+  - op_ a b
+  - ' op a b'
+  - 'op a b '
+  - 'op a
+
+    b'
+  - ''
+  - comment
+  - 'op a b
+
+    '
+- id: real-x00933
+  difficulty: medium
+  status: ok
+  description: 'Validate a CSS nth-child arithmetic expression without whitespace: either an optional plus or minus sign and an ASCII integer, or an optional sign, optional ASCII integer coefficient, lowercase n, and an optional offset consisting of plus or minus and a nonempty ASCII integer. Leading zeroes are allowed. Keywords and uppercase N are not accepted.'
+  regex: /^(?:(?:[+-]?[0-9]+|[+-]?[0-9]*n(?:[+-][0-9]+)?))(?![\s\S])$/
+  match:
+  - n
+  - -2n+6
+  - 2n-1
+  - +n
+  - '0'
+  - '-3'
+  - '+12'
+  - 00n+01
+  no_match:
+  - N
+  - 2n+
+  - n1
+  - 2 n
+  - ' xn'
+  - 'n '
+  - ''
+  - odd
+  - 'n
+
+    '
+- id: real-x01043
+  difficulty: medium
+  status: ok
+  description: Validate an equation written as a lowercase ASCII variable optionally preceded by a nonempty ASCII integer coefficient, caret and a nonempty integer exponent; then plus or minus, a required integer coefficient and lowercase variable; then plus or minus, a nonempty integer constant, equals and a nonempty integer right-hand side. No spaces are allowed. Variable consistency and exponent value are not checked.
+  regex: /^(?:[0-9]*[a-z]\^[0-9]+[+-][0-9]+[a-z][+-][0-9]+=[0-9]+)(?![\s\S])$/
+  match:
+  - x^2+2x+1=0
+  - 2x^2-3x+4=5
+  - a^3+1b-2=9
+  - 0z^0+0z+0=0
+  - 12y^20-10y-8=7
+  - x^2+1x-1=1
+  - a^1-1a+1=1
+  - 9b^2+8b+7=6
+  no_match:
+  - x^2+x+1=0
+  - x^+2x+1=0
+  - X^2+2x+1=0
+  - x^2|2x+1=0
+  - ' x^2+2x+1=0'
+  - 'x^2+2x+1=0 '
+  - ''
+  - x=1
+  - 'x^2+2x+1=0
+
+    '
+- id: real-x01330
+  difficulty: medium
+  status: ok
+  description: Validate a floating-point literal with a required lowercase f suffix. An optional plus or minus precedes a decimal mantissa, which has either one or more ASCII digits and an optional period with zero or more following digits, or a period and one or more digits. No exponent, whitespace or other text is allowed.
+  regex: /^(?:[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)f)(?![\s\S])$/
+  match:
+  - -2313.234f
+  - 1f
+  - +2f
+  - 0.0f
+  - .5f
+  - 1.f
+  - -0f
+  - 001.25f
+  no_match:
+  - f
+  - .f
+  - 1F
+  - 1.2.3f
+  - ' 1f'
+  - '1f '
+  - ''
+  - 1e3f
+  - '1f
+
+    '
+- id: real-x03156
+  difficulty: simple
+  status: ok
+  description: Validate a CSS hexadecimal color beginning with a hash and followed by exactly 3, 4, 6 or 8 ASCII hexadecimal digits. Hexadecimal letters are case-insensitive. Four- and eight-digit forms include alpha. Spaces, other color syntaxes and extra characters are forbidden.
+  regex: /^#(?:[0-9A-Fa-f]{3,4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$(?!.)/s
+  match:
+  - '#fff'
+  - '#000'
+  - '#abcd'
+  - '#1234'
+  - '#ABCDEF'
+  - '#123456'
+  - '#aAbBcCdD'
+  - '#00000000'
+  no_match:
+  - '#12'
+  - '#12345'
+  - '#1234567'
+  - '#GGG'
+  - x#fff
+  - '#fffx'
+  - ''
+  - rgb(0,0,0)
+  - '#fff
+
+    '
+- id: real-x03760
+  difficulty: simple
+  status: ok
+  description: Validate a case-sensitive JSGF grammar declaration starting with the literal grammar followed by one ASCII space, then a nonempty namespace containing only lowercase ASCII letters and periods, and a semicolon. The namespace must end in a letter; periods may otherwise occur anywhere, including at its start or consecutively. No other characters are allowed.
+  regex: /^grammar [a-z.]*[a-z];(?!.)$/s
+  match:
+  - grammar planmaster;
+  - grammar a;
+  - grammar a.b;
+  - grammar .a;
+  - grammar a..b;
+  - grammar foo.bar;
+  - grammar xyz;
+  - grammar ...a;
+  no_match:
+  - xgrammar a;
+  - grammar a;x
+  - grammar ;
+  - grammar a.;
+  - grammar A;
+  - 'grammar a;
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x04253
+  difficulty: simple
+  status: ok
+  description: 'Validate a JSGF header made of exact text #JSGF V1.0, one ASCII space, a nonempty encoding of uppercase ASCII letters, digits, and hyphens, one space, two lowercase ASCII letters, a hyphen, two uppercase ASCII letters, and a semicolon. No other characters are allowed.'
+  regex: /^#JSGF V1\.0 [A-Z0-9-]+ [a-z]{2}-[A-Z]{2};(?!.)$/s
+  match:
+  - '#JSGF V1.0 UTF-8 hu-HU;'
+  - '#JSGF V1.0 UTF-8 en-US;'
+  - '#JSGF V1.0 ASCII fr-FR;'
+  - '#JSGF V1.0 A ab-CD;'
+  - '#JSGF V1.0 1 de-DE;'
+  - '#JSGF V1.0 - zh-CN;'
+  - '#JSGF V1.0 UTF-16 es-ES;'
+  - '#JSGF V1.0 ABC123 pt-BR;'
+  no_match:
+  - x#JSGF V1.0 UTF-8 hu-HU;
+  - '#JSGF V1.0 UTF-8 hu-HU;x'
+  - '#JSGF V1.0 UTF-8 h-HU;'
+  - '#JSGF V1.0 utf-8 hu-HU;'
+  - '#JSGF V1.1 UTF-8 hu-HU;'
+  - '#JSGF V1.0 UTF-8 hu-HU;
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x05002
+  difficulty: medium
+  status: ok
+  description: Validate a comparison expression with an optional left unsigned ASCII integer, one of the operators less than, less than or equal, greater than, greater than or equal, equals, double equals, exclamation mark followed by equals, or less than followed by greater than, and a required right unsigned ASCII integer. Ordinary spaces or tabs may appear before and after the operator. No signs, decimal points, trailing whitespace or other characters are allowed.
+  regex: /^[0-9]*[ \t]*(?:<=|>=|!=|==|<>|<|>|=)[ \t]*[0-9]+$(?![\s\S])/
+  match:
+  - '>100'
+  - <100
+  - '>=100'
+  - <=100
+  - '!= 100'
+  - == 100
+  - 100 <> 99
+  - "100\t=\t99"
+  no_match:
+  - 100 >
+  - ===100
+  - x>100
+  - '>100x'
+  - '>10a'
+  - '>1.0'
+  - ''
+  - '100'
+  - '>100
+
+    '
+- id: real-x05834
+  difficulty: simple
+  status: ok
+  description: Validate a shell shebang line beginning with hash and exclamation mark. Its path is /bin/ or /usr/bin/, optionally followed by env and exactly one ordinary space, and finishes with sh or bash. No surrounding whitespace, interpreter options or other characters are permitted.
+  regex: /^#!(?:\/usr)?\/bin\/(?:env )?(?:ba)?sh$(?!.)/s
+  match:
+  - '#!/bin/sh'
+  - '#!/bin/bash'
+  - '#!/usr/bin/env bash'
+  - '#!/usr/bin/env sh'
+  - '#!/usr/bin/sh'
+  - '#!/usr/bin/bash'
+  - '#!/bin/env sh'
+  - '#!/bin/env bash'
+  no_match:
+  - '#!/bin/python'
+  - '#!/bin/env  sh'
+  - x#!/bin/sh
+  - '#!/bin/shx'
+  - '#!/bin/SH'
+  - '#!/bin/bsh'
+  - ''
+  - unrelated
+  - '#!/bin/sh
+
+    '
+- id: real-x07151
+  difficulty: medium
+  status: ok
+  description: Validate a simple arithmetic expression without whitespace or parentheses. It is one or more numbers separated by single operators chosen from plus, minus, asterisk, slash, and percent. Each number may have a leading plus or minus sign and contains ASCII integer digits with an optional full stop followed by one or more fractional digits, or a leading full stop followed by one or more digits. Leading zeros are allowed. An operator must have a number on both sides. No exponent or other characters are allowed.
+  regex: /^[+-]?(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)(?:[+*/%-][+-]?(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+))*(?![\s\S])$/
+  match:
+  - '5'
+  - '+5'
+  - '-5'
+  - 5+5
+  - -5+5
+  - +5+5
+  - 5+9+7*-2
+  - .5/2.0%3
+  no_match:
+  - 5+
+  - 5-
+  - 5+9-
+  - 5**2
+  - 5 2
+  - 5a2
+  - asdfasf5+5
+  - 5+5x
+  - '5+5
+
+    '
+- id: real-x07950
+  difficulty: medium
+  status: ok
+  description: Validate a nonempty space-separated list of identifier-like tokens. A token starts with an ASCII letter, underscore or hyphen and continues with ASCII letters, digits, underscores or hyphens. Tokens are separated by one or more ASCII spaces. No leading or trailing spaces, tabs, line breaks or other characters are allowed.
+  regex: '/^(?:[A-Za-z_-][A-Za-z0-9_-]*(?: +[A-Za-z_-][A-Za-z0-9_-]*)*)(?!\s|\S)$/'
+  match:
+  - class1 class-2 class__35--opa
+  - a
+  - _
+  - '-'
+  - A_1 B-2
+  - a  b
+  - foo-bar
+  - _0 -9
+  no_match:
+  - '!a b'
+  - a b!
+  - 1a
+  - "a\tb"
+  - ' a'
+  - 'a '
+  - ''
+  - '123'
+  - "\u2603"

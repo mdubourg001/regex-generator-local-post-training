@@ -1,0 +1,471 @@
+# Évaluation réelle (regex101, annotée par GPT 6.1 Sol), catégorie files-paths. Voir scripts/regex101.py.
+- id: real-x00306
+  difficulty: simple
+  status: ok
+  description: Filename made of one or more ASCII letters, digits or underscores followed by the exact lowercase suffix _lang.js. No directory, whitespace or other characters.
+  regex: /^\w+_lang\.js$/
+  match:
+  - test_lang.js
+  - a_lang.js
+  - A_lang.js
+  - 1_lang.js
+  - __lang.js
+  - foo_bar_lang.js
+  - abc123_lang.js
+  - TEST_lang.js
+  no_match:
+  - _lang.js
+  - a_langXjs
+  - a_Lang.js
+  - a_lang.jsx
+  - '!a_lang.js'
+  - a_lang.js!
+  - ''
+  - unrelated text
+  - "\U0001F642"
+- id: real-x00515
+  difficulty: hard
+  status: ok
+  description: 'Cross-platform filename field using these rules: nonempty, not starting or ending with a dot or whitespace, and containing no ASCII control characters U+0000 through U+001F or U+007F, line separators U+2028/U+2029, or any of < > : double quote / backslash | ? *. Reject the entire names CON, PRN, AUX, NUL, COM followed by one digit 0-9 or superscript 1, 2, 3, and LPT with the same endings, case-insensitively. This reserved-name exclusion applies only to the whole name, not a name with an extension. Other Unicode characters and interior spaces are allowed; no length cap.'
+  regex: "/^(?![.\\s])(?!.*[.\\s]$)(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9\xB9\xB2\xB3]|[Ll][Pp][Tt][0-9\xB9\xB2\xB3])$)[^\\x00-\\x1F\\x7F\\u2028\\u2029<>:\\x22/\\\\|?*]+$/u"
+  match:
+  - report.txt
+  - my file
+  - "\U0001F4C2\U0001F4C2\u6587\u4EF6\uFF08\u5939\uFF09\u540D\u79F0\u9A8C\u8BC1uD83DuDCC2"
+  - "\xE9"
+  - CON.txt
+  - COM10
+  - LPT12
+  - a.b
+  no_match:
+  - .report
+  - report.
+  - report?
+  - con
+  - ' report'
+  - 'report '
+  - ''
+  - "COM\xB9"
+  - 'a
+
+    b'
+- id: real-x00985
+  difficulty: medium
+  status: ok
+  description: Validate a single-line package filename ending in lowercase .mum and containing the exact case-sensitive substring Microsoft-Windows-InternetExplorer- followed later by 11 and a period. Other characters before, between or after these required substrings are unrestricted except line terminators.
+  regex: /^(?:[^\r\n\u2028\u2029]*Microsoft-Windows-InternetExplorer-[^\r\n\u2028\u2029]*11\.[^\r\n\u2028\u2029]*\.mum)(?![\s\S])$/
+  match:
+  - Microsoft-Windows-InternetExplorer-11.2.mum
+  - xMicrosoft-Windows-InternetExplorer-a11.b.mum
+  - Microsoft-Windows-InternetExplorer-11..mum
+  - Microsoft-Windows-InternetExplorer-Package-11.0.mum
+  - Microsoft-Windows-InternetExplorer-x11.3~y.mum
+  - a Microsoft-Windows-InternetExplorer-11.1.mum
+  - Microsoft-Windows-InternetExplorer-ABC11.xyz.mum
+  - Microsoft-Windows-InternetExplorer-11.foo.mum
+  no_match:
+  - Microsoft-Windows-InternetExplorer-10.2.mum
+  - Microsoft-Windows-InternetExplorer-11a2.mum
+  - Microsoft-Windows-InternetExplorer-11.2.MUM
+  - Microsoft-Windows-InternetExplorer11.2.mum
+  - Microsoft-Windows-InternetExplorer-11.2.mumx
+  - '
+
+    Microsoft-Windows-InternetExplorer-11.2.mum'
+  - ''
+  - file.mum
+  - 'Microsoft-Windows-InternetExplorer-11.2.mum
+
+    '
+- id: real-x01016
+  difficulty: medium
+  status: ok
+  description: Validate a nonempty Windows filename by character rules only. Exclude tab, carriage return, line feed, backslash, slash, less-than, greater-than, colon, double quote, vertical bar, question mark and asterisk anywhere. The final character must not be a period or any JavaScript whitespace. Other characters and internal spaces are allowed. Do not check reserved device names.
+  regex: /^(?:[^\t\r\n\\/<>:"|?*]*[^\t\r\n\\/<>:"|?*.\s])(?![\s\S])$/
+  match:
+  - file.txt
+  - a
+  - hello world.txt
+  - report
+  - "\xE9.txt"
+  - name_1
+  - a.b.c
+  - CON
+  no_match:
+  - file.
+  - 'file '
+  - a?b
+  - a/b
+  - a:b
+  - "a\tb"
+  - ''
+  - \file
+  - 'file
+
+    '
+- id: real-x01400
+  difficulty: simple
+  status: ok
+  description: Validate a single-line string ending with the exact lowercase suffix .php. Any preceding content is allowed except line terminators, and that content may be empty. No query, whitespace or other suffix text may follow.
+  regex: /^(?:[^\r\n\u2028\u2029]*\.php)(?![\s\S])$/
+  match:
+  - .php
+  - a.php
+  - https://site.com/special.php
+  - /page/offer.php
+  - file.name.php
+  - x y.php
+  - 1.php
+  - "\xE9.php"
+  no_match:
+  - a.PHP
+  - a.php?go=1
+  - 'a.php '
+  - a.ph
+  - a/php
+  - '
+
+    a.php'
+  - ''
+  - a.html
+  - 'a.php
+
+    '
+- id: real-x01742
+  difficulty: medium
+  status: ok
+  description: Validate a single-line TypeScript filename with a nonempty basename and lowercase extension ts, tsx, cts or mts. Exclude exactly the declaration-file ending .d.ts; .d.tsx, .d.cts and .d.mts are not excluded. The basename may contain any characters except line terminators. No text may follow the extension.
+  regex: /^(?:(?![^\r\n\u2028\u2029]*\.d\.ts(?![\s\S]))[^\r\n\u2028\u2029]+\.(?:[cm]?ts|tsx))(?![\s\S])$/
+  match:
+  - something.ts
+  - something.tsx
+  - something.cts
+  - something.mts
+  - a.d.tsx
+  - a.d.cts
+  - a.d.mts
+  - dir/a.ts
+  no_match:
+  - something.d.ts
+  - a.TS
+  - .ts
+  - a.ts.txt
+  - '
+
+    a.ts'
+  - 'a.ts '
+  - ''
+  - a.js
+  - 'a.ts
+
+    '
+- id: real-x02085
+  difficulty: medium
+  status: ok
+  description: 'Validate the supplied NFS share syntax: an ASCII host, a colon and an absolute nonempty path. The host begins with a letter or digit and otherwise allows ASCII letters, digits, dots, underscores and hyphens. Path components are nonempty and may contain any character except forward slash, including spaces and line breaks. Empty components and a trailing slash are forbidden. Host existence and filesystem validity are not checked.'
+  regex: /^[A-Za-z0-9][A-Za-z0-9._-]*:(?:\/[^/]+)+$(?!.)/s
+  match:
+  - host:/share
+  - server.local:/a/b
+  - 192.168.1.1:/home
+  - A:/x
+  - srv-1:/my folder
+  - srv_1:/a.txt
+  - 9:/data
+  - 'host:/a
+
+    b'
+  no_match:
+  - -host:/share
+  - host:share
+  - host:/
+  - host:/a/
+  - '!host:/share'
+  - host:/a//b
+  - ''
+  - nfs://host/share
+  - host :/share
+- id: real-x02205
+  difficulty: simple
+  status: ok
+  description: Validate a single filename ending with a dot and the extension pdf or jpg, case-insensitively. Require a nonempty basename. The basename may contain any characters except slashes, backslashes, carriage returns or line feeds. No characters may follow the extension.
+  regex: /^[^/\\\r\n]+\.(?:pdf|jpg)$(?!.)/si
+  match:
+  - a.pdf
+  - photo.jpg
+  - A.PDF
+  - B.JPG
+  - a.b.pdf
+  - report 1.pdf
+  - x_.JpG
+  - -.pDf
+  no_match:
+  - .pdf
+  - a.jpeg
+  - a.pdfx
+  - /a.pdf
+  - a.pdf/
+  - 'a.pdf
+
+    '
+  - ''
+  - a
+  - a.txt
+- id: real-x02386
+  difficulty: medium
+  status: ok
+  description: Validate an absolute directory path beginning and ending with a forward slash, including the root path alone. Between slashes, each component is nonempty and excludes backslash, colon, asterisk, question mark, double quote, angle brackets, vertical bar, carriage return and line feed. Other Unicode characters and spaces are allowed. Consecutive slashes are forbidden.
+  regex: /^\/(?:[^\\/:*?"<>\x7c\r\n]+\/)*$(?!.)/s
+  match:
+  - /
+  - /a/
+  - /a/b/
+  - /ddd/dd%/
+  - "/\u0170/"
+  - /a b/
+  - /=/
+  - /a{b/
+  no_match:
+  - a/
+  - /a
+  - //
+  - /a?/
+  - x/a/
+  - /a/x
+  - ''
+  - /a\b/
+  - '/a
+
+    b/'
+- id: real-x03049
+  difficulty: medium
+  status: ok
+  description: Validate a slash-prefixed path pattern. Accept the root slash alone, or one or more nonempty slash-separated components of ASCII letters and digits. An asterisk may follow the only component of a single-component path, or may occur as the final standalone component after a slash, including immediately after the root. No other asterisks, underscores, empty components or trailing slash are allowed.
+  regex: /^(?:\/|\/\*|\/[A-Za-z0-9]+\*?|\/[A-Za-z0-9]+(?:\/[A-Za-z0-9]+)+(?:\/\*)?|\/[A-Za-z0-9]+\/\*)$(?!.)/s
+  match:
+  - /
+  - /*
+  - /abc
+  - /abc*
+  - /abc/*
+  - /abc/def
+  - /abc/def/xyz
+  - /abc/def/*
+  no_match:
+  - /abc/
+  - /abc*/
+  - /abc/def*
+  - /abc*/def
+  - x/abc
+  - /abc!
+  - ''
+  - abc
+  - /a_b
+- id: real-x04851
+  difficulty: medium
+  status: ok
+  description: Validate a restricted Windows folder path. Accept an ASCII drive letter, colon and backslash, optionally followed by nonempty ASCII alphanumeric or underscore folder components separated by single backslashes. Alternatively accept two leading backslashes followed by a nonempty ASCII alphanumeric, underscore or hyphen server name and one or more similarly restricted share or folder components. A final backslash is optional. Also allow an IPv4 server with octets from 0 through 255 without leading zeros, even without a share. No spaces or other characters are allowed.
+  regex: /^(?:[A-Za-z]:\\(?:[A-Za-z0-9_]+(?:\\[A-Za-z0-9_]+)*\\?)?|\\\\[A-Za-z0-9_-]+(?:\\[A-Za-z0-9_-]+)+\\?|\\\\(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}(?:\\[A-Za-z0-9_-]+)*\\?)$(?![\s\S])/
+  match:
+  - C:\
+  - C:\test
+  - C:\test\plop\
+  - z:\a_b\c1
+  - \\computer-name\drive
+  - \\computer-name\drive\folder\
+  - \\192.168.1.6
+  - \\192.168.1.5\plop
+  no_match:
+  - \\1.2.3.4.5
+  - C:\test!
+  - xC:\test
+  - C:\test\\
+  - C:\test-name
+  - \\256.1.1.1
+  - ''
+  - /tmp/a
+  - 'C:\test
+
+    '
+- id: real-x05403
+  difficulty: simple
+  status: ok
+  description: Validate a storage path beginning with spotify/streams/, followed by exactly eight ASCII digits, a slash, exactly two uppercase ASCII letters, _streams_, exactly eight ASCII digits and .csv. The two digit groups need not be equal and are not checked as calendar dates. No other characters are allowed.
+  regex: /^spotify\/streams\/[0-9]{8}\/[A-Z]{2}_streams_[0-9]{8}\.csv$(?![\s\S])/
+  match:
+  - spotify/streams/20200819/NL_streams_20200819.csv
+  - spotify/streams/00000000/US_streams_99999999.csv
+  - spotify/streams/12345678/AA_streams_87654321.csv
+  - spotify/streams/11111111/FR_streams_22222222.csv
+  - spotify/streams/33333333/GB_streams_44444444.csv
+  - spotify/streams/55555555/DE_streams_66666666.csv
+  - spotify/streams/77777777/JP_streams_88888888.csv
+  - spotify/streams/99999999/ZZ_streams_00000000.csv
+  no_match:
+  - spotify/streams/2020081/NL_streams_20200819.csv
+  - spotify/streams/202008199/NL_streams_20200819.csv
+  - xspotify/streams/20200819/NL_streams_20200819.csv
+  - spotify/streams/20200819/NL_streams_20200819.csvx
+  - spotify/streams/20200819/nL_streams_20200819.csv
+  - spotify/streams/20200819/NL_streams_20200819_csv
+  - ''
+  - unrelated
+  - 'spotify/streams/20200819/NL_streams_20200819.csv
+
+    '
+- id: real-x05600
+  difficulty: medium
+  status: ok
+  description: Validate a restricted JavaScript asset path. The filename is app optionally followed by ASCII hexadecimal characters in either case, or jquery, angular or three optionally followed by a version of three single ASCII digits separated independently by periods or hyphens, with an optional hyphen before the version. Optionally add .min, then require .js. A preceding path may contain any nonwhitespace characters except backslash and must end with a slash. No whitespace or extra characters are permitted.
+  regex: /^(?:[^\s\\]+\/)?(?:app[0-9A-Fa-f]*|(?:jquery|angular|three)(?:-?[0-9][.-][0-9][.-][0-9])?)(?:\.min)?\.js$(?![\s\S])/
+  match:
+  - jquery.min.js
+  - app.min.js
+  - app.js
+  - app4eefa86.min.js
+  - jquery-3.2.1.js
+  - jquery-3-2-1.min.js
+  - /js/app.min.js
+  - ./scripts/jquery.js
+  no_match:
+  - jquery-33.2.1.js
+  - jquery-3.2.js
+  - xapp.js
+  - app.jsx
+  - appG.js
+  - jquery_3.2.1.js
+  - ''
+  - unrelated
+  - 'jquery.min.js
+
+    '
+- id: real-x05717
+  difficulty: simple
+  status: ok
+  description: Validate a restricted path pattern consisting of a slash alone, a slash followed by an asterisk, or one or more slash-prefixed nonempty ASCII alphanumeric components. A final asterisk may be appended directly to the last component or after an additional slash. No other trailing slash, internal asterisk, underscore, whitespace or characters are permitted.
+  regex: /^(?:\/\*?|(?:\/[A-Za-z0-9]+)+(?:\/?\*)?)$(?![\s\S])/
+  match:
+  - /
+  - /path
+  - /path/path
+  - /*
+  - /path/*
+  - /path*
+  - /path/path*
+  - /A1/B2/*
+  no_match:
+  - /path/
+  - /path*/path
+  - x/path
+  - /path!
+  - /a_b
+  - /path*/
+  - ''
+  - unrelated
+  - '/
+
+    '
+- id: real-x05733
+  difficulty: simple
+  status: ok
+  description: Validate a common tar extension token, without a leading period or filename. Accept tar, optionally followed by .bz2, .gz, .lz, .lzma, .xz or .Z, or accept tb, tb2, tbz, tbz2, tgz, tlz, txz or tZ. Match case-sensitively. No spaces or other characters are allowed.
+  regex: /^(?:tar(?:\.(?:bz2|gz|lz(?:ma)?|xz|Z))?|tbz?2?|t(?:gz|lz|xz|Z))$(?!.)/s
+  match:
+  - tar
+  - tar.gz
+  - tar.bz2
+  - tar.lzma
+  - tb2
+  - tbz
+  - tbz2
+  - tZ
+  no_match:
+  - tar.lzxa
+  - tar.GZ
+  - xtar
+  - tarx
+  - tar_gz
+  - tbz22
+  - ''
+  - unrelated
+  - 'tar
+
+    '
+- id: real-x06526
+  difficulty: medium
+  status: ok
+  description: Validate an absolute slash-separated path with at least one nonempty component and no trailing slash. Each component may contain any characters except slash, backslash, colon, asterisk, question mark, either double quote or angle bracket, vertical bar, carriage return, or line feed. Ordinary spaces and Unicode are allowed. The root alone, empty components, and extra leading material are forbidden.
+  regex: /^\/(?:[^\\/:*?"<>|\r\n]+\/)*[^\\/:*?"<>|\r\n]+(?![\s\S])$/
+  match:
+  - /ddd/dd%/ddfa
+  - /a
+  - /a/b
+  - "/\u0170/ddd{"
+  - /a b/c d
+  - /./..
+  - /a=b/c
+  - /file.txt
+  no_match:
+  - /
+  - /a/
+  - /a//b
+  - /a:b
+  - /a\b
+  - /a?b
+  - x/a
+  - '/a
+
+    '
+  - "/a\r"
+- id: real-x07163
+  difficulty: simple
+  status: ok
+  description: Validate an absolute slash-separated filepath with at least one nonempty component. Components contain only ASCII letters, digits, underscores, full stops, or hyphens. No trailing slash, empty components, spaces, backslashes, or other characters are allowed.
+  regex: /^(?:\/[A-Za-z0-9_.-]+)+(?![\s\S])$/
+  match:
+  - /lkjasdf/lk-asl
+  - /a
+  - /a/b
+  - /file.txt
+  - /_
+  - /-
+  - /./..
+  - /123/ABC
+  no_match:
+  - /
+  - /a/
+  - /a//b
+  - /a b
+  - /a\b
+  - "/\xE9"
+  - x/a
+  - /a!
+  - '/a
+
+    '
+- id: real-x08106
+  difficulty: simple
+  status: ok
+  description: Validate a filename with a nonempty ASCII alphanumeric stem, one dot and a lowercase extension from jpg, png, gif, bmp or pdf. No spaces, underscores, paths or other characters are allowed.
+  regex: /^(?:[A-Za-z0-9]+\.(?:jpg|png|gif|bmp|pdf))(?!\s|\S)$/
+  match:
+  - udinkomarudin.png
+  - a.jpg
+  - ABC.gif
+  - 123.bmp
+  - file1.pdf
+  - x9.png
+  - A1.jpg
+  - Z.pdf
+  no_match:
+  - '!a.jpg'
+  - a.jpg!
+  - .jpg
+  - a.txt
+  - a_b.jpg
+  - 'a.jpg
+
+    '
+  - ''
+  - unrelated input
+  - "\u2603"

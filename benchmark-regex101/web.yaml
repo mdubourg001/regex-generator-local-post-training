@@ -1,0 +1,599 @@
+# Évaluation réelle (regex101, annotée par GPT 6.1 Sol), catégorie web. Voir scripts/regex101.py.
+- id: real-x00092
+  difficulty: simple
+  status: ok
+  description: 'Product route: the lowercase word product followed by a slash, one or more ASCII digits, another slash and one or more ASCII digits. No leading slash, spaces or trailing slash; leading zeros are allowed.'
+  regex: /^product\/\d+\/\d+$/
+  match:
+  - product/333/2
+  - product/342342/332
+  - product/0/0
+  - product/1/9
+  - product/001/02
+  - product/9/123456
+  - product/123456/9
+  - product/999/999
+  no_match:
+  - product//2
+  - product/2/
+  - Product/3/2
+  - product/3/2/
+  - xproduct/3/2
+  - product/3/2x
+  - ''
+  - unrelated text
+  - "\U0001F642"
+- id: real-x00112
+  difficulty: simple
+  status: ok
+  description: Hub route starting with the exact lowercase prefix /hub/. The identifier contains zero or more ASCII letters, digits or hyphens. An optional further slash introduces any remaining single-line text, including an empty remainder. No other characters are allowed in the identifier, and line breaks are forbidden anywhere. This checks route shape, not whether the hub exists.
+  regex: /^\/hub\/[A-Za-z0-9-]*(?:\/[^\r\n\u2028\u2029]*)?$/
+  match:
+  - /hub/xxx/test
+  - /hub/xxx
+  - /hub/xxx/abc/123/24
+  - /hub/e0598b42-a9b0-4214-8533-4c031975348e/test/potato/?wor
+  - /hub/
+  - /hub/-
+  - /hub/X9/
+  - /hub//a
+  no_match:
+  - /Hub/xxx
+  - /hub/x_y
+  - /hub/x?y
+  - '/hub/x/a
+
+    b'
+  - '!/hub/xxx'
+  - /hub/xxx!
+  - ''
+  - unrelated text
+  - "\U0001F642"
+- id: real-x00447
+  difficulty: medium
+  status: ok
+  description: HTTP website URL with optional http:// or https:// scheme, case-insensitive. Host consists of one or more ASCII alphanumeric-or-hyphen labels of 2 to 63 characters, not starting or ending in a hyphen, followed by a final ASCII letters-only suffix of 2 to 24 characters. Host letters may be either case. Optionally append a slash and any non-whitespace path or query text. No credentials, port, whitespace or query without a slash.
+  regex: /^(?:https?:\/\/)?(?:[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]\.)+[A-Za-z]{2,24}(?:\/\S*)?$/i
+  match:
+  - https://www.example.com/
+  - http://subdomain.example.net/
+  - https://www.subdomain.example.com.uk/params
+  - example.com
+  - HTTPS://EXAMPLE.COM/path?x=1#top
+  - ab.cd
+  - ab.abcdefghijklmnopqrstuvwx
+  - https://abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijk.com/
+  no_match:
+  - https://-ab.com
+  - https://a.com
+  - ab.c
+  - ab.abcdefghijklmnopqrstuvwxy
+  - '!example.com'
+  - example.com!
+  - ''
+  - unrelated text
+  - "\U0001F642"
+- id: real-x00614
+  difficulty: simple
+  status: ok
+  description: Validate a string beginning with lowercase http or https followed by a colon and two slashes. Require at least one following character. The remainder may contain any characters except line terminators; this is only a prefix-and-nonempty-remainder check, not full URL validation.
+  regex: /^(?:https?:\/\/[^\r\n\u2028\u2029]+)(?![\s\S])$/
+  match:
+  - http://a
+  - https://www.baidu.com
+  - http://localhost
+  - https://x/y
+  - http://1
+  - http://a b
+  - https://?
+  - http://a:80
+  no_match:
+  - HTTP://a
+  - http:/a
+  - http://
+  - xhttp://a
+  - 'https://a
+
+    '
+  - ftp://a
+  - ''
+  - hello
+  - //a
+- id: real-x00637
+  difficulty: medium
+  status: ok
+  description: Validate a GitHub-profile-shaped URL. Permit an optional lowercase http or https scheme with colon and two slashes, then optional lowercase www followed by a period, then lowercase github followed by a period and a nonempty lowercase ASCII-letter top-level domain. After a slash require a nonempty ASCII alphanumeric username, optionally followed by one trailing slash. No ports, spaces, queries or fragments are allowed; this is only the stated structural check.
+  regex: /^(?:(?:https?:\/\/)?(?:www\.)?github\.[a-z]+\/[A-Za-z0-9]+\/?)(?![\s\S])$/
+  match:
+  - github.com/alice
+  - https://github.com/bob
+  - http://github.com/User1/
+  - www.github.com/U2
+  - https://www.github.com/a
+  - github.io/Name
+  - github.org/123
+  - http://www.github.com/x/
+  no_match:
+  - github.com/a-b
+  - github.com/
+  - github.COM/a
+  - github.com/a?x
+  - xhttps://github.com/a
+  - 'github.com/a '
+  - ''
+  - gitlab.com/a
+  - 'github.com/a
+
+    '
+- id: real-x00743
+  difficulty: medium
+  status: ok
+  description: Validate a route with a leading slash, two required nonempty ASCII word-character segments separated by slash and an optional third nonempty segment. ASCII word characters are letters, digits and underscore. A final slash is allowed when only two segments are present, but not after a third segment. No punctuation, whitespace or additional segments are accepted.
+  regex: /^(?:\/[A-Za-z0-9_]+\/[A-Za-z0-9_]+(?:\/[A-Za-z0-9_]+|\/)?)$(?!\s)(?!\S)/
+  match:
+  - /posts/10/398
+  - /a/b
+  - /a/b/
+  - /a/b/c
+  - /A1/_
+  - /123/456
+  - /_/_/0
+  - /foo/bar/baz
+  no_match:
+  - /a
+  - /a/
+  - /a/b/c/
+  - /a/b/c/d
+  - x/a/b
+  - '/a/b '
+  - ''
+  - /a-b/c
+  - '/a/b
+
+    '
+- id: real-x00803
+  difficulty: medium
+  status: ok
+  description: Validate a Spotify track or playlist link. Accept either a lowercase spotify URI with track, colon and a nonempty ASCII alphanumeric ID, or user, colon, a nonempty ASCII alphanumeric username, colon, playlist, colon and such an ID. Also accept lowercase https links on a nonempty lowercase-letter subdomain of spotify.com with track slash ID or user slash username slash playlist slash ID. No whitespace, query string or suffix is allowed.
+  regex: /^(?:(?:spotify:(?:track:[A-Za-z0-9]+|user:[A-Za-z0-9]+:playlist:[A-Za-z0-9]+)|https:\/\/[a-z]+\.spotify\.com\/(?:track\/[A-Za-z0-9]+|user\/[A-Za-z0-9]+\/playlist\/[A-Za-z0-9]+)))(?![\s\S])$/
+  match:
+  - spotify:track:1TZ3
+  - spotify:user:alice:playlist:ABC1
+  - https://open.spotify.com/track/a1
+  - https://play.spotify.com/user/alice/playlist/123
+  - spotify:track:Z
+  - spotify:user:Bob:playlist:x
+  - https://a.spotify.com/track/0
+  - https://open.spotify.com/user/spotifydiscover/playlist/0vL3R9
+  no_match:
+  - 'spotify:track:'
+  - spotify:track:a-b
+  - http://open.spotify.com/track/a
+  - https://OPEN.spotify.com/track/a
+  - ' spotify:track:a'
+  - 'spotify:track:a '
+  - ''
+  - spotify:album:abc
+  - 'spotify:track:a
+
+    '
+- id: real-x01018
+  difficulty: simple
+  status: ok
+  description: Validate a route beginning with the exact lowercase path /foo/ followed by one nonempty segment containing any characters except slash and line terminators. Spaces and other punctuation within that segment are permitted. No other path segments or leading text are allowed.
+  regex: /^(?:\/foo\/[^/\r\n\u2028\u2029]+)(?![\s\S])$/
+  match:
+  - /foo/bar
+  - /foo/b
+  - /foo/123
+  - /foo/A
+  - /foo/a-b
+  - '/foo/ '
+  - /foo/x?y
+  - /foo/a.b
+  no_match:
+  - /foo/
+  - /foo
+  - /Foo/bar
+  - /foo/bar/abc
+  - x/foo/bar
+  - '/foo/bar
+
+    '
+  - ''
+  - /bar/x
+  - "/foo/a\rb"
+- id: real-x01189
+  difficulty: medium
+  status: ok
+  description: Validate a YouTube channel URL with exact lowercase https://www.youtube.com/. Accept c/ followed by an optionally empty ASCII alphanumeric custom name, slash and one of featured, videos, playlists, community, channels or about; or channel/ followed by exactly 24 ASCII alphanumeric characters. No other text, whitespace, trailing slash or query is allowed.
+  regex: /^(?:https:\/\/www\.youtube\.com\/(?:c\/[A-Za-z0-9]*\/(?:featured|videos|playlists|community|channels|about)|channel\/[A-Za-z0-9]{24}))(?![\s\S])$/
+  match:
+  - https://www.youtube.com/c/name/featured
+  - https://www.youtube.com/c/ABC/videos
+  - https://www.youtube.com/c/x/playlists
+  - https://www.youtube.com/c/x/community
+  - https://www.youtube.com/c/x/channels
+  - https://www.youtube.com/c//about
+  - https://www.youtube.com/channel/aaaaaaaaaaaaaaaaaaaaaaaa
+  - https://www.youtube.com/channel/A1A1A1A1A1A1A1A1A1A1A1A1
+  no_match:
+  - https://www.youtube.com/channel/aaaaaaaaaaaaaaaaaaaaaaa
+  - https://www.youtube.com/channel/aaaaaaaaaaaaaaaaaaaaaaaaa
+  - https://www.youtube.com/c/a-b/videos
+  - https://www.youtube.com/c/x/other
+  - xhttps://www.youtube.com/c/x/videos
+  - 'https://www.youtube.com/c/x/videos '
+  - ''
+  - https://www.youtube.com/channel/!!!!!!!!!!!!!!!!!!!!!!!!
+  - 'https://www.youtube.com/c/x/videos
+
+    '
+- id: real-x01240
+  difficulty: hard
+  status: ok
+  description: Validate a basic URL with optional lowercase http or https scheme. The host has a nonempty run of lowercase ASCII letters, digits, hyphens or periods, then a period and a suffix of 2 to 6 lowercase letters or periods. A path may contain slashes, ASCII word characters, ASCII spaces, periods and hyphens. An optional query begins with question mark and contains zero or more slashes, ASCII word characters, equals, hyphens or ampersands. An optional fragment follows, beginning with hash and containing zero or more slashes, ASCII word characters or hyphens. ASCII word characters are letters, digits and underscores. No other characters are allowed.
+  regex: /^(?:(?:https?:\/\/)?[0-9a-z.-]+\.[a-z.]{2,6}[\/A-Za-z0-9_ .-]*(?:\?[\/A-Za-z0-9_=\-&]*)?(?:#[\/A-Za-z0-9_-]*)?)(?![\s\S])$/
+  match:
+  - example.com
+  - http://example.com
+  - https://a.co/x
+  - a.com/a b
+  - a.com?x=1&y=2
+  - a.com#frag
+  - a..co/
+  - a.com?#
+  no_match:
+  - a.c
+  - A.com
+  - a.com?x.y
+  - a.com#x=y
+  - x:https://a.com
+  - 'a.com
+
+    '
+  - ''
+  - ftp://a.com
+  - a.com:80
+- id: real-x01331
+  difficulty: medium
+  status: ok
+  description: Validate a lowercase domain or website host with optional lowercase http or https scheme. The hostname has at least two nonempty period-separated labels, all labels before the last containing lowercase ASCII letters or digits only, and the final label containing lowercase ASCII letters only. No hyphens, paths, ports, queries, fragments or whitespace are allowed.
+  regex: /^(?:(?:https?:\/\/)?(?:[a-z0-9]+\.)+[a-z]+)(?![\s\S])$/
+  match:
+  - http://www.sample.com
+  - https://www.sample.com
+  - www.sample.com
+  - sample.com
+  - a.b
+  - 1.com
+  - x1.y2.org
+  - https://sub.domain.com
+  no_match:
+  - sample.com/
+  - sample.com?x
+  - sample.com#x
+  - sample-com.org
+  - ' sample.com'
+  - 'sample.com '
+  - ''
+  - localhost
+  - 'sample.com
+
+    '
+- id: real-x03897
+  difficulty: medium
+  status: ok
+  description: Validate a case-sensitive CAS redirect notation with optional http:// or https://, zero or more nonempty subdomain labels containing only ASCII letters, digits, underscore, or hyphen, and the literal host oupe.es. Optionally append a slash and arbitrary single-line path text. LF, CR, Unicode line separator, and Unicode paragraph separator are forbidden throughout. No port, host suffix, or other characters are allowed outside that path.
+  regex: /^(?:https?:\/\/)?(?:[A-Za-z0-9_-]+\.)*oupe\.es(?:\/[^\r\n\u2028\u2029]*)?(?!.)$/s
+  match:
+  - oupe.es
+  - http://oupe.es/
+  - https://oupe.es/x
+  - a.oupe.es
+  - A_1.oupe.es/a?b#c
+  - a.b.oupe.es/
+  - -x.oupe.es
+  - oupe.es//x
+  no_match:
+  - '!oupe.es'
+  - oupe.esx
+  - a..oupe.es
+  - oupeXes
+  - HTTP://oupe.es
+  - 'oupe.es
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x04438
+  difficulty: medium
+  status: ok
+  description: Validate a case-sensitive HTTPS YouTube video link with either host youtu.be followed by a slash and an eleven-character video identifier, or host www.youtube.com followed by /watch?v= and that identifier. Identifier characters are ASCII letters, digits, underscore, or hyphen. No extra query parameters, fragments, whitespace, or other text are allowed.
+  regex: /^https:\/\/(?:youtu\.be\/|www\.youtube\.com\/watch\?v=)[A-Za-z0-9_-]{11}(?!.)$/s
+  match:
+  - https://youtu.be/0zM3nApSvMg
+  - https://www.youtube.com/watch?v=0zM3nApSvMg
+  - https://youtu.be/abcdefghijk
+  - https://youtu.be/12345678901
+  - https://youtu.be/___________
+  - https://youtu.be/-----------
+  - https://www.youtube.com/watch?v=ABCDEF12345
+  - https://youtu.be/a_B-cD12345
+  no_match:
+  - xhttps://youtu.be/abcdefghijk
+  - https://youtu.be/abcdefghijkx
+  - https://youtu.be/abcdefghij
+  - https://youtu.be/abcdefghij!
+  - http://youtu.be/abcdefghijk
+  - 'https://youtu.be/abcdefghijk
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x04666
+  difficulty: simple
+  status: ok
+  description: Validate a URL path beginning with a slash followed by at least one character. After the leading slash allow only ASCII letters, hyphens, and slashes, with no consecutive slashes anywhere. A single trailing slash is allowed. No digits, query, fragment, whitespace, or other characters are allowed.
+  regex: /^(?!.*\/\/)\/[A-Za-z\/-]+(?!.)$/s
+  match:
+  - /this/is/an/url/path
+  - /this/is/an/url/path/
+  - /a
+  - /A
+  - /-
+  - /this-is-an/url/path
+  - /abc/def
+  - /a-b/c-d/
+  no_match:
+  - x/a
+  - /a!
+  - /
+  - /a//b
+  - //a
+  - '/a
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x05046
+  difficulty: hard
+  status: ok
+  description: Validate a restricted URL with an optional lowercase http or https scheme. Before the final domain period require two through 256 characters drawn from ASCII letters, digits, at sign, percent, colon, period, underscore, plus, tilde, hash and equals. The suffix is two through six lowercase ASCII letters. An optional port is a colon and one or more ASCII digits. The optional relative tail permits ASCII letters, digits, underscores, hyphens, at sign, colon, percent, plus, period, tilde, hash, ampersand, slash and equals; an optional query starts with a question mark and permits the same set except at sign, colon and slash. No spaces or other characters are allowed.
+  regex: /^(?:https?:\/\/)?[A-Za-z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}(?::[0-9]+)?[A-Za-z0-9_@:%+.~#&\/=-]*(?:\?[A-Za-z0-9_%+.~#&=-]*)?$(?![\s\S])/
+  match:
+  - http://www.google.com/asd/asdasd?param&other_param=5
+  - https://ping.wordblog.de/
+  - pinger.blogflux.com/rpc/?
+  - www.php.net
+  - example.com:10080/
+  - user:pass@mydomain.com/path
+  - ab.co?
+  - ab.co/x#y
+  no_match:
+  - a.co
+  - ab.c
+  - ' ab.co'
+  - ab.co!
+  - ab.co/x y
+  - ab.co??
+  - ''
+  - ftp://ab.co
+  - 'ab.co
+
+    '
+- id: real-x05200
+  difficulty: medium
+  status: ok
+  description: Validate a SoundCloud profile or content URL beginning with lowercase http or https, a colon and two slashes, optionally www. or m., then soundcloud.com and a slash. The profile token has three through twenty-five lowercase ASCII letters, digits, underscores or hyphens, begins and ends alphanumeric, and has no two consecutive underscores or hyphens in any combination. An optional content tail is a slash followed by at least one nonwhitespace character. No whitespace or extra characters outside these portions are allowed.
+  regex: /^https?:\/\/(?:www\.|m\.)?soundcloud\.com\/(?![a-z0-9_-]*[_-]{2})[a-z0-9][a-z0-9_-]{1,23}[a-z0-9](?:\/\S+)?$(?![\s\S])/
+  match:
+  - http://soundcloud.com/foo
+  - https://www.soundcloud.com/abc
+  - http://m.soundcloud.com/a_b
+  - https://soundcloud.com/a-b
+  - https://soundcloud.com/123
+  - https://soundcloud.com/abcdefghijklmnopqrstuvwxy
+  - https://soundcloud.com/foo/track
+  - https://soundcloud.com/a_b-c/song?x=1
+  no_match:
+  - http://soundcloud.com/ab
+  - http://soundcloud.com/abcdefghijklmnopqrstuvwxyz
+  - xhttp://soundcloud.com/foo
+  - http://soundcloud.com/foo/
+  - http://soundcloud.com/a__b
+  - http://soundcloud.com/Foo
+  - ''
+  - https://elsewhere.com/foo
+  - 'http://soundcloud.com/foo
+
+    '
+- id: real-x05244
+  difficulty: medium
+  status: ok
+  description: Validate a URI path only, including an empty path. It may be absolute or relative and may contain slash-separated empty or nonempty segments. Segment characters are ASCII letters, digits, hyphen, period, underscore, tilde, exclamation mark, dollar sign, ampersand, apostrophe, parentheses, asterisk, plus, comma, semicolon, equals, colon and at sign, or a percent sign followed by exactly two ASCII hexadecimal digits. No query, fragment, whitespace or other characters are allowed.
+  regex: /^(?:[A-Za-z0-9._~!$&\x27()*+,;=:@/-]|%[0-9A-Fa-f]{2})*$(?![\s\S])/
+  match:
+  - ''
+  - /bla/asd/f.fasdf
+  - abc
+  - /
+  - a//b
+  - /%20
+  - a:b@c
+  - /a+;=b
+  no_match:
+  - /%2
+  - /%GG
+  - ' /abc'
+  - /abc?
+  - /ab[c
+  - /abc#
+  - \
+  - "\xE9"
+  - '/abc
+
+    '
+- id: real-x05672
+  difficulty: medium
+  status: ok
+  description: Validate a nonempty HTTP Link-header subset. Each item consists of a nonempty angle-bracketed target containing no angle brackets or line terminators, a semicolon, one ordinary space, rel= and a double-quoted relation that is exactly next, prev, last or first. Separate items by a comma and one ordinary space. No leading or trailing whitespace, empty items or other text is allowed. Do not validate target URL semantics.
+  regex: /^<[^<>\r\n\u2028\u2029]+>; rel="(?:next|prev|last|first)"(?:, <[^<>\r\n\u2028\u2029]+>; rel="(?:next|prev|last|first)")*$(?![\s\S])/
+  match:
+  - <https://api.github.com/x?page=2>; rel="next"
+  - <a>; rel="prev"
+  - <b>; rel="last"
+  - <c>; rel="first"
+  - <a>; rel="next", <b>; rel="last"
+  - <x/y>; rel="next"
+  - < >; rel="first"
+  - <a>; rel="first", <b>; rel="prev", <c>; rel="next"
+  no_match:
+  - <a<b>; rel="next"
+  - <a>; rel="other"
+  - x<a>; rel="next"
+  - <a>; rel="next"x
+  - <a>;rel="next"
+  - <a>; rel="Next"
+  - ''
+  - unrelated
+  - '<https://api.github.com/x?page=2>; rel="next"
+
+    '
+- id: real-x05835
+  difficulty: medium
+  status: ok
+  description: Validate a single-line URL-like string beginning with the exact lowercase prefix htt or www.. If it begins with htt, reject any further occurrence of htt after that initial prefix; if it begins with www., reject any further occurrence of www. after that initial prefix. Other characters are unrestricted and no actual URL structure is checked. Line terminators are forbidden.
+  regex: /^(?:htt(?!.*htt)|www\.(?!.*www\.))[^\r\n\u2028\u2029]*$(?![\s\S])/
+  match:
+  - http://www.sample.com
+  - https://www.sample.com
+  - http://www.sample.com/xyz
+  - www.sample.com
+  - www.sample.com/xyz/#/xyz
+  - http://murihao.www.sample.com
+  - www.sample.gov.bd
+  - www.sample.com.en
+  no_match:
+  - http://htt.com
+  - www.www.sample.com
+  - xhttp://sample.com
+  - 'http://sample.com
+
+    '
+  - www.sample.com/www.x
+  - '
+
+    www.sample.com'
+  - ''
+  - unrelated
+  - "http://sample.com\r"
+- id: real-x05978
+  difficulty: medium
+  status: ok
+  description: Validate a LinkedIn profile URL shape with an optional lowercase http or https scheme, an optional single subdomain containing ASCII letters, digits, or underscores, the lowercase host linkedin.com, and a path starting with the complete segment pub, in, or profile. The segment may stand alone or be followed by a slash and arbitrary non-whitespace characters. No ports, whitespace, or extra leading material are allowed; profile existence is not checked.
+  regex: /^(?:https?:\/\/)?(?:[A-Za-z0-9_]+\.)?linkedin\.com\/(?:pub|in|profile)(?:\/[^\s]*)?(?![\s\S])$/
+  match:
+  - es.linkedin.com/pub/a/1/2
+  - https://www.linkedin.com/profile/view?id=1
+  - de.linkedin.com/pub/a
+  - http://uk.linkedin.com/pub/b/
+  - http://nl.linkedin.com/in/name
+  - linkedin.com/in
+  - https://linkedin.com/profile
+  - linkedin.com/in/a/
+  no_match:
+  - ftp://linkedin.com/in/a
+  - linkedin.com/invalid/a
+  - linkedin.com/inbox
+  - linkedin.com:80/in/a
+  - a.b.linkedin.com/in/a
+  - linkedin.com/in/a b
+  - '!linkedin.com/in/a'
+  - 'linkedin.com/in/a
+
+    '
+  - abc
+- id: real-x07195
+  difficulty: medium
+  status: ok
+  description: Validate a single-line static-resource extension filter. The string ends with a lowercase extension from js, otf, gif, png, jpg, svg, bmp, css, jpeg, pdf, ico, eot, woff, woff2, axd or ttf, optionally followed by a question mark and arbitrary query text. Any characters except line terminators may precede the extension or follow the question mark, including spaces and hash signs; the portion before the extension may be empty. No URL or filesystem semantics are checked.
+  regex: /^(?:.*\.(?:js|otf|gif|png|jpg|svg|bmp|css|jpeg|pdf|ico|eot|woff2?|axd|ttf)(?:\?.*)?)(?!\s|\S)$/
+  match:
+  - .js
+  - logo.png
+  - https://site.test/a.jpg
+  - style.css?v=2
+  - font.woff2
+  - a.pdf?
+  - x.y.svg?color=blue#frag with space
+  - dir/icon.ico
+  no_match:
+  - '
+
+    a.js'
+  - a.js!
+  - a.txt
+  - a.JS
+  - a.png#frag
+  - 'a.js
+
+    '
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x07647
+  difficulty: medium
+  status: ok
+  description: Validate a Telegram profile-link format using t.me or telegram.me, optionally preceded by lowercase http:// or https:// and optionally www. The slash after the host is mandatory and is followed by a nonempty username of ASCII letters, digits, underscores or hyphens. One trailing slash is optional. No query, fragment, whitespace or additional path is allowed.
+  regex: /^(?:(?:https?:\/\/)?(?:www\.)?(?:telegram|t)\.me\/[A-Za-z0-9_-]+\/?)(?!\s|\S)$/
+  match:
+  - https://telegram.me/Amirhamini
+  - https://t.me/Amirhamini
+  - t.me/user
+  - http://t.me/user/
+  - www.telegram.me/A_1
+  - https://www.t.me/a-b
+  - telegram.me/123
+  - t.me/x/
+  no_match:
+  - '!t.me/x'
+  - t.me/x!
+  - t.me/
+  - t.me/x/y
+  - t.me/x?
+  - 't.me/x
+
+    '
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x08482
+  difficulty: simple
+  status: ok
+  description: Validate a NetApp cloud-leadership URL with lowercase http:// or https://, the exact host www.netapp.com, a slash and exactly two ASCII letters, digits or underscores as the locale, then /company/leadership/cloud-computing/. An optional final index.aspx is allowed. No query, fragment, whitespace or additional path is permitted.
+  regex: /^(?:https?:\/\/www\.netapp\.com\/[A-Za-z0-9_]{2}\/company\/leadership\/cloud-computing\/(?:index\.aspx)?)(?!\s|\S)$/
+  match:
+  - http://www.netapp.com/us/company/leadership/cloud-computing/index.aspx
+  - https://www.netapp.com/us/company/leadership/cloud-computing/
+  - http://www.netapp.com/fr/company/leadership/cloud-computing/
+  - https://www.netapp.com/DE/company/leadership/cloud-computing/index.aspx
+  - https://www.netapp.com/12/company/leadership/cloud-computing/
+  - http://www.netapp.com/_a/company/leadership/cloud-computing/index.aspx
+  - https://www.netapp.com/jp/company/leadership/cloud-computing/index.aspx
+  - http://www.netapp.com/uk/company/leadership/cloud-computing/
+  no_match:
+  - '!https://www.netapp.com/us/company/leadership/cloud-computing/'
+  - https://www.netapp.com/us/company/leadership/cloud-computing/!
+  - https://www.netapp.com/u/company/leadership/cloud-computing/
+  - https://www.netapp.com/us/company/leadership/cloud-computing/index.html
+  - https://www.netapp.com/u-/company/leadership/cloud-computing/
+  - 'https://www.netapp.com/us/company/leadership/cloud-computing/
+
+    '
+  - ''
+  - unrelated input
+  - "\u2603"

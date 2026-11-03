@@ -1,0 +1,365 @@
+# Évaluation réelle (regex101, annotée par GPT 6.1 Sol), catégorie dev-tooling. Voir scripts/regex101.py.
+- id: real-x00319
+  difficulty: medium
+  status: ok
+  description: Commit header begins with lowercase feat, chore, fix, security or wip and a colon. Allow zero or one ASCII space after the colon, then an issue key of one or more uppercase ASCII letters or digits, a hyphen and one or more digits. Follow the key with exactly one ASCII space and a single-line subject of at least two Unicode code points. Subject characters may include spaces, so a whitespace-only subject is allowed. No line breaks.
+  regex: '/^(?:feat|chore|fix|security|wip): ?[A-Z0-9]+-\d+ .{2,}$/u'
+  match:
+  - 'feat: NSPS2-1277 A valid commit message'
+  - chore:NSPS2-1277 A valid commit message
+  - 'fix: A-1 ab'
+  - 'security: SEC-123 Update dependency'
+  - 'wip: X9-000 draft'
+  - feat:A-2 Hi
+  - 'fix: 1-9 OK'
+  - 'chore: ABC-10 a!'
+  no_match:
+  - 'feat: A-1 a'
+  - 'Feat: A-1 ab'
+  - 'feat:  A-1 ab'
+  - 'feat: a-1 ab'
+  - '!feat: A-1 ab'
+  - 'feat: A-1 ab
+
+    '
+  - ''
+  - unrelated text
+  - "\U0001F642"
+- id: real-x00499
+  difficulty: medium
+  status: ok
+  description: Android-style package identifier consisting of at least two nonempty dot-separated segments. Each segment starts with a lowercase ASCII letter or underscore and continues with lowercase ASCII letters, digits or underscores. No uppercase, whitespace or empty segments. This checks identifier shape, not reserved keywords.
+  regex: /^[a-z_][a-z0-9_]*(?:\.[a-z_][a-z0-9_]*)+$/
+  match:
+  - com.my.app
+  - a.b
+  - _.a
+  - com.app1
+  - my.new.hello.world.app
+  - abc_123.def_456
+  - _x._y
+  - a1.b2.c3
+  no_match:
+  - com
+  - com..app
+  - 1com.app
+  - Com.app
+  - '!com.app'
+  - com.app!
+  - ''
+  - unrelated text
+  - "\U0001F642"
+- id: real-x03763
+  difficulty: simple
+  status: ok
+  description: Validate a single-line path containing a slash, the literal charts, another slash, and a chart directory whose first character is an ASCII letter or ASCII space. The chart directory has at least that one character and may contain further arbitrary single-line characters, including slashes. The path ends with /values.yaml. Any single-line prefix is allowed. LF, CR, Unicode line separator, and Unicode paragraph separator are forbidden, and nothing may follow the suffix.
+  regex: /^[^\r\n\u2028\u2029]*\/charts\/[A-Za-z ][^\r\n\u2028\u2029]*\/values\.yaml(?!.)$/s
+  match:
+  - ./frontend/charts/pentext-ui/values.yaml
+  - /charts/a/values.yaml
+  - /charts/A/values.yaml
+  - /charts/ /values.yaml
+  - x/charts/abc/values.yaml
+  - /charts/foo/bar/values.yaml
+  - /charts/a1/values.yaml
+  - prefix/charts/z-/values.yaml
+  no_match:
+  - '
+
+    /charts/a/values.yaml'
+  - /charts/a/values.yamlx
+  - /charts//values.yaml
+  - /charts/1a/values.yaml
+  - /charts/a/valuesXyaml
+  - '/charts/a/values.yaml
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x03806
+  difficulty: simple
+  status: ok
+  description: Validate a build-data API path starting with builds/job/, then exactly larch or thunder, then /start/, a nonempty ASCII digit sequence, /end/, another nonempty ASCII digit sequence, and a trailing slash. Spelling is case-sensitive and leading zeros are allowed in both numeric fields. No other text is allowed.
+  regex: /^builds\/job\/(?:larch|thunder)\/start\/[0-9]+\/end\/[0-9]+\/(?!.)$/s
+  match:
+  - builds/job/larch/start/123/end/123/
+  - builds/job/thunder/start/1/end/2/
+  - builds/job/larch/start/0/end/0/
+  - builds/job/larch/start/001/end/002/
+  - builds/job/thunder/start/999/end/1000/
+  - builds/job/larch/start/2/end/1/
+  - builds/job/thunder/start/10/end/10/
+  - builds/job/larch/start/12345/end/67890/
+  no_match:
+  - xbuilds/job/larch/start/1/end/2/
+  - builds/job/larch/start/1/end/2/x
+  - builds/job/larch/start//end/2/
+  - builds/job/other/start/1/end/2/
+  - builds/job/larch/start/a/end/2/
+  - 'builds/job/larch/start/1/end/2/
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x04239
+  difficulty: simple
+  status: ok
+  description: Validate an assignment to etaLearnW_enabled, case-sensitively. Allow any ASCII spaces or tabs before the name, at most one space or tab before and after the equals sign, then exactly 0 or 1. Allow any spaces or tabs after the value, then an optional final semicolon. No other characters are allowed.
+  regex: /^[ \t]*etaLearnW_enabled[ \t]?=[ \t]?[01][ \t]*;?(?!.)$/s
+  match:
+  - etaLearnW_enabled=0
+  - etaLearnW_enabled=1;
+  - ' etaLearnW_enabled = 0;'
+  - "\tetaLearnW_enabled\t=\t1"
+  - etaLearnW_enabled=1   ;
+  - etaLearnW_enabled =0
+  - etaLearnW_enabled= 1
+  - "etaLearnW_enabled=0\t"
+  no_match:
+  - xetaLearnW_enabled=0
+  - etaLearnW_enabled=0x
+  - etaLearnW_enabled=
+  - etaLearnW_enabled=2
+  - etaLearnW_enabled  =0
+  - 'etaLearnW_enabled=0
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x04769
+  difficulty: hard
+  status: ok
+  description: Validate a case-sensitive issue-reference commit message. Accept the single word noref, or one of ref, Ref, closes, Closes, related, Related, fixes, Fixes, partial and Partial, optionally followed by a colon and then exactly one space. The issue reference is a hash sign followed by ASCII digits, an ASCII alphanumeric or underscore project name followed by that reference, or a GitLab URL on gitlab.com under volterra with one or more nonempty slash-separated ASCII alphanumeric, period, underscore or hyphen path components followed by /issues/ and ASCII digits. The URL may start with https followed by a colon and two slashes, or have no scheme. No extra text is allowed.
+  regex: /^(?:noref|(?:[Rr]ef|[Cc]loses|[Rr]elated|[Ff]ixes|[Pp]artial):? (?:[A-Za-z0-9_]*#[0-9]+|(?:https:\/\/)?gitlab\.com\/volterra\/(?:[A-Za-z0-9_.-]+\/)+issues\/[0-9]+))$(?![\s\S])/
+  match:
+  - noref
+  - 'ref #629'
+  - 'Ref: #1'
+  - closes project#22
+  - Related x_y#0
+  - Fixes https://gitlab.com/volterra/ves.io/specifications/-/issues/629
+  - partial gitlab.com/volterra/a/issues/9
+  - 'Partial: a#5'
+  no_match:
+  - 'REF #629'
+  - 'ref #'
+  - 'xref #629'
+  - 'ref #629!'
+  - 'ref  #629'
+  - ref a-b#629
+  - ''
+  - unrelated
+  - 'noref
+
+    '
+- id: real-x05177
+  difficulty: medium
+  status: ok
+  description: Validate a commit message beginning with an issue key of uppercase ASCII letters, a hyphen and one or more ASCII digits. Optionally add one ordinary space and a parenthesized second key in the same format. Then require a colon, one ordinary space and a nonempty message using only ASCII letters, digits, ampersands, commas and ordinary spaces. No line breaks or other characters are allowed.
+  regex: '/^[A-Z]+-[0-9]+(?: \([A-Z]+-[0-9]+\))?: [A-Za-z0-9&, ]+$(?![\s\S])/'
+  match:
+  - 'JIRA-123: Please Commit & Message, 123'
+  - 'JIRA-123 (EPIC-222): Still working'
+  - 'A-0: x'
+  - 'AB-12: 123'
+  - 'X-99: A & B'
+  - 'TASK-1 (BIG-2): Done'
+  - 'Z-1: ,'
+  - 'A-1:  '
+  no_match:
+  - 'jira-123: Done'
+  - 'JIRA-123: '
+  - 'xJIRA-123: Done'
+  - 'JIRA-123: Done!'
+  - 'JIRA-123: D_one'
+  - 'JIRA-123 (EPIC-2: Done'
+  - ''
+  - message
+  - 'JIRA-123: Done
+
+    '
+- id: real-x05526
+  difficulty: medium
+  status: ok
+  description: Validate a restricted npm package reference. The package name is a nonempty ASCII letter, digit, underscore, hyphen or period string that cannot start with a hyphen or period. Optionally append an at sign and one through three period-separated nonempty ASCII digit components. After the numeric version optionally append a hyphen, a nonempty ASCII alphanumeric or underscore prerelease label, and zero through three period-prefixed digit components. No scopes, spaces or other characters are allowed.
+  regex: /^[A-Za-z0-9_][A-Za-z0-9_.-]*(?:@[0-9]+(?:\.[0-9]+){0,2}(?:-[A-Za-z0-9_]+(?:\.[0-9]+){0,3})?)?$(?![\s\S])/
+  match:
+  - library-name
+  - lib@1
+  - lib@1.2
+  - lib@1.2.3
+  - lib@1.2.3-beta.1
+  - _lib@01.02-alpha_1.2.3.4
+  - foo.bar
+  - A1
+  no_match:
+  - lib@1.2.3.4
+  - lib@1-beta.1.2.3.4
+  - ' lib'
+  - lib!
+  - lib+name
+  - -lib
+  - ''
+  - '@scope/lib'
+  - 'library-name
+
+    '
+- id: real-x05814
+  difficulty: hard
+  status: ok
+  description: Validate a restricted Docker image reference. The image has nonempty slash-separated lowercase ASCII alphanumeric, underscore, period or hyphen components, each beginning and ending alphanumeric. Optionally prefix a registry of ASCII alphanumeric or hyphen labels, each one through sixty-three characters and beginning and ending alphanumeric, separated by periods, with an optional colon and one through five ASCII port digits, then a slash. Append either an optional colon-prefixed tag of one through 128 ASCII letters, digits, underscores, periods or hyphens beginning with a letter, digit or underscore, or an at sign and the exact algorithm sha256 followed by a colon and exactly sixty-four lowercase ASCII hexadecimal digits. A tag and digest cannot both appear. No spaces or other characters are permitted.
+  regex: /^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*(?::[0-9]{1,5})?\/)?[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?(?:\/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)*(?::[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}|@sha256:[0-9a-f]{64})?$(?![\s\S])/
+  match:
+  - ubuntu
+  - ubuntu:latest
+  - library/ubuntu
+  - registry.example.com:5000/a/b:V1
+  - localhost/a
+  - 192.168.0.1:90000/ubuntu/kek@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+  - ubuntu@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+  - a_b.c-d:_tag
+  no_match:
+  - ubuntu@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcde
+  - registry.example.com:123456/a
+  - ' ubuntu'
+  - ubuntu!
+  - ubuntu:-tag
+  - _ubuntu
+  - ''
+  - unrelated@
+  - 'ubuntu
+
+    '
+- id: real-x06071
+  difficulty: simple
+  status: ok
+  description: Validate a lowercase ASCII name with at least two characters. It begins with a lowercase letter, followed by one or more lowercase letters, ASCII digits, or hyphens. No uppercase letters, dots, underscores, whitespace, or other characters are allowed.
+  regex: /^[a-z][a-z0-9-]+(?![\s\S])$/
+  match:
+  - ab
+  - a1
+  - a-
+  - asd1234124
+  - asdw-fawtaw-dwae
+  - z0
+  - name123
+  - a--
+  no_match:
+  - a
+  - 1a
+  - Ab
+  - a.b
+  - a_b
+  - a b
+  - '!ab'
+  - ab!
+  - 'ab
+
+    '
+- id: real-x06075
+  difficulty: simple
+  status: ok
+  description: Validate a Telegram bot startup message consisting of lowercase /start, exactly one ordinary space, and a payload of 1 through 64 ASCII letters, digits, underscores, or hyphens. No other command, spacing, or characters are allowed.
+  regex: /^\/start [A-Za-z0-9_-]{1,64}(?![\s\S])$/
+  match:
+  - /start a
+  - /start TEST
+  - /start test-group
+  - /start _
+  - /start -
+  - /start 123
+  - /start aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  - /start A_b-9
+  no_match:
+  - '/start '
+  - /start aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  - /Start a
+  - /start  a
+  - /start a.b
+  - "/start \xE9"
+  - x/start a
+  - /start a!
+  - '/start a
+
+    '
+- id: real-x06231
+  difficulty: simple
+  status: ok
+  description: Validate a CUDA device specification consisting of the exact lowercase word cuda, optionally followed by a colon and one or more ASCII digits. Leading zeros are allowed. No sign, whitespace, or extra characters are permitted.
+  regex: /^cuda(?::[0-9]+)?(?![\s\S])$/
+  match:
+  - cuda
+  - cuda:0
+  - cuda:1
+  - cuda:2
+  - cuda:12
+  - cuda:999
+  - cuda:99999
+  - cuda:00
+  no_match:
+  - 'cuda:'
+  - cuda:-1
+  - CUDA
+  - cuda:a
+  - cuda::1
+  - 'cuda: 1'
+  - acuda:1
+  - cuda:1x
+  - 'cuda:1
+
+    '
+- id: real-x06989
+  difficulty: medium
+  status: ok
+  description: Validate an AQF branch-name shape with two slash-separated initial components, each consisting of at least two ASCII letters in either case. Then require a ticket key of two uppercase ASCII letters, a hyphen, and at least four digits. A separator of one slash, hyphen, underscore, or ordinary space follows the key. The final description may be empty and contains only ASCII letters, digits, underscores, hyphens, or ordinary spaces. No other characters are allowed.
+  regex: /^[A-Za-z]{2,}\/[A-Za-z]{2,}\/[A-Z]{2}-[0-9]{4,}[\/\-_ ][A-Za-z0-9_ -]*(?![\s\S])$/
+  match:
+  - ft/rb/FE-5623/Do_stuff
+  - ft/rb/FE-5623/Do stuff
+  - ft/rb/FE-5623_Do stuff
+  - ft/rb/FE-5623-Do stuff
+  - ft/rb/FE-5623 Do stuff
+  - AA/BB/CC-0000/
+  - feature/release/AB-12345/task
+  - ft/rb/FE-5623/15-awe-some
+  no_match:
+  - f/rb/FE-5623/task
+  - ft/r/FE-5623/task
+  - ft/rb/fe-5623/task
+  - ft/rb/FE-562/task
+  - ft/rb/FE-5623:task
+  - ft/rb/FE-5623/task!
+  - '!ft/rb/FE-5623/task'
+  - 'ft/rb/FE-5623/task
+
+    '
+  - ft/rb/FE-5623/task/extra
+- id: real-x07340
+  difficulty: hard
+  status: ok
+  description: 'Validate the stated cron-entry syntax, optionally commented out. Leading JavaScript whitespace is allowed, then an optional #, then five schedule fields and a nonempty command separated by one or more whitespace characters. Fields are minutes 0 through 59, hours 0 through 23, day-of-month 1 through 31, month 1 through 12 and day-of-week 0 through 6 or lowercase mon, tue, wed, thu, fri, sat, sun. Minutes and hours may be zero-padded; other numeric fields have no leading zeros. Each field is an asterisk or values joined by commas or hyphens, optionally followed by a slash and one or two ASCII step digits. Step magnitude, range ordering and calendar scheduling are not checked. The command contains at least one non-whitespace character and no line terminators; field separators themselves may contain line breaks. No other field syntax is accepted.'
+  regex: /^\s*(?:#\s*)?(?:(?:[0-5]?[0-9])(?:[-,](?:[0-5]?[0-9]))*|\*)(?:\/[0-9]{1,2})?\s+(?:(?:[01]?[0-9]|2[0-3])(?:[-,](?:[01]?[0-9]|2[0-3]))*|\*)(?:\/[0-9]{1,2})?\s+(?:(?:[1-9]|[12][0-9]|3[01])(?:[-,](?:[1-9]|[12][0-9]|3[01]))*|\*)(?:\/[0-9]{1,2})?\s+(?:(?:[1-9]|1[0-2])(?:[-,](?:[1-9]|1[0-2]))*|\*)(?:\/[0-9]{1,2})?\s+(?:(?:[0-6]|mon|tue|wed|thu|fri|sat|sun)(?:[-,](?:[0-6]|mon|tue|wed|thu|fri|sat|sun))*|\*)(?:\/[0-9]{1,2})?\s+\S[^\r\n\u2028\u2029]*(?!\s|\S)$/
+  match:
+  - '* * * * * run'
+  - 0 0 1 1 0 cmd
+  - 59 23 31 12 sun command
+  - ' # */15 01 1-5 2,3 mon-fri run'
+  - 1,2 3-4 5 6 tue echo x
+  - 00 09 10 11 6 x
+  - '*/0 */99 */2 */3 */4 test'
+  - "\t# 5\n5\t5 5 fri task"
+  no_match:
+  - '!* * * * * run'
+  - '* * * * * run
+
+    '
+  - '* * * * *'
+  - 60 * * * * run
+  - '* * 0 * * run'
+  - '*/123 * * * * run'
+  - ''
+  - unrelated input
+  - "\u2603"

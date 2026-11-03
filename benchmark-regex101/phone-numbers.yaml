@@ -1,0 +1,1346 @@
+# Évaluation réelle (regex101, annotée par GPT 6.1 Sol), catégorie phone-numbers. Voir scripts/regex101.py.
+- id: real-x00197
+  difficulty: simple
+  status: ok
+  description: 'Indian international telephone format without a plus sign: 91, optionally prefixed by 0 or 00, then ten digits beginning with 1 to 9. Do not validate assignment or mobile prefixes. No separators.'
+  regex: /^(?:00|0)?91[1-9]\d{9}$/
+  match:
+  - '911234567890'
+  - 0911234567890
+  - 00911234567890
+  - '919700613130'
+  - 0919999999999
+  - 00911000000000
+  - '915555555555'
+  - 00918888888888
+  no_match:
+  - '910234567890'
+  - '91123456789'
+  - '9112345678901'
+  - '+911234567890'
+  - x911234567890
+  - 911234567890x
+  - ''
+  - unrelated text
+  - "\U0001F642"
+- id: real-x00422
+  difficulty: simple
+  status: ok
+  description: 'Argentinian telephone field in this permissive international shape: country prefix 54, optionally preceded by 0 or 00, then 7 to 13 ASCII digits with the first from 1 to 9. No plus sign, separators or whitespace. Check this shape only, not the area-code boundary, actual national length or assignment.'
+  regex: /^(?:00|0)?54[1-9]\d{6,12}$/
+  match:
+  - '541234567'
+  - '0541234567'
+  - '00541234567'
+  - '5491234567890'
+  - '541234567890123'
+  - 0549999999999999
+  - '00541000000'
+  - '54987654321'
+  no_match:
+  - '540123456'
+  - '54123456'
+  - '5412345678901234'
+  - '+541234567'
+  - '!541234567'
+  - 541234567!
+  - ''
+  - unrelated text
+  - "\U0001F642"
+- id: real-x00617
+  difficulty: hard
+  status: ok
+  description: Validate a French phone-number representation. Begin with national prefix 0 or international +33 or 0033. After an international prefix allow zero to three separators and optionally (0) followed by zero to three separators. After the complete prefix allow at most one separator, then a national first digit from 1 through 9 and exactly eight more ASCII digits. Those eight digits may be individually separated by at most one separator each, or appear as two immediate digits followed by two groups of three digits each preceded by at most one separator. Each separator independently is JavaScript whitespace, period or hyphen. No leading or trailing text is allowed.
+  regex: /^(?:(?:(?:\+|00)33[\s.-]{0,3}(?:\(0\)[\s.-]{0,3})?|0)[\s.-]?[1-9](?:[\s.-]?[0-9]){8})(?![\s\S])$/
+  match:
+  - 0123456789
+  - 01 23 45 67 89
+  - 01.23.45.67.89
+  - 0123 45.67.89
+  - 0033 123-456-789
+  - 0033(0)123456789
+  - +33-1.23.45.67.89
+  - +33.-.(0)-.-123456789
+  no_match:
+  - 012345678
+  - 01234567890
+  - 0023456789
+  - 01  23 45 67 89
+  - x0123456789
+  - '0123456789 '
+  - ''
+  - 01 23 a5 67 89
+  - '0123456789
+
+    '
+- id: real-x00655
+  difficulty: simple
+  status: ok
+  description: Validate a Hong Kong local phone number as exactly eight ASCII digits, with a first digit from 2 through 9. No country code, separators, signs or whitespace are allowed.
+  regex: /^(?:[2-9][0-9]{7})(?![\s\S])$/
+  match:
+  - '21234567'
+  - '31234567'
+  - '41234567'
+  - '51234567'
+  - '61234567'
+  - '71234567'
+  - '81234567'
+  - '99999999'
+  no_match:
+  - '11234567'
+  - '2123456'
+  - '212345678'
+  - 2123a567
+  - ' 21234567'
+  - '21234567 '
+  - ''
+  - '+85221234567'
+  - '21234567
+
+    '
+- id: real-x00739
+  difficulty: medium
+  status: ok
+  description: Validate a ten-digit phone number. The first three ASCII digits may optionally be enclosed in balanced parentheses. Then require three digits and four digits, permitting at most one separator at each boundary; each separator independently may be a hyphen, period, slash or JavaScript whitespace. No other leading or trailing text is allowed.
+  regex: /^(?:(?:\([0-9]{3}\)|[0-9]{3})[-\s./]?[0-9]{3}[-\s./]?[0-9]{4})(?![\s\S])$/
+  match:
+  - '1234567890'
+  - 123 456 7890
+  - (123) 456-7890
+  - 123.456.7890
+  - 123/456/7890
+  - 123 4567890
+  - (123)4567890
+  - 123-456.7890
+  no_match:
+  - 12 4567890
+  - 123 456 789
+  - 123  456 7890
+  - (123 456 7890
+  - x1234567890
+  - 1234567890x
+  - ''
+  - phone
+  - '1234567890
+
+    '
+- id: real-x00903
+  difficulty: medium
+  status: ok
+  description: 'Validate a Bolivian phone representation without a plus sign: optionally one or two zeroes, country code 591, then seven or eight ASCII subscriber digits whose first digit is 2, 4, 6 or 7. No spaces or separators are allowed.'
+  regex: /^(?:(?:00|0)?591[2467][0-9]{6,7})(?![\s\S])$/
+  match:
+  - '5912123456'
+  - '59141234567'
+  - 05916123456
+  - 0059171234567
+  - '5912000000'
+  - '59149999999'
+  - 059172345678
+  - 005912345678
+  no_match:
+  - '5913123456'
+  - '591212345'
+  - '591212345678'
+  - '+5912123456'
+  - ' 5912123456'
+  - '5912123456 '
+  - ''
+  - 591abc
+  - '5912123456
+
+    '
+- id: real-x00909
+  difficulty: simple
+  status: ok
+  description: Validate a permissive phone-like string containing only ASCII digits, hyphens, plus signs, parentheses and ASCII spaces, with at least one digit. Punctuation may occur anywhere and need not be balanced. No tabs or other characters are allowed.
+  regex: /^(?:[- +()]*[0-9][- +()0-9]*)(?![\s\S])$/
+  match:
+  - '1'
+  - '123456'
+  - +1 (234) 567
+  - ' (1) '
+  - --1++
+  - 1)(
+  - 0 0
+  - +44-123
+  no_match:
+  - abc1
+  - '1.2'
+  - 1/2
+  - "1\t2"
+  - a123
+  - 123a
+  - ''
+  - () + -
+  - '1
+
+    '
+- id: real-x00938
+  difficulty: hard
+  status: ok
+  description: Validate a Brazilian domestic landline or mobile number. An optional country code is 55, optionally prefixed by plus, double zero or plus followed by double zero; 55 may be enclosed in balanced parentheses. The mandatory area code has two digits from 1 through 9, optionally preceded by zero, and may be enclosed in balanced parentheses. An optional mobile digit 9 precedes the subscriber number, which has eight ASCII digits with first digit from 1 through 9. Between country code and area code, area code and mobile digit or subscriber, mobile digit and subscriber, and the two four-digit subscriber halves permit at most one separator, independently chosen from JavaScript whitespace, hyphen or period. Permit one trailing whitespace character. No other text is allowed.
+  regex: /^(?:(?:(?:\+00|00|\+)?(?:55|\(55\))[-.\s]?)?(?:0?[1-9]{2}|\(0?[1-9]{2}\))[-.\s]?(?:9[-.\s]?)?[1-9][0-9]{3}[-.\s]?[0-9]{4}\s?)(?![\s\S])$/
+  match:
+  - '11979983939'
+  - '1134567890'
+  - '+5511979983939'
+  - 0055(11)97999-3939
+  - (011) 3456.7890
+  - 55 11 9 7999 3939
+  - +0055.11.3456.7890
+  - (55)-(11)-3456-7890
+  no_match:
+  - '1034567890'
+  - '1104567890'
+  - '113456789'
+  - 11  34567890
+  - x1134567890
+  - 1134567890x
+  - ''
+  - 11345a7890
+  - '1134567890
+
+
+    '
+- id: real-x01153
+  difficulty: medium
+  status: ok
+  description: Validate a Belarus phone number starting with +375. Permit optional JavaScript whitespace, then the area code 17, 29, 33 or 44 optionally enclosed in balanced parentheses, then optional whitespace. Follow with exactly three ASCII digits, hyphen, two digits, hyphen and two digits. No leading or trailing text is allowed.
+  regex: /^(?:\+375\s*(?:\((?:17|29|33|44)\)|17|29|33|44)\s*[0-9]{3}-[0-9]{2}-[0-9]{2})(?![\s\S])$/
+  match:
+  - +375 (33) 302-66-60
+  - +37533302-66-60
+  - +37517123-45-67
+  - +37529123-45-67
+  - +37544123-45-67
+  - +375(17)123-45-67
+  - "+375\t(29)\t123-45-67"
+  - +375  44  123-45-67
+  no_match:
+  - +37525123-45-67
+  - +375(33123-45-67
+  - +3753312-45-67
+  - +37533123-456-67
+  - x+37533123-45-67
+  - '+37533123-45-67 '
+  - ''
+  - +3753312a-45-67
+  - '+37533123-45-67
+
+    '
+- id: real-x01295
+  difficulty: medium
+  status: ok
+  description: Validate a telephone number beginning with plus and containing 9 to 15 ASCII digits, the first from 1 through 9. Optionally append the exact lowercase extension marker ;ext= and 3 to 6 ASCII digits. No spaces, separators or other text are allowed.
+  regex: /^(?:\+[1-9][0-9]{8,14}(?:;ext=[0-9]{3,6})?)(?![\s\S])$/
+  match:
+  - '+14160001234'
+  - '+18001234567'
+  - '+442012345678'
+  - +14160007890;ext=12345
+  - '+123456789012345'
+  - +123456789012345;ext=123456
+  - '+123456789'
+  - +999999999;ext=000
+  no_match:
+  - '+12345678'
+  - '+1234567890123456'
+  - +023456789
+  - +123456789;ext=12
+  - ' +123456789'
+  - '+123456789 '
+  - ''
+  - +123456789;ext=1234567
+  - '+123456789
+
+    '
+- id: real-x01536
+  difficulty: simple
+  status: ok
+  description: Validate a Slovak phone representation consisting of the exact prefix +421 followed by nine ASCII digits. No spaces, separators or additional characters are permitted.
+  regex: /^(?:\+421[0-9]{9})(?![\s\S])$/
+  match:
+  - '+421999999980'
+  - '+421000000000'
+  - '+421123456789'
+  - '+421987654321'
+  - '+421900123456'
+  - '+421111111111'
+  - '+421222222222'
+  - '+421500000001'
+  no_match:
+  - '+42112345678'
+  - '+4211234567890'
+  - '+420123456789'
+  - +42112345a789
+  - ' +421123456789'
+  - '+421123456789 '
+  - ''
+  - '421123456789'
+  - '+421123456789
+
+    '
+- id: real-x01571
+  difficulty: medium
+  status: ok
+  description: 'Validate an Italian mobile-number representation: optionally country code 39 with or without a plus sign, followed by a national number of 9 to 11 ASCII digits beginning with 3. No spaces, separators or additional text are allowed.'
+  regex: /^(?:(?:\+?39)?3[0-9]{8,10})(?![\s\S])$/
+  match:
+  - '33312345643'
+  - '312345678'
+  - '3123456789'
+  - '39312345678'
+  - '+39312345678'
+  - '39999999999'
+  - '+3930012345678'
+  - '300000000'
+  no_match:
+  - '31234567'
+  - '312345678901'
+  - '212345678'
+  - '+38312345678'
+  - ' 312345678'
+  - '312345678 '
+  - ''
+  - mobile
+  - '312345678
+
+    '
+- id: real-x01738
+  difficulty: medium
+  status: ok
+  description: Validate a phone number beginning with one plus sign and containing 8 to 19 ASCII digits afterward. ASCII spaces may appear anywhere after the plus sign and do not count toward the digit limit, including at the beginning or end of the digit portion. No other characters are allowed.
+  regex: '/^(?:\+(?=(?: *[0-9]){8,19} *(?![\s\S]))[0-9 ]+)(?![\s\S])$/'
+  match:
+  - '+12345678'
+  - '+1234567890123456789'
+  - +12 34 56 78
+  - + 12345678
+  - '+12345678 '
+  - +1 2 3 4 5 6 7 8
+  - '+00000000'
+  - '+  1234  5678  '
+  no_match:
+  - '+1234567'
+  - '+12345678901234567890'
+  - '+        '
+  - +1234-5678
+  - x+12345678
+  - +12345678x
+  - ''
+  - "+12345678\t"
+  - '+12345678
+
+    '
+- id: real-x01743
+  difficulty: medium
+  status: ok
+  description: 'Validate a Japanese phone representation without plus: optionally one or two zeroes, country code 81, then exactly nine ASCII subscriber digits beginning with 1 through 9. No spaces, separators or additional text are allowed.'
+  regex: /^(?:(?:00|0)?81[1-9][0-9]{8})(?![\s\S])$/
+  match:
+  - '81123456789'
+  - 081123456789
+  - 0081123456789
+  - '81999999999'
+  - '81500000000'
+  - 081912345678
+  - 0081723456789
+  - '81222222222'
+  no_match:
+  - '81012345678'
+  - '8112345678'
+  - '811234567890'
+  - '+81123456789'
+  - ' 81123456789'
+  - '81123456789 '
+  - ''
+  - 81abc
+  - '81123456789
+
+    '
+- id: real-x01880
+  difficulty: medium
+  status: ok
+  description: Validate an Indian mobile number with a ten-digit national part beginning with 7, 8 or 9. The national part may be bare, or preceded by a single zero or a plus sign and country code 91, optionally followed by one hyphen. Only ASCII digits are permitted; spaces and other separators are forbidden.
+  regex: /^(?:0|\+91-?)?[789]\d{9}$(?![\s\S])/
+  match:
+  - 07812345678
+  - 08912345678
+  - '9912345678'
+  - '+917812345678'
+  - '+918912345678'
+  - '+919912345678'
+  - +91-7812345678
+  - +91-9912345678
+  no_match:
+  - 06812345678
+  - 0781234567
+  - 078123456789
+  - +91--7812345678
+  - x07812345678
+  - 07812345678x
+  - ''
+  - '917812345678'
+  - +44 7912345678
+- id: real-x01964
+  difficulty: simple
+  status: ok
+  description: Validate an unformatted ten-digit US phone number whose first digit is from 2 through 9. The remaining nine characters are ASCII digits. This is a format check only; assignment and exchange validity are not checked. Country prefixes, punctuation and whitespace are forbidden.
+  regex: /^[2-9]\d{9}$(?![\s\S])/
+  match:
+  - '2548765425'
+  - '2000000000'
+  - '9999999999'
+  - '3456789012'
+  - '4567890123'
+  - '5678901234'
+  - '6789012345'
+  - '7890123456'
+  no_match:
+  - '1548765425'
+  - '254876542'
+  - '25487654250'
+  - 25487654a5
+  - x2548765425
+  - 2548765425x
+  - ''
+  - '+12548765425'
+  - 254-876-5425
+- id: real-x02514
+  difficulty: simple
+  status: ok
+  description: 'Validate the supplied Russian mobile-number syntax: a ten-ASCII-digit national number beginning with 9, optionally preceded by local prefix 8 or international prefix +7. No spaces, parentheses, separators or other prefixes are allowed. Carrier and number assignment are not checked.'
+  regex: /^(?:\+7|8)?9\d{9}$(?!.)/s
+  match:
+  - '9200760939'
+  - '9000000000'
+  - '9999999999'
+  - '89200760939'
+  - '89000000000'
+  - '+79200760939'
+  - '+79000000000'
+  - '+79999999999'
+  no_match:
+  - '8200760939'
+  - '920076093'
+  - '92007609390'
+  - '79200760939'
+  - x9200760939
+  - 9200760939x
+  - ''
+  - 8(920)0760939
+  - +7 9200760939
+- id: real-x02683
+  difficulty: medium
+  status: ok
+  description: 'Validate the supplied US phone syntax: optional country prefix 1, optional single hyphen or JavaScript whitespace character, an area code of three ASCII digits optionally enclosed in balanced parentheses, an optional single hyphen or whitespace, three exchange digits, another optional hyphen or whitespace, then four subscriber digits. The initial separator is allowed even without country prefix. Separator kinds may be mixed. No assignment check, extra digits or characters are permitted.'
+  regex: /^1?[\s-]?(?:\(\d{3}\)|\d{3})[\s-]?\d{3}[\s-]?\d{4}$(?!.)/s
+  match:
+  - 555-555-5555
+  - (555)555-5555
+  - (555) 555-5555
+  - 555 555 5555
+  - '5555555555'
+  - 1 555 555 5555
+  - 1-(555)-555-5555
+  - 1555 555 5555
+  no_match:
+  - 2 555 555 5555
+  - (555-555-5555
+  - 555)555-5555
+  - '555555555'
+  - x555-555-5555
+  - 555-555-5555x
+  - ''
+  - 555.555.5555
+  - 555  555 5555
+- id: real-x02872
+  difficulty: simple
+  status: ok
+  description: Validate a masked international telephone-number format beginning with a plus sign followed by 11 through 13 characters, each an ASCII digit or an asterisk. All-digit and all-asterisk bodies are allowed. No country-specific length or assignment checks, spaces or other characters are allowed.
+  regex: /^\+[0-9*]{11,13}$(?!.)/s
+  match:
+  - +3362788****
+  - +337**0140**
+  - +336********
+  - +491**********
+  - +3362788******
+  - +491**27880140
+  - +49106**88**40
+  - +32*********
+  no_match:
+  - +33627*****
+  - +3362788*******
+  - 3362788****
+  - +3362788***a
+  - x+3362788****
+  - +3362788****x
+  - ''
+  - +49 1** *** ** **
+  - 062788****
+- id: real-x02929
+  difficulty: medium
+  status: ok
+  description: Validate a telephone string with 7 through 24 ASCII digits, optionally preceded by a single plus sign. Between adjacent digits, allow at most one separator chosen from ASCII space, dot or hyphen; mixed separator types are allowed. Separators cannot be leading or trailing. No other characters are allowed.
+  regex: /^\+?(?=(?:[ .-]?\d){7,24}$(?!.))\d(?:[ .-]?\d)*$(?!.)/s
+  match:
+  - '1234567'
+  - 0123456789
+  - 01 23 45 67 89
+  - 012.234.567.890
+  - 012-234-567-890
+  - '+33123456789'
+  - +33 1.23-45 67 89
+  - '123456789012345678901234'
+  no_match:
+  - '123456'
+  - '1234567890123456789012345'
+  - '1234567.'
+  - 12  34567
+  - x1234567
+  - 1234567x
+  - ''
+  - '+336'
+  - 123a4567
+- id: real-x02976
+  difficulty: medium
+  status: ok
+  description: Validate a US telephone-number format with three-digit area code, three-digit exchange and four-digit subscriber number, all ASCII digits. An optional country prefix 1 may have one following space. The area code is either bare or enclosed in balanced parentheses. A bare area code may be followed by one space, one hyphen or nothing; a parenthesized area code may be followed by one space or nothing. The exchange may be followed by one space, one hyphen or nothing. No other separators, spaces or extra characters are allowed.
+  regex: /^(?:1 ?)?(?:\(\d{3}\) ?|\d{3}[ -]?)\d{3}[ -]?\d{4}$(?!.)/s
+  match:
+  - 555-555-5555
+  - (555)555-5555
+  - (555) 555-5555
+  - 555 555 5555
+  - '5555555555'
+  - 1 555 555 5555
+  - 1 (555) 555-5555
+  - '15555555555'
+  no_match:
+  - 2 (757) 622-7382
+  - (555-555-5555
+  - 555.555-5555
+  - '555555555'
+  - x555-555-5555
+  - 555-555-5555x
+  - ''
+  - (6054756961)
+  - 123**&!!asdf#
+- id: real-x03026
+  difficulty: simple
+  status: ok
+  description: Validate a telephone string of 10 through 14 ASCII digits, optionally preceded by one plus sign. No country-specific numbering constraints are imposed. Spaces, hyphens, parentheses and all other characters are forbidden.
+  regex: /^\+?\d{10,14}$(?!.)/s
+  match:
+  - 0123456789
+  - '12345678901'
+  - '123456789012'
+  - '1234567890123'
+  - '12345678901234'
+  - +0123456789
+  - '+123456789012'
+  - '+12345678901234'
+  no_match:
+  - '123456789'
+  - '123456789012345'
+  - ++1234567890
+  - 123456789a
+  - x1234567890
+  - 1234567890x
+  - ''
+  - 123 456 7890
+  - +123-456-7890
+- id: real-x03622
+  difficulty: simple
+  status: ok
+  description: Validate a phone notation of ten ASCII digits grouped into five pairs. Between each adjacent pair independently allow no separator or exactly one ASCII space, period, or hyphen. No country prefix, parentheses, or other characters are allowed.
+  regex: /^[0-9]{2}(?:[ .-]?[0-9]{2}){4}(?!.)$/s
+  match:
+  - 0123456789
+  - 01 23 45 67 89
+  - 01.23.45.67.89
+  - 01-23-45-67-89
+  - 01 23.45-6789
+  - '0000000000'
+  - '9999999999'
+  - 12-34567890
+  no_match:
+  - x0123456789
+  - 0123456789x
+  - 012345678
+  - 01_23_45_67_89
+  - 01  23456789
+  - '0123456789
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x03814
+  difficulty: medium
+  status: ok
+  description: Validate a phone notation with optional country code of one to three ASCII digits optionally prefixed by plus, optional three-digit area code either bare or enclosed in a matching pair of parentheses, then three ASCII digits and four ASCII digits. Independently allow at most one hyphen, period, or JavaScript whitespace after the country code, after the area code, and between the last two groups. The separator before the last seven digits is permitted even if the area code is absent. No other characters are allowed.
+  regex: /^(?:\+?[0-9]{1,3}[.\-\s]?)?(?:\([0-9]{3}\)|[0-9]{3})?[.\-\s]?[0-9]{3}[.\-\s]?[0-9]{4}(?!.)$/s
+  match:
+  - +1(425)-888-8080
+  - '8888080'
+  - '4258888080'
+  - (425)8888080
+  - +12.425.888.8080
+  - '-8888080'
+  - 123-456-7890
+  - +123 456 789 0123
+  no_match:
+  - x8888080
+  - 8888080x
+  - '888808'
+  - (4258888080
+  - '888_8080'
+  - '8888080
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x03987
+  difficulty: simple
+  status: ok
+  description: Validate a North American N11 service-number notation. The core is one ASCII digit from 2 through 9 followed by 11. Optionally prefix the core with the country digit 1, optionally preceded by plus; a leading plus without the country digit is also allowed. No whitespace or other characters are allowed.
+  regex: /^\+?1?[2-9]11(?!.)$/s
+  match:
+  - '211'
+  - '311'
+  - '411'
+  - '911'
+  - '1211'
+  - '1911'
+  - '+211'
+  - '+1211'
+  no_match:
+  - x211
+  - 211x
+  - '21'
+  - '111'
+  - '+221'
+  - '211
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x04238
+  difficulty: simple
+  status: ok
+  description: Validate three ASCII digits, a hyphen, three ASCII digits, a hyphen, and four ASCII digits. The first digit must be 2 through 9. No country prefix, whitespace, or other characters are allowed.
+  regex: /^[2-9][0-9]{2}-[0-9]{3}-[0-9]{4}(?!.)$/s
+  match:
+  - 223-444-5555
+  - 999-999-9999
+  - 200-000-0000
+  - 312-123-4567
+  - 800-123-0000
+  - 555-000-1234
+  - 612-345-6789
+  - 789-012-3456
+  no_match:
+  - x223-444-5555
+  - 223-444-5555x
+  - 223-444-555
+  - 123-444-5555
+  - 223.444-5555
+  - '223-444-5555
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x04376
+  difficulty: medium
+  status: ok
+  description: Validate a restricted Chinese mobile-number notation of exactly eleven ASCII digits. Its first three digits are 130 through 139, 145, 147, 150 through 159 except 154, or 180 through 189 except 184. The remaining eight digits are unrestricted. No whitespace, country prefix, or additional characters are allowed.
+  regex: /^(?:13[0-9]|14[57]|15[0-35-9]|18[0-35-9])[0-9]{8}(?!.)$/s
+  match:
+  - '13699146887'
+  - '13000000000'
+  - '13999999999'
+  - '14512345678'
+  - '14712345678'
+  - '15012345678'
+  - '15512345678'
+  - '18912345678'
+  no_match:
+  - x13699146887
+  - 13699146887x
+  - '1369914688'
+  - '15412345678'
+  - 14|12345678
+  - '13699146887
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x04437
+  difficulty: simple
+  status: ok
+  description: Validate a phone notation consisting of an opening parenthesis, three ASCII digits, a closing parenthesis, one ASCII space, three ASCII digits, a hyphen, and four ASCII digits. No country prefix, additional whitespace, or other characters are allowed.
+  regex: /^\([0-9]{3}\) [0-9]{3}-[0-9]{4}(?!.)$/s
+  match:
+  - (341) 324-1233
+  - (000) 000-0000
+  - (999) 999-9999
+  - (123) 456-7890
+  - (001) 002-0003
+  - (555) 123-4567
+  - (800) 000-1111
+  - (212) 222-3333
+  no_match:
+  - x(341) 324-1233
+  - (341) 324-1233x
+  - (34) 324-1233
+  - (34a) 324-1233
+  - "(341)\t324-1233"
+  - '(341) 324-1233
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x04544
+  difficulty: simple
+  status: ok
+  description: Validate an El Salvador phone notation of eight ASCII digits beginning with 2, 6, or 7. After the first four digits allow an optional single hyphen, period, or ASCII space. No country prefix, shortened number, whitespace elsewhere, or other characters are allowed.
+  regex: /^[267][0-9]{3}[. -]?[0-9]{4}(?!.)$/s
+  match:
+  - '78511074'
+  - 7851-1074
+  - '7851.1074'
+  - 7851 1074
+  - '20000000'
+  - '69999999'
+  - 6123-4567
+  - 2123 4567
+  no_match:
+  - x78511074
+  - 78511074x
+  - '7851107'
+  - '58511074'
+  - '7851_1074'
+  - '78511074
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x04634
+  difficulty: simple
+  status: ok
+  description: Validate a Sri Lankan mobile-number notation of exactly ten ASCII digits with prefix 07 and third digit chosen from 0, 1, 2, 4, 5, 6, 7, or 8. The remaining seven digits are unrestricted. No whitespace, country prefix, or other characters are allowed.
+  regex: /^07[01245678][0-9]{7}(?!.)$/s
+  match:
+  - 0712912826
+  - '0700000000'
+  - '0710000000'
+  - '0721234567'
+  - '0741234567'
+  - '0751234567'
+  - '0761234567'
+  - 0781234567
+  no_match:
+  - x0712912826
+  - 0712912826x
+  - 071291282
+  - '0731234567'
+  - 07a1234567
+  - '0712912826
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x04741
+  difficulty: medium
+  status: ok
+  description: Validate a nonempty comma-separated list of ten-digit phone numbers. Each number has a three-digit area code, a three-digit exchange and a four-digit final part, using ASCII digits. The area code may be enclosed in balanced parentheses. Between the area code and exchange allow no separator or one space, hyphen or slash; between exchange and final part allow no separator or one space or hyphen. After each comma allow any number of ordinary spaces. No leading or trailing whitespace or empty list items are allowed.
+  regex: /^(?:[0-9]{3}|\([0-9]{3}\))[ /-]?[0-9]{3}[ -]?[0-9]{4}(?:, *(?:[0-9]{3}|\([0-9]{3}\))[ /-]?[0-9]{3}[ -]?[0-9]{4})*$(?![\s\S])/
+  match:
+  - '2142142414'
+  - 214 214 2414
+  - (972) 312 3123
+  - 214-214-2414
+  - 214/224 4224
+  - (972)-312-3123
+  - 241 214 2414,(214) 224 4244, 214/224 4224,2142244244
+  - 0000000000,  9999999999
+  no_match:
+  - '214214241'
+  - '21421424145'
+  - x2142142414
+  - 2142142414,
+  - (2142142414
+  - '214.2142414'
+  - ''
+  - abc
+  - '2142142414
+
+    '
+- id: real-x04807
+  difficulty: simple
+  status: ok
+  description: Validate a digit-only Mexican telephone spelling with the country prefix 52, optionally preceded by 0 or 00, followed by nine to eleven ASCII digits whose first digit is nonzero. Do not allow a plus sign, separators, whitespace or other characters. Check only this spelling, not number allocation.
+  regex: /^(?:00|0)?52[1-9][0-9]{8,10}$(?![\s\S])/
+  match:
+  - '52123456789'
+  - '521234567890'
+  - '5212345678901'
+  - 052123456789
+  - 0052123456789
+  - '52900000000'
+  - 05299999999999
+  - 0052999999999
+  no_match:
+  - '5212345678'
+  - '52123456789012'
+  - x52123456789
+  - 52123456789x
+  - '52023456789'
+  - 5212345678a
+  - ''
+  - '+52123456789'
+  - '52123456789
+
+    '
+- id: real-x04822
+  difficulty: simple
+  status: ok
+  description: Validate exactly ten ASCII digits beginning with 2 or 69. This is a Greek telephone-number format check only. No separators, country prefix or whitespace are permitted.
+  regex: /^(?:2[0-9]|69)[0-9]{8}$(?![\s\S])/
+  match:
+  - '2101234567'
+  - '2000000000'
+  - '2999999999'
+  - '6900000000'
+  - '6999999999'
+  - '6912345678'
+  - '2312345678'
+  - '2811111111'
+  no_match:
+  - '210123456'
+  - '21012345678'
+  - x2101234567
+  - 2101234567x
+  - '6801234567'
+  - 210123456a
+  - ''
+  - '+302101234567'
+  - '2101234567
+
+    '
+- id: real-x04831
+  difficulty: medium
+  status: ok
+  description: Validate a French telephone-number spelling beginning with 0, +33 or 0033, followed by one ASCII digit from 1 through 9 and four pairs of ASCII digits. Between that first digit and each subsequent pair allow an optional single ordinary space, period or hyphen; separators may differ. No separator is allowed inside the prefix or at the end. Check format only, not allocation.
+  regex: /^(?:0|\+33|0033)[1-9](?:[ .-]?[0-9]{2}){4}$(?![\s\S])/
+  match:
+  - 0512345678
+  - 05 12 34 56 78
+  - 05.12.34.56.78
+  - 05-12-34-56-78
+  - '+33621325465'
+  - +336 21 32 54 65
+  - 00336.21.32.54.65
+  - 00335-12 34.56-78
+  no_match:
+  - '051234567'
+  - 05123456789
+  - x0512345678
+  - 0512345678x
+  - 05/12/34/56/78
+  - 0012345678
+  - ''
+  - '+44512345678'
+  - '0512345678
+
+    '
+- id: real-x04965
+  difficulty: medium
+  status: ok
+  description: Validate a restricted Brazilian telephone spelling. The subscriber portion has eight or nine ASCII digits, with an optional hyphen before its final four digits. Optionally prefix a two-digit area code, either bare or in balanced parentheses. Only when an area code is present, optionally prefix the country code 55 with or without a plus sign. No spaces or other characters are allowed. Check spelling only, not allocation.
+  regex: /^(?:(?:\+?55)?(?:[0-9]{2}|\([0-9]{2}\)))?[0-9]{4,5}-?[0-9]{4}$(?![\s\S])/
+  match:
+  - +55(91)3348-0276
+  - '559133480276'
+  - (91)3348-0276
+  - '9133480276'
+  - 3348-0276
+  - '33480276'
+  - +55(91)98444-6776
+  - '984446776'
+  no_match:
+  - '3348027'
+  - '98444677612345'
+  - x33480276
+  - 33480276x
+  - '3348_0276'
+  - (9133480276
+  - ''
+  - '+4433480276'
+  - '33480276
+
+    '
+- id: real-x05045
+  difficulty: simple
+  status: ok
+  description: Validate a Singapore telephone-number spelling of exactly eight ASCII digits beginning with 6, 8 or 9. No country prefix, separators, whitespace or other characters are allowed. Check format only.
+  regex: /^[689][0-9]{7}$(?![\s\S])/
+  match:
+  - '67545451'
+  - '60000000'
+  - '69999999'
+  - '80000000'
+  - '89999999'
+  - '90000000'
+  - '99999999'
+  - '81234567'
+  no_match:
+  - '6754545'
+  - '675454511'
+  - x67545451
+  - 67545451x
+  - '77545451'
+  - 6754545a
+  - ''
+  - '+6567545451'
+  - '67545451
+
+    '
+- id: real-x05617
+  difficulty: simple
+  status: ok
+  description: Validate a telephone-character spelling beginning with 0 or a plus sign and then containing at least one ASCII digit. After the first character permit only ASCII digits, ordinary spaces, periods, hyphens and forward slashes. No other characters are allowed. This checks a loose spelling only, not country-specific length or allocation.
+  regex: /^[0+](?=[0-9 ./-]*[0-9])[0-9 ./-]+$(?![\s\S])/
+  match:
+  - 04733159
+  - '+123'
+  - 0 123
+  - +1-2-3
+  - 0.1/2
+  - '00'
+  - '+ 1 '
+  - 012/34.56
+  no_match:
+  - +
+  - '0'
+  - x0123
+  - 0123x
+  - '01_23'
+  - ++123
+  - ''
+  - unrelated
+  - '04733159
+
+    '
+- id: real-x05646
+  difficulty: simple
+  status: ok
+  description: Validate a Portuguese telephone spelling without a plus sign. Require the country code 351, optionally preceded by 0 or 00, followed by exactly nine ASCII digits whose first digit is nonzero. No spaces, separators or other characters are allowed. Check spelling only.
+  regex: /^(?:00|0)?351[1-9][0-9]{8}$(?![\s\S])/
+  match:
+  - '351912345678'
+  - 0351912345678
+  - 00351912345678
+  - '351100000000'
+  - '351999999999'
+  - 0351999999999
+  - '00351111111111'
+  - '351234567890'
+  no_match:
+  - '35191234567'
+  - '3519123456789'
+  - x351912345678
+  - 351912345678x
+  - 35191234567a
+  - '351012345678'
+  - ''
+  - unrelated
+  - '351912345678
+
+    '
+- id: real-x05922
+  difficulty: medium
+  status: ok
+  description: Validate a phone string beginning with the literal plus sign and Ukrainian country code 380. Follow it with two ASCII area-code digits, optionally enclosed together in parentheses, then three digits and four digits. One optional ordinary space may occur after the country code, after the area code, and between the last two digit groups. No other separators or whitespace are allowed.
+  regex: /^\+380 ?(?:[0-9]{2}|\([0-9]{2}\)) ?[0-9]{3} ?[0-9]{4}(?![\s\S])$/
+  match:
+  - '+380121234567'
+  - +380 12 123 4567
+  - +380(12)1234567
+  - +380 (12) 123 4567
+  - '+380991234567'
+  - +380 00 000 0000
+  - +380(55) 1234567
+  - +38012 123 4567
+  no_match:
+  - '380121234567'
+  - +3801a1234567
+  - '+3801212345678'
+  - +380(12 1234567
+  - +38012-1234567
+  - +380  121234567
+  - x+380121234567
+  - +380121234567x
+  - '+380121234567
+
+    '
+- id: real-x06163
+  difficulty: simple
+  status: ok
+  description: 'Validate an Australian phone string without a plus sign: an optional international access prefix consisting of one or two zeros, country code 61, then exactly nine ASCII digits whose first digit is 2 through 9. No separators, whitespace, or extra characters are allowed.'
+  regex: /^(?:00|0)?61[2-9][0-9]{8}(?![\s\S])$/
+  match:
+  - '61772369634'
+  - 061772369634
+  - 0061772369634
+  - '61200000000'
+  - '61999999999'
+  - '61312345678'
+  - 061412345678
+  - 0061512345678
+  no_match:
+  - '+61772369634'
+  - '61172369634'
+  - '6177236963'
+  - '617723696345'
+  - 6177236963a
+  - '61772369634
+
+    '
+  - x61772369634
+  - 61772369634x
+  - abc
+- id: real-x06444
+  difficulty: simple
+  status: ok
+  description: Validate an Italian mobile-number shape with an optional literal +39 prefix. The national portion has exactly ten ASCII digits, beginning with 3 and then a digit from 1 through 6. No separators, whitespace, or other characters are allowed.
+  regex: /^(?:\+39)?3[1-6][0-9]{8}(?![\s\S])$/
+  match:
+  - '3491234567'
+  - '+393491234567'
+  - '3100000000'
+  - '3699999999'
+  - '3212345678'
+  - '3312345678'
+  - '3512345678'
+  - '+393612345678'
+  no_match:
+  - '3012345678'
+  - '3712345678'
+  - '349123456'
+  - '34912345678'
+  - 349123456a
+  - '393491234567'
+  - x3491234567
+  - 3491234567x
+  - '3491234567
+
+    '
+- id: real-x06503
+  difficulty: simple
+  status: ok
+  description: 'Validate a Chilean phone string without a plus sign: an optional international access prefix of one or two zeros, country code 56, and a national portion of 7 through 9 ASCII digits beginning nonzero. No separators, whitespace, or other characters are allowed.'
+  regex: /^(?:00|0)?56[1-9][0-9]{6,8}(?![\s\S])$/
+  match:
+  - '561234567'
+  - '0561234567'
+  - '00561234567'
+  - '5612345678'
+  - '56123456789'
+  - '569999999'
+  - 056912345678
+  - 0056512345678
+  no_match:
+  - '+561234567'
+  - '560234567'
+  - '56123456'
+  - '561234567890'
+  - 56123456a
+  - '561234567
+
+    '
+  - x561234567
+  - 561234567x
+  - abc
+- id: real-x06595
+  difficulty: medium
+  status: ok
+  description: Validate a Brazilian phone input consisting of two ASCII area-code digits, optionally one ordinary space, then a local number. The local number has either eight digits or nine digits beginning with 9. An optional hyphen separates the local prefix of four or five digits from its last four digits. No country code, other whitespace, or extra characters are allowed.
+  regex: /^[0-9]{2} ?9?[0-9]{4}-?[0-9]{4}(?![\s\S])$/
+  match:
+  - 11 8765-1234
+  - 11 98765-1234
+  - 118765-1234
+  - 11 87651234
+  - '11987651234'
+  - 00900000000
+  - 99 0000-0000
+  - '1234567890'
+  no_match:
+  - '119876512345'
+  - '11876541234'
+  - '118765123'
+  - 11  87651234
+  - 11a7651234
+  - 11-87651234
+  - x1187651234
+  - 1187651234x
+  - '1187651234
+
+    '
+- id: real-x06870
+  difficulty: medium
+  status: ok
+  description: Validate a Brazilian phone shape with an optional two-digit ASCII area code, either bare or enclosed together in parentheses. If an area code is present, one ordinary space may follow. The local portion has four or five ASCII digits, an optional hyphen, and four digits. No country prefix, unmatched parentheses, other whitespace, or extra characters are allowed.
+  regex: /^(?:(?:[0-9]{2}|\([0-9]{2}\)) ?)?[0-9]{4,5}-?[0-9]{4}(?![\s\S])$/
+  match:
+  - (11) 3993-1130
+  - '1139931130'
+  - '39931130'
+  - 3993-1130
+  - 99993-1130
+  - 11 99993-1130
+  - (11)999931130
+  - 00999999999
+  no_match:
+  - '3993113'
+  - '399311301111'
+  - (11 39931130
+  - 11)39931130
+  - 11  39931130
+  - 399a1130
+  - x39931130
+  - 39931130x
+  - '39931130
+
+    '
+- id: real-x06941
+  difficulty: medium
+  status: ok
+  description: Validate a ten-digit US phone shape with an optional literal +1 prefix. The area code is three ASCII digits, optionally enclosed in balanced parentheses. Between the area code and next three digits allow zero or one ordinary space, full stop, or hyphen. Between those three digits and the last four digits allow zero or one full stop or hyphen, but no space. The two separators need not agree. No other whitespace, extensions, or extra characters are allowed.
+  regex: /^(?:\+1)?(?:\([0-9]{3}\)|[0-9]{3})[ .-]?[0-9]{3}[.-]?[0-9]{4}(?![\s\S])$/
+  match:
+  - '6305673452'
+  - (630)567-3452
+  - (630) 567-3452
+  - 630.567.3452
+  - 630-567-3452
+  - '+16305673452'
+  - +1(630) 567.3452
+  - 630-567.3452
+  no_match:
+  - '630567345'
+  - '63056734522'
+  - (6305673452
+  - 630)5673452
+  - 630567 3452
+  - 63056a3452
+  - x6305673452
+  - 6305673452x
+  - '6305673452
+
+    '
+- id: real-x07079
+  difficulty: simple
+  status: ok
+  description: Validate a Spanish mobile-number shape of nine ASCII national digits beginning with 6, or with 7 followed by a digit from 1 through 9. An optional country prefix is 34 or +34. No spaces, separators, extensions, or other characters are allowed.
+  regex: /^(?:\+?34)?(?:6[0-9]{2}|7[1-9][0-9])[0-9]{6}(?![\s\S])$/
+  match:
+  - '626615967'
+  - '34626615967'
+  - '+34626615967'
+  - '600000000'
+  - '799999999'
+  - '710000000'
+  - '34712345678'
+  - '+34798765432'
+  no_match:
+  - '700000000'
+  - '500000000'
+  - '62661596'
+  - '6266159670'
+  - 62661596a
+  - 34 626615967
+  - x626615967
+  - 626615967x
+  - '626615967
+
+    '
+- id: real-x07200
+  difficulty: simple
+  status: ok
+  description: Validate a Spanish mobile-number format consisting of nine ASCII digits, optionally prefixed by a plus sign. The first digit is 6, or it is 7 followed by a digit from 1 through 9. Separators and whitespace are forbidden.
+  regex: /^(?:\+?(?:6[0-9]{8}|7[1-9][0-9]{7}))(?!\s|\S)$/
+  match:
+  - '612345678'
+  - '+612345678'
+  - '711234567'
+  - '+795111111'
+  - '699999999'
+  - '790000000'
+  - '+780123456'
+  - '600000000'
+  no_match:
+  - '!612345678'
+  - 612345678!
+  - '61234567'
+  - '6123456789'
+  - '701234567'
+  - 61234a678
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x07232
+  difficulty: medium
+  status: ok
+  description: Validate a French telephone-number format. Begin with 0, 0033 or +33, then a digit from 1 through 9, then four pairs of ASCII digits. Each pair may independently be preceded by one hyphen, underscore, dot or ASCII space. No parentheses or other characters are allowed.
+  regex: /^(?:(?:0|0033|\+33)[1-9](?:[-_. ]?[0-9]{2}){4})(?!\s|\S)$/
+  match:
+  - 0604038164
+  - 01 23 45 67 89
+  - +336-04-03-81-64
+  - 00331.23.45.67.89
+  - 09_12_34_56_78
+  - '+33912345678'
+  - '0033622334455'
+  - 02 34-56.78_90
+  no_match:
+  - '!0604038164'
+  - 0604038164!
+  - 060403816
+  - 0004038164
+  - 06/04038164
+  - 06040381a4
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x07531
+  difficulty: simple
+  status: ok
+  description: Validate a French telephone-number layout starting with 0 followed by one ASCII digit and four further pairs of ASCII digits. Each pair may independently be preceded by one space, dot or hyphen. All digit values are accepted; this checks only layout. No other characters are allowed.
+  regex: /^(?:0[0-9](?:[ .-]?[0-9]{2}){4})(?!\s|\S)$/
+  match:
+  - 0145391617
+  - 01 45 39 16 17
+  - 01.45.39.16.17
+  - 01-45-39-16-17
+  - 01 45.39-16 17
+  - '0000000000'
+  - 0999999999
+  - 06 12 34 56 78
+  no_match:
+  - '!0145391617'
+  - 0145391617!
+  - 014539161
+  - 01453916177
+  - 01/45391617
+  - 01453916a7
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x07927
+  difficulty: medium
+  status: ok
+  description: Validate a telephone-number layout with either a leading 0 or an international prefix consisting of + or 00 and two to five ASCII country-code digits. After the prefix, require nine or ten ASCII digits with the first nonzero. No whitespace, punctuation or separators are allowed. Country codes and actual phone assignments are not verified.
+  regex: /^(?:(?:0|(?:00|\+)[0-9]{2,5})[1-9][0-9]{8,9})(?!\s|\S)$/
+  match:
+  - '0566227662'
+  - '0041566227662'
+  - '+41566227662'
+  - 0123456789
+  - 09999999999
+  - '+12345123456789'
+  - 00121234567890
+  - +00987654321
+  no_match:
+  - '!0566227662'
+  - 0566227662!
+  - '056622766'
+  - '056622766222'
+  - '0066227662'
+  - 05662276a2
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x07956
+  difficulty: simple
+  status: ok
+  description: Validate a Spanish mobile-number layout of exactly nine ASCII digits starting with 6 or 7. No country-code prefix, whitespace, separators or additional characters are accepted. No actual phone assignment is checked.
+  regex: /^(?:[67][0-9]{8})(?!\s|\S)$/
+  match:
+  - '789654123'
+  - '612345678'
+  - '600000000'
+  - '699999999'
+  - '700000000'
+  - '799999999'
+  - '678901234'
+  - '712345678'
+  no_match:
+  - '!612345678'
+  - 612345678!
+  - '61234567'
+  - '6123456789'
+  - '512345678'
+  - 61234a678
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x08054
+  difficulty: simple
+  status: ok
+  description: Validate a Balkan telephone-number layout of exactly three ASCII digits, a slash, three ASCII digits, a hyphen and three ASCII digits. All digit values and leading zeros are accepted. No whitespace, prefix or additional text is allowed.
+  regex: /^(?:[0-9]{3}\/[0-9]{3}-[0-9]{3})(?!\s|\S)$/
+  match:
+  - 000/333-444
+  - 123/456-789
+  - 999/999-999
+  - 000/000-000
+  - 001/002-003
+  - 987/654-321
+  - 555/123-456
+  - 100/200-300
+  no_match:
+  - '!123/456-789'
+  - 123/456-789!
+  - 12/456-789
+  - 123/456-7890
+  - 123-456-789
+  - 123/45a-789
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x08468
+  difficulty: simple
+  status: ok
+  description: Validate a Spanish telephone-number layout without a plus sign. Begin with 34, optionally preceded by 0 or 00, then require nine ASCII digits whose first digit is 6, 7, 8 or 9. No whitespace or separators are allowed. Actual telephone assignments are not checked.
+  regex: /^(?:(?:00|0)?34[6789][0-9]{8})(?!\s|\S)$/
+  match:
+  - '34612345678'
+  - '34712345678'
+  - '34812345678'
+  - '34912345678'
+  - 034612345678
+  - 0034612345678
+  - '34999999999'
+  - '0034700000000'
+  no_match:
+  - '!34612345678'
+  - 34612345678!
+  - '3461234567'
+  - '346123456789'
+  - '34512345678'
+  - 34612345a78
+  - ''
+  - unrelated input
+  - "\u2603"

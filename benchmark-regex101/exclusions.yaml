@@ -1,0 +1,357 @@
+# Évaluation réelle (regex101, annotée par GPT 6.1 Sol), catégorie exclusions. Voir scripts/regex101.py.
+- id: real-x00007
+  difficulty: simple
+  status: ok
+  description: Accept a single line unless it ends with the lowercase suffix abc. The empty line is allowed; line breaks are not.
+  regex: /^(?!.*abc$)[^\r\n\u2028\u2029]*$/
+  match:
+  - ''
+  - a
+  - ab
+  - ABC
+  - abcx
+  - xabcx
+  - asjfklaslfjkladjfl
+  - 'abc '
+  no_match:
+  - abc
+  - xabc
+  - a abc
+  - zabc
+  - ' abc'
+  - abcabc
+  - 'a
+
+    b'
+  - "a\rb"
+  - "\U0001F642abc"
+- id: real-x00569
+  difficulty: medium
+  status: ok
+  description: Validate a nonempty URL route beginning with a slash. Reject routes whose first five characters are the lowercase slash-delimited api prefix. All remaining characters are permitted except line terminators; whitespace is otherwise allowed.
+  regex: /^(?:\/(?!api\/)[^\r\n\u2028\u2029]*)(?![\s\S])$/
+  match:
+  - /
+  - /api
+  - /apix
+  - /api?x
+  - /API/x
+  - /a
+  - /ap
+  - /x/y
+  no_match:
+  - /api/
+  - /api/x
+  - x/api
+  - ' /abc'
+  - '/abc
+
+    '
+  - /api/abc
+  - ''
+  - abc
+  - http://a
+- id: real-x00884
+  difficulty: medium
+  status: ok
+  description: Validate a string starting with dividend paid with one ASCII space between the words, case-insensitively, with no substring non anywhere after that prefix. Remaining characters are unrestricted except line terminators.
+  regex: /^(?:dividend paid(?:(?!non)[^\r\n\u2028\u2029])*)(?![\s\S])$/i
+  match:
+  - Dividend paid
+  - dividend paid by the Company
+  - DIVIDEND PAID
+  - Dividend paid now
+  - dividend paid 1
+  - Dividend paid.
+  - dividend paid x
+  - Dividend paid yes
+  no_match:
+  - Dividend paid non
+  - Dividend paid NON
+  - Dividends paid
+  - xDividend paid
+  - 'Dividend paid
+
+    '
+  - dividend  paid
+  - ''
+  - income
+  - payment
+- id: real-x01343
+  difficulty: medium
+  status: ok
+  description: Validate a single line, including empty, except when it begins with the exact case-sensitive marker NOT FOUND, four ASCII spaces, five asterisks and eight ASCII spaces. All other characters except line terminators are allowed.
+  regex: /^(?:(?!NOT FOUND {4}\*{5} {8})[^\r\n\u2028\u2029]*)(?![\s\S])$/
+  match:
+  - ''
+  - abc
+  - NOT FOUND
+  - NOT FOUND ****
+  - not found    *****        x
+  - xNOT FOUND    *****        y
+  - file checksum
+  - NOT FOUND   *****        x
+  no_match:
+  - 'NOT FOUND    *****        '
+  - NOT FOUND    *****        x
+  - NOT FOUND    *****        file
+  - NOT FOUND    *****        a b
+  - 'abc
+
+    '
+  - '
+
+    abc'
+  - "\r"
+  - "\L"
+  - NOT FOUND    *****        xx
+- id: real-x02020
+  difficulty: medium
+  status: ok
+  description: 'Detect an invalid postcode string under this policy: a valid code is exactly five ASCII digits and is not 00000. Accept 00000 and every string that is not exactly five ASCII digits, including empty strings, Unicode and line breaks. Reject all other five-digit ASCII strings.'
+  regex: /^(?:00000|(?![0-9]{5}$(?!.)).*)$(?!.)/s
+  match:
+  - ''
+  - zahir
+  - 31z44
+  - z38vr
+  - '2331'
+  - '444444'
+  - '00000'
+  - "\uFF11\uFF12\uFF13\uFF14\uFF15"
+  no_match:
+  - '00001'
+  - '13325'
+  - '12345'
+  - '99999'
+  - '01234'
+  - '54321'
+  - '55555'
+  - '98765'
+  - '67890'
+- id: real-x04003
+  difficulty: medium
+  status: ok
+  description: Validate a single line that does not contain the exact case-sensitive substring hello anywhere. The empty string is allowed. All characters except LF, CR, Unicode line separator, and Unicode paragraph separator are otherwise permitted.
+  regex: /^(?![^\r\n\u2028\u2029]*hello)[^\r\n\u2028\u2029]*(?!.)$/s
+  match:
+  - ''
+  - Foo/should work
+  - Foo/boo
+  - Hello
+  - HELLO
+  - hell
+  - x
+  - '123'
+  no_match:
+  - hellox
+  - xhello
+  - hello
+  - ahellob
+  - 'a
+
+    b'
+  - 'x
+
+    '
+  - "\r"
+  - "\L"
+  - hello world
+- id: real-x04783
+  difficulty: medium
+  status: ok
+  description: Accept a single-line release name containing a case-insensitive H.265, H265, X.265, X265 or HEVC marker anywhere. Reject it if it contains the case-insensitive substring 10bit anywhere. Markers need not be whole words. All other single-line characters are allowed; line terminators are forbidden.
+  regex: /^(?!.*10bit)(?=.*(?:[xh]\.?265|hevc))[^\r\n\u2028\u2029]+$(?![\s\S])/i
+  match:
+  - movie.x265
+  - Movie.H.265
+  - film.X.265.8bit
+  - HEVC
+  - movie.hevc.2160p
+  - Thor.2013.HDR10.x265
+  - h265
+  - abcX265def
+  no_match:
+  - movie.x264
+  - movie.x265.10bit
+  - '
+
+    movie.x265'
+  - 'movie.x265
+
+    '
+  - movie.y265
+  - movie.H.266
+  - ''
+  - ordinary movie
+  - 10BIT
+- id: real-x05099
+  difficulty: simple
+  status: ok
+  description: Accept a single-line string that contains the exact case-sensitive substring /cat/ and does not contain /prod/ anywhere. Other single-line characters are unrestricted. Line terminators are forbidden.
+  regex: /^(?!.*\/prod\/)(?=.*\/cat\/)[^\r\n\u2028\u2029]*$(?![\s\S])/
+  match:
+  - /cat/test/prodmy
+  - /cat/
+  - x/cat/y
+  - /cat//cat/
+  - /PROD//cat/
+  - /cat/prod
+  - /prodmy//cat/
+  - ' /cat/ '
+  no_match:
+  - /cat
+  - /Cat/
+  - /prod//cat/
+  - /cat//prod/
+  - '
+
+    /cat/'
+  - '/cat/
+
+    '
+  - ''
+  - abc
+  - /prod/
+- id: real-x05975
+  difficulty: medium
+  status: ok
+  description: Accept a string containing the case-sensitive text project_details or task_details, provided the case-sensitive text proposed_ does not occur anywhere. Any other characters, including line terminators, are allowed.
+  regex: /(?<!.)(?!.*proposed_).*(?:project|task)_details.*/s
+  match:
+  - project_details
+  - task_details
+  - xproject_details
+  - task_detailsx
+  - a task_details b
+  - PROJECT project_details
+  - '
+
+    project_details
+
+    '
+  - task_details project_details
+  no_match:
+  - proposed_project_details
+  - proposed_task_details
+  - project_details proposed_
+  - proposed_x task_details
+  - project_detail
+  - TASK_DETAILS
+  - hello
+  - proposed_
+  - ''
+- id: real-x07353
+  difficulty: simple
+  status: ok
+  description: Validate a nonempty single filename that does not end with the case-sensitive extension .go. Slash, backslash and line terminators are forbidden. Other characters, including spaces, dots and other extensions, are allowed.
+  regex: /^(?:(?!.*\.go(?!\s|\S))[^\/\\\r\n\u2028\u2029]+)(?!\s|\S)$/
+  match:
+  - main.py
+  - README
+  - a.GO
+  - a.go.txt
+  - a.
+  - my file.txt
+  - x.y.z
+  - go
+  no_match:
+  - /main.py
+  - main.py/
+  - main.go
+  - a b.go
+  - x\y
+  - 'main.py
+
+    '
+  - ''
+  - dir/file
+  - x.go
+- id: real-x08039
+  difficulty: simple
+  status: ok
+  description: Validate a single-line string that does not contain the case-sensitive substring badword anywhere. All other characters are allowed except line terminators. The empty string is accepted.
+  regex: /^(?:(?!.*badword).*)(?!\s|\S)$/
+  match:
+  - ''
+  - test
+  - one two
+  - three
+  - '123'
+  - Badword
+  - bad word
+  - "\u2603"
+  no_match:
+  - '
+
+    test'
+  - 'test
+
+    '
+  - badword
+  - abadwords
+  - x badword y
+  - badwordtest
+  - badword!
+  - '!badword'
+  - 'badword
+
+    '
+- id: real-x08087
+  difficulty: simple
+  status: ok
+  description: Validate a single-line string not containing the case-sensitive substring SNAPSHOT anywhere. All characters except line terminators are otherwise permitted, and the empty string is accepted.
+  regex: /^(?:(?!.*SNAPSHOT).*)(?!\s|\S)$/
+  match:
+  - ''
+  - aaaa
+  - dfadfa
+  - dccc
+  - ccccc
+  - snapshot
+  - 102.1.1.RELEASE
+  - "\u2603"
+  no_match:
+  - '
+
+    aaaa'
+  - 'aaaa
+
+    '
+  - SNAPSHOT
+  - SNAPSHOT.01.1
+  - 102.1.1.SNAPSHOT.ra
+  - xSNAPSHOTy
+  - SNAPSHOT!
+  - '!SNAPSHOT'
+  - 'SNAPSHOT
+
+    '
+- id: real-x08114
+  difficulty: medium
+  status: ok
+  description: Validate a single-line string that contains either console.log or alert( at an ASCII word boundary immediately before the first letter, and contains no occurrence of window. anywhere. Matching is case-sensitive. Other characters are unrestricted except line terminators.
+  regex: /^(?:(?!.*window\.)(?=.*\b(?:console\.log|alert\()).*)(?!\s|\S)$/
+  match:
+  - console.log("dddsdsf");
+  - alert("dasassd");
+  - ' console.log(x)'
+  - x = alert(y)
+  - '!console.log'
+  - console.logger
+  - (alert(
+  - console.log; alert(
+  no_match:
+  - '
+
+    alert(x)'
+  - 'alert(x)
+
+    '
+  - window.alert(x)
+  - xconsole.log(x)
+  - ALERT(x)
+  - nothing
+  - ''
+  - unrelated input
+  - "\u2603"

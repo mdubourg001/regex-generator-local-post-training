@@ -1,0 +1,875 @@
+# Évaluation réelle (regex101, annotée par GPT 6.1 Sol), catégorie identifiers. Voir scripts/regex101.py.
+- id: real-x00013
+  difficulty: medium
+  status: ok
+  description: 'BTS identifier: 2 to 4 ASCII letters, underscore, exactly 2 digits, underscore, one or more ASCII digits including leading zeros. An optional suffix is an underscore followed by at least one single-line character; spaces and other punctuation are allowed within that suffix. No whitespace outside the suffix and no line breaks anywhere.'
+  regex: /^[A-Za-z]{2,4}_\d{2}_\d+(?:_[^\r\n\u2028\u2029]+)?$/
+  match:
+  - BTS_33_198_D
+  - PL_14_015
+  - AB_00_0
+  - abcd_99_000001
+  - XY_01_9_X
+  - ABC_12_123_foo bar
+  - ab_98_012_1
+  - ZZZZ_45_123456789
+  no_match:
+  - A_12_1
+  - ABCDE_12_1
+  - AB_1_1
+  - AB_12_1_
+  - '!AB_12_1'
+  - 'AB_12_1 '
+  - ''
+  - unrelated text
+  - "\U0001F642"
+- id: real-x00252
+  difficulty: simple
+  status: ok
+  description: 'Umbraco UDI for a media or document object: the lowercase prefix umb://, the lowercase type media or document, a slash and exactly 32 hexadecimal characters in either case. No UUID hyphens or other characters.'
+  regex: /^umb:\/\/(?:media|document)\/[A-Fa-f0-9]{32}$/
+  match:
+  - umb://media/a0ea20b81eee4a4199e3c22464f8cf41
+  - umb://document/00000000000000000000000000000000
+  - umb://media/ffffffffffffffffffffffffffffffff
+  - umb://document/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+  - umb://media/1234567890abcdef1234567890abcdef
+  - umb://document/ABCDEF1234567890ABCDEF1234567890
+  - umb://media/11111111111111111111111111111111
+  - umb://document/0123456789ABCDEF0123456789abcdef
+  no_match:
+  - umb://media/0000000000000000000000000000000
+  - umb://media/000000000000000000000000000000000
+  - umb://media/0000000000000000000000000000000g
+  - umb://Media/00000000000000000000000000000000
+  - xumb://media/00000000000000000000000000000000
+  - umb://media/00000000000000000000000000000000x
+  - ''
+  - unrelated text
+  - "\U0001F642"
+- id: real-x00507
+  difficulty: medium
+  status: ok
+  description: 'Ham-radio callsign shape using uppercase ASCII only: a prefix of one or two letters, a letter and a digit, or a digit and a letter, followed by one or more digits and one or more letters. Also allow the exceptional prefix 3DA. Optionally prepend an alphanumeric location token and a slash, and optionally append a slash and an alphanumeric operating suffix; each token is nonempty. No spaces or further slashes. Check shape only, not assignment or valid DXCC/operating tokens.'
+  regex: /^(?:[A-Z0-9]+\/)?(?:3DA|[A-Z]\d|[A-Z]{1,2}|\d[A-Z])\d+[A-Z]+(?:\/[A-Z0-9]+)?$/
+  match:
+  - ON7BS/P
+  - DL/ON7BS
+  - ON7BS
+  - F1ABC
+  - AA12XYZ
+  - 2A0BC
+  - 3DA0XYZ
+  - DL/ON7BS/M
+  no_match:
+  - ONBS
+  - ON7
+  - on7BS
+  - DL//ON7BS
+  - '!ON7BS'
+  - ON7BS!
+  - ABC7BS
+  - ON7BS/P/M
+  - 123ABC
+- id: real-x00746
+  difficulty: simple
+  status: ok
+  description: Validate a barcode representation consisting of exactly 13 ASCII digits and nothing else. No spaces, signs or separators are allowed. No barcode checksum or allocation check is performed.
+  regex: /^(?:[0-9]{13})(?![\s\S])$/
+  match:
+  - '5000299298688'
+  - '0000000000000'
+  - '9999999999999'
+  - '1234567890123'
+  - '1111111111111'
+  - '2000000000001'
+  - 0123456789012
+  - '8765432109876'
+  no_match:
+  - '123456789012'
+  - '12345678901234'
+  - 123456789012a
+  - 123456 890123
+  - ' 1234567890123'
+  - '1234567890123 '
+  - ''
+  - barcode
+  - '1234567890123
+
+    '
+- id: real-x01376
+  difficulty: medium
+  status: ok
+  description: Validate a Chep/Loscam identifier containing exactly four ASCII letters, followed by either five or eight ASCII digits, then exactly one ASCII letter. Uppercase and lowercase letters are allowed. No spaces or punctuation are permitted.
+  regex: /^(?:[A-Za-z]{4}(?:[0-9]{8}|[0-9]{5})[A-Za-z])(?![\s\S])$/
+  match:
+  - AAQU00016341M
+  - ABCD12345Z
+  - abcd00000x
+  - WXYZ99999999A
+  - AaBb12345678c
+  - TEST54321Q
+  - QWER00001R
+  - ZXCV87654321B
+  no_match:
+  - ABC12345Z
+  - ABCDE12345Z
+  - ABCD1234Z
+  - ABCD123456Z
+  - ' ABCD12345Z'
+  - 'ABCD12345Z '
+  - ''
+  - ABCD1234aZ
+  - 'ABCD12345Z
+
+    '
+- id: real-x01428
+  difficulty: medium
+  status: ok
+  description: Validate a version-4 UUID in the standard 8-4-4-4-12 hexadecimal group layout separated by hyphens. ASCII hexadecimal letters may be uppercase or lowercase. The third group begins with 4 and the fourth begins with 8, 9, a or b in either letter case. No whitespace or other text is allowed.
+  regex: /^(?:[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-4[0-9A-Fa-f]{3}-[89AaBb][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12})(?![\s\S])$/
+  match:
+  - f4917667-1e36-4f67-a018-32b7790e888c
+  - 00000000-0000-4000-8000-000000000000
+  - ffffffff-ffff-4fff-bfff-ffffffffffff
+  - ABCDEF12-3456-4789-AABC-123456789ABC
+  - 12345678-1234-4123-9123-123456789012
+  - aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee
+  - 11111111-2222-4333-B444-555555555555
+  - 99999999-8888-4777-a666-555555555555
+  no_match:
+  - 0000000-0000-4000-8000-000000000000
+  - 00000000-0000-5000-8000-000000000000
+  - 00000000-0000-4000-7000-000000000000
+  - g0000000-0000-4000-8000-000000000000
+  - ' 00000000-0000-4000-8000-000000000000'
+  - '00000000-0000-4000-8000-000000000000 '
+  - ''
+  - uuid
+  - '00000000-0000-4000-8000-000000000000
+
+    '
+- id: real-x01513
+  difficulty: simple
+  status: ok
+  description: Validate one exact case-sensitive token from I1 through I6, or an uppercase Roman numeral from II through XIX inclusive. The tokens I, XX, lowercase forms, spaces and any extra text are forbidden.
+  regex: /^(?:(?:I[1-6]|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX))(?![\s\S])$/
+  match:
+  - I1
+  - I6
+  - II
+  - III
+  - IV
+  - IX
+  - XVIII
+  - XIX
+  no_match:
+  - I0
+  - I7
+  - I
+  - XX
+  - ' II'
+  - 'II '
+  - ''
+  - ii
+  - 'II
+
+    '
+- id: real-x01835
+  difficulty: simple
+  status: ok
+  description: Validate a court-case identifier beginning with B in either case, followed by 1 to 7 ASCII digits. Leading zeroes are allowed. No whitespace, additional letters, punctuation or other text is permitted.
+  regex: /^(?:[Bb][0-9]{1,7})(?![\s\S])$/
+  match:
+  - b123456
+  - B1
+  - b0
+  - B1234567
+  - b0000000
+  - B42
+  - b123
+  - B99999
+  no_match:
+  - B
+  - B12345678
+  - C123
+  - B12a
+  - ' B123'
+  - 'B123 '
+  - ''
+  - '123'
+  - 'B123
+
+    '
+- id: real-x02432
+  difficulty: simple
+  status: ok
+  description: Validate an identifier consisting of exactly eight ASCII digits. Leading zeroes are allowed. Signs, whitespace, punctuation and all other characters are forbidden.
+  regex: /^\d{8}$(?!.)/s
+  match:
+  - '00000000'
+  - '12345678'
+  - '87654321'
+  - '99999999'
+  - '00000001'
+  - '11111111'
+  - '24682468'
+  - '13571357'
+  no_match:
+  - '1234567'
+  - '123456789'
+  - 1234567a
+  - 1234 678
+  - x12345678
+  - 12345678x
+  - ''
+  - '-12345678'
+  - ID12345678
+- id: real-x02501
+  difficulty: simple
+  status: ok
+  description: 'Validate the stated Palm Beach County property-control-number format: exactly 10, 13 or 17 ASCII digits. Leading zeroes are allowed. This checks only the author''s length and alphabet rules, not issuance or lookup. Spaces, signs and separators are forbidden.'
+  regex: /^(?:\d{10}|\d{13}|\d{17})$(?!.)/s
+  match:
+  - '1234567890'
+  - '0000000000'
+  - '9999999999'
+  - '1234567890123'
+  - '0000000000000'
+  - '12345678901234567'
+  - '00000000000000000'
+  - '99999999999999999'
+  no_match:
+  - '123456789'
+  - '12345678901'
+  - '123456789012'
+  - '12345678901234'
+  - x1234567890
+  - 1234567890x
+  - ''
+  - 12345-67890
+  - PCN1234567890
+- id: real-x02794
+  difficulty: simple
+  status: ok
+  description: 'Validate a PSR-16 cache key restricted to its mandatory minimum supported alphabet: 1 through 64 ASCII letters, digits, underscores or dots in any order. All other characters and whitespace are forbidden. Letter case is unrestricted.'
+  regex: /^[A-Za-z0-9_.]{1,64}$(?!.)/s
+  match:
+  - a
+  - asdv
+  - A_1
+  - key.name
+  - _
+  - .
+  - '123'
+  - aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  no_match:
+  - ''
+  - aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  - a-b
+  - a b
+  - '!abc'
+  - abc!
+  - '{key}'
+  - key/path
+  - "\U0001F642"
+- id: real-x03540
+  difficulty: simple
+  status: ok
+  description: Validate a comma-separated list of one or more trading symbols. Each symbol has 1 to 15 characters, drawn only from uppercase ASCII letters, ASCII digits, period, underscore, hyphen, and slash. No empty symbols, spaces, or other characters are allowed.
+  regex: /^[A-Z0-9._\/-]{1,15}(?:,[A-Z0-9._\/-]{1,15})*(?!.)$/s
+  match:
+  - ABC
+  - ABC,POPO1/1.2C
+  - A
+  - '123'
+  - A_B
+  - X-Y
+  - A/B,C.D
+  - ABCDEFGHIJKLMNO
+  no_match:
+  - '!ABC'
+  - ABC!
+  - ABCDEFGHIJKLMNOP
+  - abc
+  - ABC,,DEF
+  - 'ABC
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x03828
+  difficulty: simple
+  status: ok
+  description: Validate a nonempty identifier beginning with an ASCII letter and continuing with zero or more ASCII letters, digits, or underscores. Uppercase and lowercase letters are allowed. No whitespace or other characters are permitted.
+  regex: /^[A-Za-z][A-Za-z0-9_]*(?!.)$/s
+  match:
+  - abc
+  - i10n
+  - Kfdjlkjdfgklj
+  - w_87ew0
+  - a
+  - Z
+  - a_
+  - A123
+  no_match:
+  - 1abc
+  - abc!
+  - ''
+  - abc.3
+  - "abc\u0430\u0431\u0432"
+  - 'abc
+
+    '
+  - '123'
+  - _abc
+  - '###'
+- id: real-x04068
+  difficulty: simple
+  status: ok
+  description: Validate an identifier beginning with the exact case-sensitive prefix GLOAWSECAS_Bubble, followed by one or more ASCII letters or digits. The underscore in the fixed prefix is required; no additional underscore or other punctuation is allowed in the suffix. No whitespace or other characters are allowed.
+  regex: /^GLOAWSECAS_Bubble[A-Za-z0-9]+(?!.)$/s
+  match:
+  - GLOAWSECAS_BubbleA
+  - GLOAWSECAS_Bubble1
+  - GLOAWSECAS_Bubbleabc
+  - GLOAWSECAS_BubbleXYZ
+  - GLOAWSECAS_Bubble123
+  - GLOAWSECAS_BubbleaB1
+  - GLOAWSECAS_Bubble0
+  - GLOAWSECAS_BubbleName99
+  no_match:
+  - xGLOAWSECAS_BubbleA
+  - GLOAWSECAS_BubbleA!
+  - GLOAWSECAS_Bubble
+  - GLOAWSECAS_Bubble_A
+  - GLOAWSECAS_Bubble-A
+  - 'GLOAWSECAS_BubbleA
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x04299
+  difficulty: simple
+  status: ok
+  description: Validate three hyphen-separated fields containing exactly eight, three, and three UTF-16 code units. Fields may contain anything except hyphen, including whitespace and line breaks. Exactly two delimiter hyphens and no additional characters are allowed.
+  regex: /^[^-]{8}-[^-]{3}-[^-]{3}(?!.)$/s
+  match:
+  - dbcdefgh-333-333
+  - abcdefgh-ABC-XYZ
+  - 12345678-123-456
+  - '        -   -   '
+  - 'ab
+
+    cdefg-a
+
+    b-c
+
+    d'
+  - "\xE9\xE9\xE9\xE9\xE9\xE9\xE9\xE9-\xE9\xE9\xE9-\xE9\xE9\xE9"
+  - ABCDEFGH-abc-def
+  - 00000000-000-000
+  no_match:
+  - xabcdefgh-abc-def
+  - abcdefgh-abc-defx
+  - abcdefg-abc-def
+  - abcdefgh-ab-def
+  - abcdefgh-a-c-def
+  - abcdefgh-abc-def-
+  - ''
+  - hello
+  - '###'
+- id: real-x04304
+  difficulty: simple
+  status: ok
+  description: Validate an RNP identifier made of exact text P5RNP, eight ASCII digits, a slash, five ASCII digits, uppercase S, one or more ASCII digits, a period, two ASCII digits, and uppercase A. No whitespace or other characters are allowed.
+  regex: /^P5RNP[0-9]{8}\/[0-9]{5}S[0-9]+\.[0-9]{2}A(?!.)$/s
+  match:
+  - P5RNP15226660/01981S15851.22A
+  - P5RNP00000000/00000S0.00A
+  - P5RNP99999999/99999S9.99A
+  - P5RNP12345678/12345S1.01A
+  - P5RNP11111111/22222S333.44A
+  - P5RNP87654321/54321S10.10A
+  - P5RNP00000001/00001S001.02A
+  - P5RNP12312312/12312S12312.12A
+  no_match:
+  - xP5RNP00000000/00000S0.00A
+  - P5RNP00000000/00000S0.00Ax
+  - P5RNP0000000/00000S0.00A
+  - P5RNP0000000a/00000S0.00A
+  - P5RNP00000000/00000S0,00A
+  - 'P5RNP00000000/00000S0.00A
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x04991
+  difficulty: simple
+  status: ok
+  description: 'Validate the format of an OpenWeather API key: exactly thirty-two ASCII hexadecimal characters, with uppercase and lowercase letters both allowed. No spaces or other characters are permitted. Do not verify that the key is active.'
+  regex: /^[0-9A-Fa-f]{32}$(?![\s\S])/
+  match:
+  - fab4cc07260bc73302a2653aa2b0e6de
+  - 46cc38cc1039848dc287162cc4cf2532
+  - '00000000000000000000000000000000'
+  - FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+  - 0123456789abcdef0123456789abcdef
+  - 0123456789ABCDEF0123456789ABCDEF
+  - '11111111111111111111111111111111'
+  - a065c2cf24295a13725af9c5dc8cc76c
+  no_match:
+  - '0000000000000000000000000000000'
+  - '000000000000000000000000000000000'
+  - x00000000000000000000000000000000
+  - 00000000000000000000000000000000!
+  - 0000000000000000000000000000000g
+  - '0000000000000000000000000000000_'
+  - ''
+  - api-key
+  - '00000000000000000000000000000000
+
+    '
+- id: real-x05082
+  difficulty: medium
+  status: ok
+  description: Validate an article-name code of exactly five ASCII alphanumeric characters, beginning with an ASCII letter and containing at least two ASCII digits. No whitespace or other characters are allowed.
+  regex: /^(?=(?:[A-Za-z]*[0-9]){2})[A-Za-z][A-Za-z0-9]{4}$(?![\s\S])/
+  match:
+  - A12bc
+  - a1234
+  - Z9x8y
+  - B00AA
+  - c1d2e
+  - D9999
+  - e00zz
+  - F1G2H
+  no_match:
+  - A12b
+  - A12bcd
+  - xA12bc
+  - A12bc!
+  - A1_bc
+  - A1bcd
+  - ''
+  - '12345'
+  - 'A12bc
+
+    '
+- id: real-x05163
+  difficulty: medium
+  status: ok
+  description: Validate a GUID spelling with hexadecimal groups of lengths eight, four, four, four and twelve. Each group boundary may independently have one hyphen or no hyphen. Uppercase and lowercase ASCII hexadecimal letters are accepted. Optionally wrap the entire identifier in balanced braces. No whitespace or other characters are allowed; do not check version bits.
+  regex: /^(?:[0-9A-Fa-f]{8}(?:-?[0-9A-Fa-f]{4}){3}-?[0-9A-Fa-f]{12}|\{[0-9A-Fa-f]{8}(?:-?[0-9A-Fa-f]{4}){3}-?[0-9A-Fa-f]{12}\})$(?![\s\S])/
+  match:
+  - 8be94c81-a218-42f5-bf1b-383f15490d42
+  - 0C885DD3-7DD9-484B-9B20-3E6552BCA144
+  - '{0C885DD3-7DD9-484B-9B20-3E6552BCA144}'
+  - 0C885DD37DD9484B9B203E6552BCA144
+  - 0C885DD3-7DD9484B9B203E6552BCA144
+  - '{00000000000000000000000000000000}'
+  - 000000000000-00000000000000000000
+  - FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+  no_match:
+  - '0000000000000000000000000000000'
+  - '000000000000000000000000000000000'
+  - x00000000000000000000000000000000
+  - 00000000000000000000000000000000!
+  - 0000000000000000000000000000000g
+  - '{00000000000000000000000000000000'
+  - ''
+  - 00000000--000000000000000000000000
+  - '00000000000000000000000000000000
+
+    '
+- id: real-x05338
+  difficulty: simple
+  status: ok
+  description: Validate two nonempty ASCII letter strings separated by exactly one hyphen or underscore. Uppercase and lowercase letters are allowed in either part. No digits, spaces or other characters are permitted.
+  regex: /^[A-Za-z]+[-_][A-Za-z]+$(?![\s\S])/
+  match:
+  - to-TO
+  - fr-FR
+  - fr_FR
+  - a-b
+  - ABC_xyz
+  - English-US
+  - x_Y
+  - Ab-cD
+  no_match:
+  - -FR
+  - fr-
+  - xfr-FR!
+  - ' fr-FR'
+  - fr--FR
+  - fr1-FR
+  - ''
+  - unrelated
+  - 'to-TO
+
+    '
+- id: real-x05367
+  difficulty: simple
+  status: ok
+  description: Validate a cadastral-number format with four colon-separated ASCII digit groups of lengths two, two, seven and three. Leading zeros are allowed. No spaces or other characters are permitted; do not check existence.
+  regex: /^[0-9]{2}:[0-9]{2}:[0-9]{7}:[0-9]{3}$(?![\s\S])/
+  match:
+  - 12:23:3323232:232
+  - 00:00:0000000:000
+  - 99:99:9999999:999
+  - 01:02:0000003:004
+  - 11:22:3333333:444
+  - 98:76:5432100:123
+  - 50:10:1000000:500
+  - 22:33:4444444:555
+  no_match:
+  - 1:23:3323232:232
+  - 122:23:3323232:232
+  - x12:23:3323232:232
+  - 12:23:3323232:232x
+  - 1a:23:3323232:232
+  - 12-23:3323232:232
+  - ''
+  - unrelated
+  - '12:23:3323232:232
+
+    '
+- id: real-x05369
+  difficulty: simple
+  status: ok
+  description: Validate a bar-number token of either exactly five ASCII digits or exactly seven ASCII digits beginning with 20. Leading zeros are permitted in the five-digit form. No whitespace or other characters are allowed.
+  regex: /^(?:[0-9]{5}|20[0-9]{5})$(?![\s\S])/
+  match:
+  - '12345'
+  - '00000'
+  - '99999'
+  - '2012345'
+  - '2000000'
+  - '2099999'
+  - '01234'
+  - '2054321'
+  no_match:
+  - '1234'
+  - '123456'
+  - x12345
+  - 12345x
+  - 1234a
+  - '2112345'
+  - ''
+  - unrelated
+  - '12345
+
+    '
+- id: real-x05482
+  difficulty: medium
+  status: ok
+  description: Validate an account number of at most eighteen ASCII characters. Require one through six ASCII digits before a mandatory hyphen and at least one digit after it. Optionally permit one additional hyphen with at least one digit on each side. Only digits and these one or two hyphens are allowed. Leading zeros are permitted.
+  regex: /^(?=[0-9-]{3,18}$)[0-9]{1,6}-[0-9]+(?:-[0-9]+)?$(?![\s\S])/
+  match:
+  - 123123-1-1
+  - 1-1
+  - 123456-12345678901
+  - 1-1-1
+  - 0-0
+  - 000000-000-000
+  - 123-456
+  - 12-34-56
+  no_match:
+  - 1234567-1
+  - 123456-123456789012
+  - x1-1
+  - 1-1x
+  - 1-a
+  - 1--1
+  - ''
+  - unrelated
+  - '123123-1-1
+
+    '
+- id: real-x05551
+  difficulty: simple
+  status: ok
+  description: Validate a language short-code token consisting of exactly two uppercase ASCII letters. Accept all letter combinations without checking a language registry. No spaces or other characters are allowed.
+  regex: /^[A-Z]{2}$(?![\s\S])/
+  match:
+  - NL
+  - DE
+  - EN
+  - FR
+  - FI
+  - ZZ
+  - AA
+  - XY
+  no_match:
+  - N
+  - NLD
+  - xNL
+  - NLx
+  - Nl
+  - N1
+  - ''
+  - unrelated
+  - 'NL
+
+    '
+- id: real-x05568
+  difficulty: simple
+  status: ok
+  description: Validate a bank-account-format token with three ASCII digit groups of lengths two or three, three and three. Each separator is exactly one Unicode code point other than an ASCII letter, digit, underscore or line terminator. Separators may differ. Allow leading zeros and do not check bank allocation or checksums.
+  regex: /^[0-9]{2,3}[^A-Za-z0-9_\r\n\u2028\u2029][0-9]{3}[^A-Za-z0-9_\r\n\u2028\u2029][0-9]{3}$(?![\s\S])/u
+  match:
+  - 12-345-678
+  - 123-456-789
+  - 00 000 000
+  - 999.999.999
+  - 12/345:678
+  - 12!345@678
+  - "12\xE9345\xDF678"
+  - 01,002;003
+  no_match:
+  - 1-345-678
+  - 1234-345-678
+  - x12-345-678
+  - 12-345-678x
+  - 12_345-678
+  - 12-34a-678
+  - ''
+  - unrelated
+  - '12-345-678
+
+    '
+- id: real-x05707
+  difficulty: simple
+  status: ok
+  description: Validate only a card-number-shaped token of four groups of exactly four ASCII digits separated by single hyphens. Leading zeros are allowed. No other characters are permitted. Do not check issuer, checksum or card existence.
+  regex: /^[0-9]{4}(?:-[0-9]{4}){3}$(?![\s\S])/
+  match:
+  - 1234-5678-9012-3412
+  - 5645-6789-7897-9879
+  - 0000-0000-0000-0000
+  - 9999-9999-9999-9999
+  - 1111-2222-3333-4444
+  - 0123-4567-8901-2345
+  - 5555-6666-7777-8888
+  - 9876-5432-1098-7654
+  no_match:
+  - 123-5678-9012-3412
+  - 12345-5678-9012-3412
+  - x1234-5678-9012-3412
+  - 1234-5678-9012-3412x
+  - 123a-5678-9012-3412
+  - 1234_5678-9012-3412
+  - ''
+  - unrelated
+  - '1234-5678-9012-3412
+
+    '
+- id: real-x05720
+  difficulty: medium
+  status: ok
+  description: Validate a restricted AWS ARN spelling beginning with arn:, then aws, aws-cn or aws-us-gov, a colon, a nonempty service of ASCII letters, digits, underscores or hyphens, a colon, an optional region in the same alphabet, a colon, zero through twelve ASCII account digits, a colon and a nonempty resource. The resource uses only ASCII letters, digits, underscores, hyphens, slashes, colons, periods and asterisks. No whitespace or other characters are allowed. Do not check resource existence.
+  regex: /^arn:(?:aws|aws-cn|aws-us-gov):[A-Za-z0-9_-]+:[A-Za-z0-9_-]*:[0-9]{0,12}:[A-Za-z0-9_/:.*-]+$(?![\s\S])/
+  match:
+  - arn:aws:sqs:us-east-1:123456789012:XYZ
+  - arn:aws:s3:::123456789012-ssp-mfa-tokens/*
+  - arn:aws:s3:::bucket
+  - arn:aws:iam::123456789012:user/JohnDoe
+  - arn:aws:iam::123456789012:root
+  - arn:aws-cn:s3:::bucket
+  - arn:aws-us-gov:lambda:us-gov-west-1:123:function:x
+  - arn:aws:service:region::x.y
+  no_match:
+  - arn:aws:s3::1234567890123:x
+  - 'arn:aws:s3:::'
+  - xarn:aws:s3:::x
+  - arn:aws:s3:::x!
+  - arn:other:s3:::x
+  - arn:aws:s3::abc:x
+  - ''
+  - unrelated
+  - 'arn:aws:sqs:us-east-1:123456789012:XYZ
+
+    '
+- id: real-x05877
+  difficulty: simple
+  status: ok
+  description: Validate a single-line account code beginning with the exact prefix 000-. The remainder may be empty and may contain any single-line characters. No line terminators or characters before the prefix are allowed.
+  regex: /^000-[^\r\n\u2028\u2029]*$(?![\s\S])/
+  match:
+  - 000-3210
+  - 000-589658-98979
+  - 000-
+  - 000-a
+  - 000-0001
+  - 000-!
+  - '000- '
+  - "000-\U0001F600"
+  no_match:
+  - '000'
+  - 001-3210
+  - x000-3210
+  - '000-3210
+
+    '
+  - '000_3210'
+  - '
+
+    000-3210'
+  - ''
+  - unrelated
+  - "000-3210\r"
+- id: real-x06171
+  difficulty: medium
+  status: ok
+  description: Validate a three-part dotted metric identifier. The first part is exactly lowercase counter or histogram. Each of the two remaining parts may begin with any number of underscores, then must have a lowercase ASCII letter, followed by any number of lowercase ASCII letters, digits, or underscores. No extra parts, hyphens, spaces, uppercase letters, or trailing content are allowed.
+  regex: /^(?:counter|histogram)\._*[a-z][a-z_0-9]*\._*[a-z][a-z_0-9]*(?![\s\S])$/
+  match:
+  - counter.a.b
+  - histogram.a.b
+  - counter._a._a
+  - counter._a1._a1
+  - counter.system.crashes
+  - counter.system_server.crashes
+  - counter.system_server2.crashes_
+  - histogram.__aa.__bb9
+  no_match:
+  - counter..b
+  - counter.a._
+  - counter.1a.b
+  - Counter.a.b
+  - counter.a.b.c
+  - counter.a-b.c
+  - '!counter.a.b'
+  - counter.a.b!
+  - 'counter.a.b
+
+    '
+- id: real-x06816
+  difficulty: medium
+  status: ok
+  description: Validate a username of 6 through 20 ASCII characters. It contains letters or digits in nonempty runs optionally separated by single full stops, hyphens, or underscores. Separators cannot be consecutive or appear at the beginning or end. Uppercase letters are allowed. No whitespace or other characters are allowed.
+  regex: /^(?=.{6,20}(?![\s\S])$)[A-Za-z0-9]+(?:[._-][A-Za-z0-9]+)*(?![\s\S])$/
+  match:
+  - rubin1
+  - rubin.1
+  - rubin12
+  - rubin.12
+  - r12fgj
+  - ABC_12
+  - a-b_c.d
+  - abcdefghijklmnopqrst
+  no_match:
+  - rubin
+  - abcdefghijklmnopqrstu
+  - _rubin
+  - rubin_
+  - rub..in
+  - rubin!
+  - '!rubin1'
+  - rubin1!
+  - 'rubin1
+
+    '
+- id: real-x07225
+  difficulty: simple
+  status: ok
+  description: Validate an identifier containing exactly one uppercase ASCII letter followed by zero or more ASCII digits. No other characters or whitespace are allowed.
+  regex: /^(?:[A-Z][0-9]*)(?!\s|\S)$/
+  match:
+  - A
+  - Z
+  - B0
+  - C123
+  - X999999
+  - Q01
+  - M7
+  - T1234567890
+  no_match:
+  - '!A'
+  - A!
+  - AB
+  - a
+  - A1B
+  - 'A
+
+    '
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x08239
+  difficulty: medium
+  status: ok
+  description: Validate a ULD identification-code layout with a category letter A, P, D, R or F, two uppercase ASCII letters or digits, optionally an underscore, three to five ASCII serial digits, optionally another underscore and a two- or three-character owner code of uppercase ASCII letters or digits. Each underscore is independently optional. Serial numbers may have leading zeros. No other characters or whitespace are allowed; allocation and certification are not checked.
+  regex: /^(?:[APDRF][A-Z0-9]{2}_?[0-9]{3,5}_?[A-Z0-9]{2,3})(?!\s|\S)$/
+  match:
+  - AKE12345ZZ
+  - PMC1234ZZ
+  - AKE_12345_ZZ
+  - AKE6527T2
+  - AMH44000LH
+  - AKH057GWI
+  - AKE31677QF
+  - R01999_ABC
+  no_match:
+  - '!AKE12345ZZ'
+  - AKE12345ZZ!
+  - AKE12ZZ
+  - AKE_123456_ZZ
+  - BKE12345ZZ
+  - AKE12345Z_
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x08299
+  difficulty: simple
+  status: ok
+  description: Validate a seven-character code containing exactly six ASCII digits followed by one ASCII letter, uppercase or lowercase. No whitespace or additional characters are allowed.
+  regex: /^(?:[0-9]{6}[A-Za-z])(?!\s|\S)$/
+  match:
+  - 656765D
+  - 000000A
+  - 999999z
+  - 123456a
+  - 987654Z
+  - 001234b
+  - 555555M
+  - 101010x
+  no_match:
+  - '!656765D'
+  - 656765D!
+  - 65676D
+  - 6567655D
+  - 65676aD
+  - '6567651'
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x08455
+  difficulty: medium
+  status: ok
+  description: Validate a nonempty HTML-safe identifier containing at least one ASCII letter or digit and using only ASCII letters, digits, hyphens or underscores. All-digit identifiers are accepted. Whitespace and every other character are forbidden.
+  regex: /^(?:(?=[A-Za-z0-9_-]*[A-Za-z0-9])[A-Za-z0-9_-]+)(?!\s|\S)$/
+  match:
+  - abc
+  - '123'
+  - a-b
+  - _a_
+  - x1
+  - '-0'
+  - ABC_DEF
+  - 0-0
+  no_match:
+  - '!abc'
+  - abc!
+  - '---'
+  - ___
+  - a.b
+  - 'abc
+
+    '
+  - ''
+  - unrelated input
+  - "\u2603"

@@ -1,0 +1,817 @@
+# Évaluation réelle (regex101, annotée par GPT 6.1 Sol), catégorie network. Voir scripts/regex101.py.
+- id: real-x00126
+  difficulty: hard
+  status: ok
+  description: IPv4 host address in either 192.168.100.0/22 or 192.168.200.0/22, excluding only each subnet network and broadcast address. Third octet is 100 through 103 or 200 through 203. Fourth octet is 0 through 255, but exclude the four boundary addresses ending in 100.0, 103.255, 200.0 or 203.255. Use canonical decimal octets without leading zeros.
+  regex: /^(?!192\.168\.(?:100|200)\.0$)(?!192\.168\.(?:103|203)\.255$)192\.168\.(?:10[0-3]|20[0-3])\.(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)$/
+  match:
+  - 192.168.100.1
+  - 192.168.103.254
+  - 192.168.200.1
+  - 192.168.203.254
+  - 192.168.101.0
+  - 192.168.102.255
+  - 192.168.201.0
+  - 192.168.202.255
+  no_match:
+  - 192.168.100.0
+  - 192.168.103.255
+  - 192.168.200.0
+  - 192.168.101.256
+  - x192.168.101.1
+  - 192.168.101.1x
+  - 192.168.203.255
+  - 192.168.101.1000
+  - ''
+- id: real-x00331
+  difficulty: hard
+  status: ok
+  description: Private or loopback IPv4 CIDR with canonical decimal octets from 0 to 255. Accept addresses beginning with 10 or 127 with prefix length 8 to 31, beginning with 172.16 through 172.31 with prefix length 12 to 31, or beginning with 192.168 with prefix length 16 to 31. The slash and prefix are mandatory. Reject /32, broader networks, leading zeros and whitespace. Ignore host bits; the address need not be the network address.
+  regex: /^(?:(?:10|127)(?:\.(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}\/(?:[89]|[12]\d|3[01])|172\.(?:1[6-9]|2\d|3[01])(?:\.(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){2}\/(?:1[2-9]|2\d|3[01])|192\.168(?:\.(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){2}\/(?:1[6-9]|2\d|3[01]))$/
+  match:
+  - 10.0.0.0/8
+  - 127.255.255.255/31
+  - 172.16.0.0/12
+  - 172.31.255.255/31
+  - 192.168.0.0/16
+  - 192.168.255.255/31
+  - 192.168.1.2/16
+  - 10.9.8.7/24
+  no_match:
+  - 10.0.0.0/7
+  - 172.15.0.0/12
+  - 192.168.0.0/15
+  - 10.0.0.0/32
+  - x10.0.0.0/8
+  - 10.0.0.0/8x
+  - 10.1000.0.0/8
+  - 10.a.0.0/8
+  - ''
+- id: real-x00359
+  difficulty: medium
+  status: ok
+  description: Integer from 0 through 255, written in decimal without leading zeros except that the special zero spelling 000 is also allowed. No other zero padding, signs, punctuation or whitespace.
+  regex: /^(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d|000)$/
+  match:
+  - '0'
+  - '000'
+  - '9'
+  - '10'
+  - '99'
+  - '100'
+  - '249'
+  - '255'
+  no_match:
+  - '256'
+  - '00'
+  - '0000'
+  - '-1'
+  - x123
+  - 123x
+  - '1000'
+  - ''
+  - "\U0001F642"
+- id: real-x00574
+  difficulty: medium
+  status: ok
+  description: Validate an ESET service DNS name, case-sensitively. The service label must be banner, ipm, trace, edf, versioncheck, iploc, pki, proxy, proxy-detection, h1-weblb01-v or h3-weblb01-v, followed by the literal suffix .eset.com. No additional labels or whitespace are allowed.
+  regex: /^(?:(?:banner|ipm|trace|edf|versioncheck|iploc|pki|proxy(?:-detection)?|h[13]-weblb01-v)\.eset\.com)(?![\s\S])$/
+  match:
+  - banner.eset.com
+  - ipm.eset.com
+  - trace.eset.com
+  - edf.eset.com
+  - pki.eset.com
+  - proxy.eset.com
+  - h1-weblb01-v.eset.com
+  - h3-weblb01-v.eset.com
+  no_match:
+  - h2-weblb01-v.eset.com
+  - proxy-detect.eset.com
+  - Banner.eset.com
+  - banner.eset.org
+  - x.banner.eset.com
+  - 'banner.eset.com '
+  - ''
+  - example.com
+  - 'banner
+
+    .eset.com'
+- id: real-x00917
+  difficulty: hard
+  status: ok
+  description: 'Validate an IPv6 address in hexadecimal colon notation: exactly eight groups of one to four ASCII hexadecimal digits, or exactly one double colon replacing at least one group. Leading and trailing compression and the all-zero compressed form are valid. Accept either case for hexadecimal letters. No embedded IPv4 form, zone identifier, brackets or whitespace is allowed.'
+  regex: /^(?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4}){7}|::|::[0-9A-Fa-f]{1,4}|::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}::|[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}::)(?![\s\S])$/
+  match:
+  - '::'
+  - ::1
+  - FE80::8329
+  - 2001:db8::1
+  - '1:2:3:4:5:6:7:8'
+  - '1:2:3:4:5:6:7::'
+  - ::1:2:3:4:5:6:7
+  - a:b::c:d
+  no_match:
+  - 1::2::3
+  - 12345::1
+  - gg::1
+  - '1:2:3:4:5:6:7'
+  - ' ::1'
+  - '::1 '
+  - ''
+  - '[::1]'
+  - '::1
+
+    '
+- id: real-x00968
+  difficulty: hard
+  status: ok
+  description: Validate a port-number string containing only ASCII decimal digits and representing a value from 0 through 65535. One to four digits may include leading zeroes. Five-digit numbers must have no leading zero. No spaces, signs or suffixes are allowed.
+  regex: /^(?:(?:6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[0-9]{1,4}))(?![\s\S])$/
+  match:
+  - '0'
+  - '0000'
+  - '80'
+  - '443'
+  - '9999'
+  - '10000'
+  - '65530'
+  - '65535'
+  no_match:
+  - '65536'
+  - '100000'
+  - '00000'
+  - '-1'
+  - ' 80'
+  - '80 '
+  - ''
+  - http
+  - '80
+
+    '
+- id: real-x01136
+  difficulty: medium
+  status: ok
+  description: Validate an uncompressed lowercase IPv6 address consisting of exactly eight colon-separated groups, each of one to four ASCII hexadecimal digits. Only lowercase a through f and ASCII digits are allowed. No compression, IPv4 embedding, zone identifier, brackets or whitespace is allowed.
+  regex: /^(?:[0-9a-f]{1,4}(?::[0-9a-f]{1,4}){7})(?![\s\S])$/
+  match:
+  - '1:2:3:4:5:6:7:8'
+  - 0:0:0:0:0:0:0:0
+  - ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+  - 2001:db8:0:0:0:0:0:1
+  - a:b:c:d:e:f:1:2
+  - 0001:0002:0003:0004:0005:0006:0007:0008
+  - 123:456:789:abc:def:0:1:2
+  - fe80:0:0:0:202:b3ff:fe1e:8329
+  no_match:
+  - '1:2:3:4:5:6:7'
+  - '1:2:3:4:5:6:7:8:9'
+  - '12345:2:3:4:5:6:7:8'
+  - A:2:3:4:5:6:7:8
+  - ' 1:2:3:4:5:6:7:8'
+  - '1:2:3:4:5:6:7:8 '
+  - ''
+  - ::1
+  - '1:2:3:4:5:6:7:8
+
+    '
+- id: real-x01687
+  difficulty: hard
+  status: ok
+  description: Validate a dotted IPv4 address with exactly four decimal octets from 0 through 255 separated by periods. Octets have one to three ASCII digits and may include leading zeroes. No signs, whitespace, suffixes or additional separators are allowed.
+  regex: /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})){3})(?![\s\S])$/
+  match:
+  - 10.1.1.1
+  - 0.0.0.0
+  - 255.255.255.255
+  - 001.002.003.004
+  - 01.02.03.04
+  - 192.168.1.1
+  - 249.250.251.252
+  - 100.0.10.255
+  no_match:
+  - 256.1.1.1
+  - 0000.1.1.1
+  - 1.2.3
+  - 1.2.3.4.
+  - ' 1.2.3.4'
+  - 1.2.a.4
+  - ''
+  - localhost
+  - '1.2.3.4
+
+    '
+- id: real-x01861
+  difficulty: hard
+  status: ok
+  description: Validate a comma-separated list of one or more port specifications. Each is a decimal number from 0 through 65535 or a hyphen-separated pair of such numbers. Endpoint order is unrestricted. ASCII digits only, with no leading zeroes except zero itself. No spaces, empty items or trailing comma are allowed.
+  regex: /^(?:0|[1-9]\d{0,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])(?:-(?:0|[1-9]\d{0,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5]))?(?:,(?:0|[1-9]\d{0,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])(?:-(?:0|[1-9]\d{0,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5]))?)*$(?![\s\S])/
+  match:
+  - '0'
+  - '1'
+  - '65535'
+  - 80-90
+  - 90-80
+  - 0,1
+  - 1-65535,443
+  - 10,20-30,40
+  no_match:
+  - '65536'
+  - '01'
+  - 80,
+  - 80,,90
+  - x80
+  - 80x
+  - ''
+  - a-b
+  - '80
+
+    '
+- id: real-x01928
+  difficulty: medium
+  status: ok
+  description: Validate an IPv4 address in dotted decimal notation with exactly four ASCII decimal octets from 0 through 255. Leading zeroes are forbidden except for zero itself. No signs, whitespace, extra components or other characters are allowed.
+  regex: /^(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$(?![\s\S])/
+  match:
+  - 0.0.0.0
+  - 255.255.255.255
+  - 127.0.0.1
+  - 192.168.1.1
+  - 1.2.3.4
+  - 10.20.30.40
+  - 249.250.251.252
+  - 100.99.9.0
+  no_match:
+  - 256.1.2.3
+  - 01.2.3.4
+  - 1.2.3
+  - 1.2.3.4.5
+  - x1.2.3.4
+  - 1.2.3.4x
+  - ''
+  - ::1
+  - '1.2.3.4
+
+    '
+- id: real-x01965
+  difficulty: hard
+  status: ok
+  description: 'Validate a canonical dotted-decimal IPv4 address in an RFC 1918 private block: first octet 10, first octet 172 with second octet 16 through 31, or first two octets 192 and 168. Other octets range from 0 through 255. ASCII digits only, with no leading zeroes except zero itself, whitespace or extra characters.'
+  regex: /^(?:10(?:\.(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}|(?:172\.(?:1[6-9]|2\d|3[01])|192\.168)(?:\.(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){2})$(?![\s\S])/
+  match:
+  - 10.0.0.0
+  - 10.255.255.255
+  - 172.16.0.0
+  - 172.31.255.255
+  - 172.20.1.2
+  - 192.168.0.0
+  - 192.168.255.255
+  - 192.168.1.1
+  no_match:
+  - 172.15.1.1
+  - 10.0.0
+  - 192.168.256.1
+  - 192.168.01.1
+  - x192.168.1.1
+  - 192.168.1.1x
+  - ''
+  - 8.8.8.8
+  - '192.168.1.1
+
+    '
+- id: real-x02270
+  difficulty: medium
+  status: ok
+  description: Validate a lowercase ESET Antispam v4/v5 DNS name. Begin with h and one digit from 1, 3 or 5, then -ars0. For the next digit 1 through 5, require suffix -v; for digit 6 or 7, no -v is allowed. End with .eset.com. No other characters, path, scheme or trailing dot are allowed.
+  regex: /^h[135]-ars0(?:[1-5]-v|[67])\.eset\.com$(?!.)/s
+  match:
+  - h1-ars01-v.eset.com
+  - h1-ars05-v.eset.com
+  - h1-ars06.eset.com
+  - h1-ars07.eset.com
+  - h3-ars02-v.eset.com
+  - h3-ars07.eset.com
+  - h5-ars04-v.eset.com
+  - h5-ars06.eset.com
+  no_match:
+  - h2-ars01-v.eset.com
+  - h1-ars08.eset.com
+  - h1-ars06-v.eset.com
+  - h1-ars01.eset.com
+  - xh1-ars01-v.eset.com
+  - h1-ars01-v.eset.comx
+  - ''
+  - eset.com
+  - 'h1-ars01-v.eset.com
+
+    '
+- id: real-x02484
+  difficulty: simple
+  status: ok
+  description: Accept exactly the ESET Antispam v3 DNS names formed by one lowercase label from dns, salt, rsys, arb, asplog, mri, ipt, sample, stat, setting or gid followed by .e5.sk. No scheme, port, path, trailing dot, whitespace or extra characters are allowed.
+  regex: /^(?:dns|salt|rsys|arb|asplog|mri|ipt|sample|stat|setting|gid)\.e5\.sk$(?!.)/s
+  match:
+  - dns.e5.sk
+  - salt.e5.sk
+  - rsys.e5.sk
+  - arb.e5.sk
+  - asplog.e5.sk
+  - mri.e5.sk
+  - ipt.e5.sk
+  - sample.e5.sk
+  no_match:
+  - DNS.e5.sk
+  - dns.e6.sk
+  - dns.e5.com
+  - dns.e5.sk.
+  - xdns.e5.sk
+  - dns.e5.skx
+  - ''
+  - https://dns.e5.sk
+  - eset.com
+- id: real-x02750
+  difficulty: hard
+  status: ok
+  description: Validate a canonical dotted-decimal IPv4 address optionally followed by a slash and an IPv4 CIDR prefix length from 0 through 32. Each of the four octets is an ASCII decimal integer from 0 through 255. Octets and prefix length have no leading zeroes except zero itself. No spaces or extra characters are allowed.
+  regex: /^(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}(?:\/(?:[0-9]|[12][0-9]|3[0-2]))?$(?!.)/s
+  match:
+  - 10.238.51.19
+  - 12.89.119.255/30
+  - 1.2.3.4/24
+  - 0.0.0.0/0
+  - 255.255.255.255/32
+  - 1.1.1.1/9
+  - 192.168.1.1/16
+  - 127.0.0.1
+  no_match:
+  - 256.1.2.3
+  - 01.2.3.4
+  - 1.2.3
+  - 1.2.3.4/33
+  - x1.2.3.4
+  - 1.2.3.4x
+  - ''
+  - ::1
+  - 1.2.3.4/01
+- id: real-x03318
+  difficulty: medium
+  status: ok
+  description: Validate a case-sensitive Kaspersky update hostname. Accept downloads.upd.kaspersky.com; hostnames with s or p followed by two ASCII digits from 00 through 19 and then .upd.kaspersky.com; cm.k.kaspersky-labs.com; or downloads.kaspersky-labs.com. No whitespace, port, path, trailing dot, or other text is allowed.
+  regex: /^(?:(?:[sp][01][0-9]|downloads)\.upd\.kaspersky\.com|(?:cm\.k|downloads)\.kaspersky-labs\.com)(?![\s\S])$/
+  match:
+  - downloads.upd.kaspersky.com
+  - s00.upd.kaspersky.com
+  - s09.upd.kaspersky.com
+  - s19.upd.kaspersky.com
+  - p00.upd.kaspersky.com
+  - p18.upd.kaspersky.com
+  - cm.k.kaspersky-labs.com
+  - downloads.kaspersky-labs.com
+  no_match:
+  - xs00.upd.kaspersky.com
+  - s00.upd.kaspersky.comx
+  - s0.upd.kaspersky.com
+  - s20.upd.kaspersky.com
+  - q00.upd.kaspersky.com
+  - 's00.upd.kaspersky.com
+
+    '
+  - ''
+  - example.com
+  - http://downloads.upd.kaspersky.com
+- id: real-x04608
+  difficulty: medium
+  status: ok
+  description: Validate an IPv4 address with four period-separated decimal octets representing 0 through 255. Each octet may have any number of leading ASCII zeros, including more than three total digits, but must contain at least one digit. No whitespace or other characters are allowed.
+  regex: /^0*(?:25[0-5]|2[0-4][0-9]|1?[0-9]{1,2})(?:\.0*(?:25[0-5]|2[0-4][0-9]|1?[0-9]{1,2})){3}(?!.)$/s
+  match:
+  - 192.168.1.1
+  - 00000000000192.168.00000000000001.01
+  - 0.0.0.0
+  - 255.255.255.255
+  - 000.001.002.003
+  - 000255.000254.000253.000252
+  - 1.2.3.4
+  - 00000.00000.00000.00001
+  no_match:
+  - x1.2.3.4
+  - 1.2.3.4x
+  - 1.2.3
+  - 256.2.3.4
+  - 1.a.3.4
+  - '1.2.3.4
+
+    '
+  - ''
+  - hello
+  - '###'
+- id: real-x04802
+  difficulty: hard
+  status: ok
+  description: Validate a case-sensitive ESET cloud hostname allowlist. Under eset.com accept eba, edf, epns, msp, identity, repository, protect and mdm as direct subdomains; protect may additionally be prefixed with eu02, us02 or jp02, and mdm with eu, us or jp. Also accept checkin or mdmcomm followed by eu, us or jp under eset.com. Accept one or more nonempty ASCII alphanumeric or hyphen labels, or a literal asterisk label, before a.ecaserver.eset.com. Under eset.systems accept only redirector. No scheme, port, path, whitespace or trailing period is allowed.
+  regex: /^(?:(?:eba|edf|epns|msp|identity|repository|(?:(?:eu|us|jp)02\.)?protect|(?:(?:eu|us|jp)\.)?mdm|(?:checkin|mdmcomm)\.(?:eu|us|jp)|(?:[A-Za-z0-9-]+|\*)(?:\.[A-Za-z0-9-]+)*\.a\.ecaserver)\.eset\.com|redirector\.eset\.systems)$(?![\s\S])/
+  match:
+  - eba.eset.com
+  - repository.eset.com
+  - eu02.protect.eset.com
+  - mdm.eset.com
+  - jp.mdm.eset.com
+  - checkin.us.eset.com
+  - '*.a.ecaserver.eset.com'
+  - redirector.eset.systems
+  no_match:
+  - eu03.protect.eset.com
+  - checkin.uk.eset.com
+  - xeba.eset.com
+  - eba.eset.com.
+  - a_b.a.ecaserver.eset.com
+  - redirector.eset.com
+  - ''
+  - https://eba.eset.com
+  - 'eba.eset.com
+
+    '
+- id: real-x05033
+  difficulty: medium
+  status: ok
+  description: Validate a four-octet IPv4 spelling, with each octet from 0 through 255 in ASCII decimal. Permit leading zeros but at most three digits in each octet. Require periods between octets and forbid all surrounding text or whitespace.
+  regex: /^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$(?![\s\S])/
+  match:
+  - 255.255.255.255
+  - 0.0.0.0
+  - 1.2.3.4
+  - 01.02.03.04
+  - 001.002.003.004
+  - 192.168.1.1
+  - 254.250.240.200
+  - 100.10.1.0
+  no_match:
+  - 256.1.1.1
+  - 1.2.3.4.5
+  - x1.2.3.4
+  - 1.2.3.4x
+  - 1.a.3.4
+  - 0000.1.1.1
+  - ''
+  - localhost
+  - '1.2.3.4
+
+    '
+- id: real-x05035
+  difficulty: hard
+  status: ok
+  description: Validate a restricted lowercase domain input. Before the final label require one or more period-terminated labels, each either one through sixty-three lowercase ASCII letters, digits, underscores or hyphens, starting with a letter, digit or underscore and ending with a letter or digit when longer than one character, or one through three ASCII digits, a slash and exactly two digits. The final label may be empty, or one through sixty-three lowercase ASCII letters, digits or hyphens beginning with a letter and ending alphanumeric when longer than one character. Do not enforce a total length limit. No other characters are allowed.
+  regex: /^(?:[a-z0-9_](?:[a-z0-9_-]{0,61}[a-z0-9])?\.|[0-9]{1,3}\/[0-9]{2}\.)+(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?)?$(?![\s\S])/
+  match:
+  - example.com
+  - _.com
+  - a.
+  - _a.b
+  - 1/24.example
+  - 123/00.a
+  - a-b.c-d
+  - a.b.c
+  no_match:
+  - a
+  - 1234/24.a
+  - ' example.com'
+  - example.com!
+  - a+.com
+  - a.1
+  - ''
+  - A.com
+  - 'example.com
+
+    '
+- id: real-x05138
+  difficulty: simple
+  status: ok
+  description: 'Validate a case-sensitive Kaspersky service hostname from this allowlist: ds.kaspersky.com, or ksn- followed by a-stat, a-p2p, file, verdict, url, info or cinfo, followed by -geo.kaspersky-labs.com. No scheme, port, path, whitespace or extra characters are allowed.'
+  regex: /^(?:ds\.kaspersky\.com|ksn-(?:a-stat|a-p2p|file|verdict|url|c?info)-geo\.kaspersky-labs\.com)$(?!.)/s
+  match:
+  - ds.kaspersky.com
+  - ksn-a-stat-geo.kaspersky-labs.com
+  - ksn-a-p2p-geo.kaspersky-labs.com
+  - ksn-file-geo.kaspersky-labs.com
+  - ksn-verdict-geo.kaspersky-labs.com
+  - ksn-url-geo.kaspersky-labs.com
+  - ksn-info-geo.kaspersky-labs.com
+  - ksn-cinfo-geo.kaspersky-labs.com
+  no_match:
+  - DS.kaspersky.com
+  - ksn-other-geo.kaspersky-labs.com
+  - xds.kaspersky.com
+  - ds.kaspersky.com.
+  - ds.kaspersky-labs.com
+  - ksn-file-geo.kaspersky.com
+  - ''
+  - http://ds.kaspersky.com
+  - 'ds.kaspersky.com
+
+    '
+- id: real-x05270
+  difficulty: medium
+  status: ok
+  description: Validate a basic lowercase ASCII IDN-style domain spelling with at least two labels. All labels use lowercase ASCII letters, digits and hyphens and begin and end alphanumeric, except nonfinal labels before the label immediately preceding the suffix may also begin with or internally contain underscores. The final suffix is lowercase ASCII letters only or xn-- followed by lowercase ASCII letters or digits. No length limit, trailing period, whitespace or other characters are allowed. Do not decode punycode or check registration.
+  regex: /^(?:[a-z0-9_](?:[a-z0-9_-]*[a-z0-9])?\.)*[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.(?:[a-z]+|xn--[a-z0-9]+)$(?![\s\S])/
+  match:
+  - www.foo.bar.baz
+  - www.foo.bar
+  - foo.bar.baz
+  - foo.bar
+  - xn--tst-qla.de
+  - xn--tst-qla.xn--tstqla
+  - _a.foo.bar
+  - a-b.example
+  no_match:
+  - foo
+  - foo.123
+  - ' foo.bar'
+  - foo.bar!
+  - foo_.bar
+  - foo.b_r
+  - ''
+  - unrelated
+  - 'www.foo.bar.baz
+
+    '
+- id: real-x05327
+  difficulty: medium
+  status: ok
+  description: 'Validate an RFC 1918 private IPv4 address: the first octet is 10, or the first two octets are 172 and a value from 16 through 31, or the first two octets are 192 and 168. All remaining octets are ASCII decimal values from 0 through 255 without leading zeros. No whitespace, prefix length or other text is permitted.'
+  regex: /^(?:10(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|(?:172\.(?:1[6-9]|2[0-9]|3[01])|192\.168)(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){2})$(?![\s\S])/
+  match:
+  - 10.0.0.0
+  - 10.255.255.255
+  - 172.16.0.0
+  - 172.31.255.255
+  - 192.168.0.0
+  - 192.168.255.255
+  - 10.1.2.3
+  - 172.20.30.40
+  no_match:
+  - 172.15.0.0
+  - 10.1.2.3.4
+  - x10.1.2.3
+  - 10.1.2.3x
+  - 10.1.a.3
+  - 10.256.1.1
+  - ''
+  - unrelated
+  - '10.0.0.0
+
+    '
+- id: real-x05430
+  difficulty: hard
+  status: ok
+  description: Validate a nonempty list of IPv4 addresses separated by commas or semicolons. Address octets range from 0 through 255 using ASCII decimal digits and may have leading zeros up to three digits. Ordinary spaces or tabs may surround separators and follow the list, but not precede its first address. One optional final comma or semicolon is allowed. Empty interior items and other characters are forbidden.
+  regex: /^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})){3}(?:[ \t]*[,;][ \t]*(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})){3})*[ \t]*[,;]?[ \t]*$(?![\s\S])/
+  match:
+  - 192.168.3.1   ;   192.168.1.2 ,
+  - 1.2.3.4
+  - 0.0.0.0,
+  - 255.255.255.255;
+  - 001.002.003.004;1.1.1.1
+  - 1.1.1.1,2.2.2.2;3.3.3.3
+  - "1.1.1.1 \t"
+  - "10.0.0.1 ;\t10.0.0.2"
+  no_match:
+  - 1.2.3.4.5
+  - 256.1.1.1
+  - x1.2.3.4
+  - 1.2.3.4!
+  - 1.2.a.4
+  - 1.2.3.4,,2.3.4.5
+  - ''
+  - unrelated
+  - '192.168.3.1   ;   192.168.1.2 ,
+
+    '
+- id: real-x05748
+  difficulty: medium
+  status: ok
+  description: Validate a lowercase ASCII domain token with two or more labels and a maximum total length of twenty-two characters. Each nonfinal label has one through sixty-three lowercase ASCII letters, digits or hyphens and begins and ends alphanumeric. Consecutive hyphens are forbidden except for the exact initial prefix xn--, which must be followed by an alphanumeric character. The final label consists of two through sixty-three lowercase ASCII letters. No trailing period, whitespace or other characters are permitted.
+  regex: /^(?=.{1,22}$)(?:(?:xn--)?[a-z0-9]+(?:-[a-z0-9]+)*\.)+[a-z]{2,63}$(?![\s\S])/
+  match:
+  - app-pre.dev.schwab.com
+  - a.co
+  - x.y.com
+  - xn--abc.de
+  - a-b.cd
+  - 123.example
+  - aaaaaaaaaaaaaaaaaaa.co
+  - abc.def.gh
+  no_match:
+  - aaaaaaaaaaaaaaaaaaaa.co
+  - a.c
+  - ' a.co'
+  - a.co!
+  - a_b.co
+  - a--b.co
+  - ''
+  - unrelated
+  - 'app-pre.dev.schwab.com
+
+    '
+- id: real-x06077
+  difficulty: medium
+  status: ok
+  description: Validate a FireEye sandbox IPv4 address whose first two octets are exactly 199 and 16, third octet is 196 through 199, and last octet is zero through 255 written in ASCII decimal without leading zeros. Full stops separate the octets. No mask, port, whitespace, or extra characters are allowed.
+  regex: /^199\.16\.(?:196|197|198|199)\.(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?![\s\S])$/
+  match:
+  - 199.16.196.0
+  - 199.16.196.255
+  - 199.16.197.1
+  - 199.16.198.20
+  - 199.16.199.99
+  - 199.16.199.100
+  - 199.16.197.249
+  - 199.16.198.254
+  no_match:
+  - 199.16.196.1000
+  - 199.16.200.1
+  - 199.17.196.1
+  - 199.16.196.256
+  - 199.16.196.01
+  - 199.16.196.a
+  - x199.16.196.1
+  - 199.16.196.1x
+  - '199.16.196.1
+
+    '
+- id: real-x06345
+  difficulty: medium
+  status: ok
+  description: Validate a dotted-decimal IPv4 address suitable as a URI host. It contains exactly four ASCII decimal octets from zero through 255, separated by full stops. Leading zeros are forbidden except for the single digit zero. No whitespace, brackets, port, mask, signs, or extra characters are allowed.
+  regex: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?![\s\S])$/
+  match:
+  - 0.0.0.0
+  - 1.1.1.1
+  - 9.9.9.9
+  - 10.10.10.10
+  - 99.99.99.99
+  - 100.100.100.100
+  - 199.199.199.199
+  - 255.255.255.255
+  no_match:
+  - 256.1.1.1
+  - 01.1.1.1
+  - 1.1.1
+  - 1.1.1.1.1
+  - a.1.1.1
+  - 1000.1.1.1
+  - x1.1.1.1
+  - 1.1.1.1x
+  - '1.1.1.1
+
+    '
+- id: real-x07115
+  difficulty: medium
+  status: ok
+  description: Validate a domain name followed by a colon and a nonnegative ASCII integer. The domain has 2 through 127 dot-separated labels. Each nonfinal label contains 1 through 63 ASCII letters, digits, or hyphens, with alphanumeric first and last characters. The final label has 1 through 63 ASCII letters or digits and must begin with a letter. The integer contains one or more digits and may have leading zeros. No whitespace, scheme, trailing domain dot, or other characters are allowed.
+  regex: /^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.){1,126}[A-Za-z][A-Za-z0-9]{0,62}:[0-9]+(?![\s\S])$/
+  match:
+  - aspmx.l.google.com:0
+  - a.b:1
+  - example.com:001
+  - a-b.test:9
+  - A.B:0
+  - 1a.b2:100
+  - aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com:1
+  - x.y.z:12345
+  no_match:
+  - a:1
+  - -a.b:1
+  - a-.b:1
+  - a.1b:1
+  - aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com:1
+  - a.b:-1
+  - '!a.b:1'
+  - a.b:1!
+  - 'a.b:1
+
+    '
+- id: real-x07356
+  difficulty: medium
+  status: ok
+  description: Validate an IPv4 address optionally followed by the literal @bla.com. There are exactly four dot-separated ASCII decimal octets, each from 0 through 255 and one to three digits long. Leading zeros are allowed. No whitespace, port or other suffix is permitted.
+  regex: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|0?[0-9]{1,2})(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|0?[0-9]{1,2})){3}(?:@bla\.com)?)(?!\s|\S)$/
+  match:
+  - 10.10.10.10@bla.com
+  - 0.0.0.0
+  - 255.255.255.255
+  - 001.002.003.004
+  - 127.0.0.1
+  - 192.168.1.1@bla.com
+  - 00.01.2.3
+  - 200.100.50.0
+  no_match:
+  - '!127.0.0.1'
+  - 127.0.0.1!
+  - 127.0.0
+  - 256.0.0.1
+  - 12a.0.0.1
+  - 127.0.0.1@foo.com
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x07431
+  difficulty: medium
+  status: ok
+  description: Validate a localhost-style address beginning with 127. and exactly three further dot-separated fields, each containing one to three ASCII digits. The fields are checked only for digit width, not the IPv4 octet range. An optional port is a colon followed by one or more ASCII digits with no range check. No other characters are allowed.
+  regex: /^(?:127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(?::[0-9]+)?)(?!\s|\S)$/
+  match:
+  - 127.1.1.1:4000
+  - 127.12.12.12
+  - 127.0.0.2:599595
+  - 127.999.999.999
+  - 127.001.02.3
+  - 127.0.0.1:0
+  - 127.1.2.3:00001
+  - 127.255.0.1
+  no_match:
+  - '!127.1.1.1'
+  - 127.1.1.1!
+  - 127.1.1
+  - 127.1000.1.1
+  - 127.a.1.1
+  - 128.1.1.1
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x07623
+  difficulty: medium
+  status: ok
+  description: 'Validate an ESET framework hostname from this case-sensitive set: ecp.eset.systems; edf.eset.com; h1-arse01-v.eset.com, h1-arse02-v.eset.com, h3-arse01-v.eset.com, h3-arse02-v.eset.com, h5-arse01-v.eset.com, h5-arse02-v.eset.com, h5-arse03-v.eset.com, h5-arse04-v.eset.com; or h1-edfspy02-v.eset.com. No scheme, port, whitespace or other suffix is allowed.'
+  regex: /^(?:(?:ecp\.eset\.systems|(?:edf|h(?:[135]-arse0[12]|5-arse0[34]|1-edfspy02)-v)\.eset\.com))(?!\s|\S)$/
+  match:
+  - ecp.eset.systems
+  - edf.eset.com
+  - h1-arse01-v.eset.com
+  - h1-arse02-v.eset.com
+  - h3-arse01-v.eset.com
+  - h5-arse03-v.eset.com
+  - h5-arse04-v.eset.com
+  - h1-edfspy02-v.eset.com
+  no_match:
+  - '!edf.eset.com'
+  - edf.eset.com!
+  - h2-arse01-v.eset.com
+  - h1-arse03-v.eset.com
+  - EDF.eset.com
+  - 'edf.eset.com
+
+    '
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x07668
+  difficulty: medium
+  status: ok
+  description: Validate four dot-separated IPv4 octets. Each octet contains one to three ASCII decimal digits and has a value from 0 through 255. A leading zero is permitted only in a two-digit octet; three-digit octets must begin with 1 or 2. No whitespace or surrounding characters are allowed.
+  regex: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})){3})(?!\s|\S)$/
+  match:
+  - 1.2.3.4
+  - 91.9.9.111
+  - 0.0.0.0
+  - 121.211.233.251
+  - 255.255.255.255
+  - 01.02.03.04
+  - 10.20.30.40
+  - 199.249.250.0
+  no_match:
+  - '!1.2.3.4'
+  - 1.2.3.4!
+  - 1.2.3
+  - 256.2.3.4
+  - 001.2.3.4
+  - 1.a.3.4
+  - ''
+  - unrelated input
+  - "\u2603"
+- id: real-x07767
+  difficulty: simple
+  status: ok
+  description: Validate a Kaspersky update hostname consisting of downloads.upd.kaspersky.com or s followed by exactly two ASCII digits from 00 through 19 followed by .upd.kaspersky.com. Matching is case-sensitive. No scheme, port, whitespace or additional characters are allowed.
+  regex: /^(?:(?:downloads|s[01][0-9])\.upd\.kaspersky\.com)(?!\s|\S)$/
+  match:
+  - downloads.upd.kaspersky.com
+  - s00.upd.kaspersky.com
+  - s01.upd.kaspersky.com
+  - s09.upd.kaspersky.com
+  - s10.upd.kaspersky.com
+  - s11.upd.kaspersky.com
+  - s18.upd.kaspersky.com
+  - s19.upd.kaspersky.com
+  no_match:
+  - '!s00.upd.kaspersky.com'
+  - s00.upd.kaspersky.com!
+  - s0.upd.kaspersky.com
+  - s20.upd.kaspersky.com
+  - s0a.upd.kaspersky.com
+  - 's00.upd.kaspersky.com
+
+    '
+  - ''
+  - unrelated input
+  - "\u2603"
