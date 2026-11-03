@@ -56,11 +56,31 @@ def pass_dpo_loss_type() -> None:
     cli.train_dpo = patched
 
 
+def plain_template() -> None:
+    """Rend le gabarit de chat avec enable_thinking=None (rien après « assistant\\n »).
+
+    Le TokenizerWrapper de mlx_lm passe enable_thinking=True aux modèles qui ont un mode raisonnement. Avec mask_prompt,
+    le prompt se termine alors par « <think>\\n ». Qwen3 écrit un bloc <think> vide dans le tour assistant, et ces tokens
+    tombent dans le masque. Le gabarit de MiniCPM5 n'en écrit pas : le masque couvrait les 2 premiers tokens de la réponse
+    (« / », « ^- »), jamais appris, et 90 % des sorties étaient mal formées.
+    """
+    from mlx_lm.tokenizer_utils import TokenizerWrapper
+
+    apply = TokenizerWrapper.apply_chat_template
+
+    def patched(self, *args, **kwargs):
+        kwargs.setdefault("enable_thinking", None)
+        return apply(self, *args, **kwargs)
+
+    TokenizerWrapper.apply_chat_template = patched
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--memory-gb", type=float, default=8.0)
     parser.add_argument("--cache-gb", type=float, default=1.0)
     parser.add_argument("--sft", action="store_true", help="lance mlx_lm.lora (SFT) au lieu de mlx_lm_lora.train")
+    parser.add_argument("--plain-template", action="store_true", help="gabarit de chat sans <think> (voir plain_template)")
     args, rest = parser.parse_known_args()
 
     limit = int(args.memory_gb * 1024**3)
@@ -69,6 +89,8 @@ def main() -> None:
     set_wired_limit = mx.set_wired_limit
     mx.set_wired_limit = lambda n: set_wired_limit(min(n, limit))
 
+    if args.plain_template:
+        plain_template()
     if args.sft:
         from mlx_lm.lora import main as train
 

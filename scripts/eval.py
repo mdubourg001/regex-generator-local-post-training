@@ -34,6 +34,7 @@ def generate(
     batch_size: int,
     few_shot: bool,
     thinking: bool = False,
+    plain_template: bool = False,
 ) -> list[str]:
     from mlx_lm import batch_generate, load
     from mlx_lm.sample_utils import make_sampler
@@ -41,8 +42,12 @@ def generate(
 
     model, tokenizer = load(model_name, adapter_path=adapter)
     # enable_thinking=False : désactive le mode « raisonnement » de Qwen3 (ignoré par les modèles qui ne l'ont pas).
+    # plain_template : enable_thinking=None, soit le gabarit sans rien après « assistant\n » (ni <think>, ni bloc vide).
+    # mlx_lm met sinon enable_thinking=True par défaut. Pour les modèles entraînés avec train_capped.py --plain-template
+    # (MiniCPM5 : son gabarit n'écrit pas de bloc <think> dans l'historique, voir train_capped.py).
+    kwargs = {"enable_thinking": None} if plain_template else {"enable_thinking": thinking}
     prompts = [
-        tokenizer.apply_chat_template(build_messages(e, few_shot=few_shot), add_generation_prompt=True, enable_thinking=thinking)
+        tokenizer.apply_chat_template(build_messages(e, few_shot=few_shot), add_generation_prompt=True, **kwargs)
         for e in examples
     ]
     # Avec raisonnement : l'échantillonnage recommandé par Qwen3 pour ce mode (en greedy, le raisonnement boucle).
@@ -68,6 +73,7 @@ def main() -> None:
     parser.add_argument("--outputs", type=Path, default=None, help="JSONL {id, output} déjà généré : note sans modèle")
     parser.add_argument("--few-shot", action="store_true", help="ajoute au prompt les exemples fixes de common.FEW_SHOT")
     parser.add_argument("--thinking", action="store_true", help="active le raisonnement de Qwen3 (prévoir --max-tokens élevé)")
+    parser.add_argument("--plain-template", action="store_true", help="gabarit sans <think> (enable_thinking=None), pour un SFT lancé avec train_capped.py --plain-template")
     parser.add_argument("--n", type=int, default=None, help="nombre de cas (pour un test rapide)")
     parser.add_argument("--max-tokens", type=int, default=128)
     parser.add_argument("--batch-size", type=int, default=16)
@@ -82,7 +88,7 @@ def main() -> None:
         generated = {r["id"]: r["output"] for r in map(json.loads, args.outputs.open())}
         outputs = [generated[e["id"]] for e in examples]
     else:
-        outputs = generate(args.model, args.adapter, examples, args.max_tokens, args.batch_size, args.few_shot, args.thinking)
+        outputs = generate(args.model, args.adapter, examples, args.max_tokens, args.batch_size, args.few_shot, args.thinking, args.plain_template)
     gen_time = time.monotonic() - start
     with RegexRunner(timeout_ms=args.timeout_ms) as runner:
         grades = grade(runner, examples, outputs)
@@ -99,6 +105,7 @@ def main() -> None:
         "adapter": args.adapter,
         "few_shot": args.few_shot,
         "thinking": args.thinking,
+        "plain_template": args.plain_template,
         "data": str(args.data),
         **{k: round(v, 4) if isinstance(v, float) else v for k, v in result.items()},
         "generation_seconds": round(gen_time, 1),
