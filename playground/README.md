@@ -90,13 +90,22 @@ VITE_HUB_SFT_QWEN3_5_0_8B=maximedubourg/regex-sft-qwen3.5-0.8b-onnx@<sha> pnpm b
 - `src/worker.ts` : chargement (à la demande, bouton « Load model ») et génération dans un Web Worker ; une nouvelle
   requête interrompt la génération en cours, et la regex s'affiche token par token. Le runtime onnxruntime-web est
   servi en local, pas depuis jsDelivr.
-- « Unload » libère le modèle (mémoire GPU) et supprime ses poids du Cache API.
-- Cache : les fichiers du modèle sont gardés dans le Cache API du navigateur (par origine), sous une clé qui inclut
-  `playground_export_id` (écrit dans `config.json` par l'export). Un nouvel export invalide donc l'ancien cache, qui
-  est supprimé, comme tout autre cache du playground (dont celui de l'ancien 0.6B, 1,6 Go). Les variantes q4 et q4f16
-  partagent la clé (fichiers distincts). Chargement du q4f16 depuis `public/models/` : ~22 s sans cache.
-- `src/TestArea.tsx` : chaque ligne est testée avec `RegExp.prototype.test` (✓ / ✗), et les correspondances sont
-  surlignées avec une copie de la regex en flag `g`.
+- « Unload » libère le modèle chargé (mémoire GPU) et supprime ses poids du Cache API, pas ceux des autres modèles.
+- Cache : les fichiers de chaque modèle sont gardés dans le Cache API du navigateur (par origine), sous une clé par
+  modèle qui inclut la révision du Hub, ou `playground_export_id` (écrit dans `config.json` par l'export) en local. Les
+  deux modèles restent en cache, pour passer de l'un à l'autre sans retélécharger. Une nouvelle version invalide
+  l'ancien cache du même modèle, qui est supprimé, comme les caches des modèles qui ne sont plus proposés (dont l'ancien
+  0.6B, 1,6 Go). Les variantes q4 et q4f16 partagent la clé (fichiers distincts). Chargement du q4f16 depuis
+  `public/models/` : ~22 s sans cache. Sur une connexion mobile, lente ou en économie de données, un téléchargement
+  absent du cache demande confirmation.
+- `src/TestArea.tsx` : les exemples (« Should match / Should not match ») sont vérifiés contre le résultat attendu
+  (✓ / ✗) ; les chaînes de test, sans résultat attendu, sont marquées de façon neutre (● correspond, ○ non). Les tests
+  tournent dans un worker (`src/matcher.worker.ts`, via `src/useMatches.ts`) : une regex qui backtracke de façon
+  catastrophique est arrêtée après 1,5 s au lieu de geler la page. Les correspondances sont surlignées avec une copie de
+  la regex en flag `g`.
+- État dans l'URL (`q`, `match`, `nomatch`, `test`, `model`), pour partager un cas ; exemples cliquables (« Try: ») ;
+  « Open in regex101 » ouvre la regex et toutes les chaînes dans regex101, avec les flags `g` et `m` pour tester chaque
+  ligne séparément.
 
 ## Déployer (Hugging Face + Netlify)
 

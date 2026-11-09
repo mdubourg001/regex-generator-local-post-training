@@ -13,6 +13,7 @@ import {
 // `exports` d'onnxruntime-web n'expose pas dist/. Même version que celle qu'embarque transformers.js.
 import ortMjs from "../node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.mjs?url";
 import ortWasm from "../node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.wasm?url";
+import { cacheFiles, cacheKey } from "./cache";
 import { buildPrompt, type Request } from "./prompt";
 
 // Deux sources (voir ModelSource) : public/models/ servi par Vite en dev, ou un repo du Hub Hugging Face.
@@ -24,9 +25,12 @@ env.backends.onnx.wasm!.wasmPaths = { mjs: ortMjs, wasm: ortWasm };
 export type ModelSource = { kind: "local" } | { kind: "hub"; repo: string; revision: string };
 /** Variante des poids (onnx/*_<dtype>.onnx) et backend d'exécution, choisis selon le navigateur (voir variant.ts). */
 export type Variant = { dtype: "q4" | "q4f16"; device: "webgpu" | "wasm" };
-/** `model` : identifiant renvoyé dans `ready` ; `files` : dossier de l'export, partagé par ses variantes. */
+/**
+ * `model` : identifiant renvoyé dans `ready` ; `files` : dossier de l'export, partagé par ses variantes ; `known` :
+ * dossiers de tous les modèles proposés, dont le cache est conservé.
+ */
 export type ToWorker =
-  | { type: "load"; model: string; files: string; variant: Variant; source: ModelSource }
+  | { type: "load"; model: string; files: string; variant: Variant; source: ModelSource; known: string[] }
   | { type: "unload" }
   | ({ type: "generate"; id: number } & Request);
 export type FromWorker =
@@ -39,21 +43,23 @@ export type FromWorker =
 
 const post = (message: FromWorker) => self.postMessage(message);
 const stopping = new InterruptableStoppingCriteria();
-let current: { name: string; tokenizer: PreTrainedTokenizer; model: PreTrainedModel } | null = null;
+let current: { name: string; cacheKey: string; tokenizer: PreTrainedTokenizer; model: PreTrainedModel } | null = null;
 let loading: Promise<void> = Promise.resolve();
 let pending: (ToWorker & { type: "generate" }) | null = null;
 let running = false;
 let generation: Promise<unknown> = Promise.resolve();
 
 /**
- * Un cache (Cache API) par dossier d'export et par version. Un seul modèle est proposé : tout autre cache du playground
- * (version précédente, ancien modèle comme le Qwen3-0.6B en fp16, 1,6 Go) est supprimé.
+ * Un cache (Cache API) par dossier d'export et par version : les modèles proposés gardent chacun le leur, pour passer
+ * de l'un à l'autre sans retélécharger. Sont supprimés les versions précédentes de ce modèle et les caches des modèles
+ * qui ne sont plus proposés (comme le Qwen3-0.6B en fp16, 1,6 Go).
  */
-async function useCacheFor(name: string, version: string) {
-  env.cacheKey = `regex-playground/${name}/${version}`;
+async function useCacheFor(name: string, version: string, known: string[]) {
+  env.cacheKey = cacheKey(name, version);
   try {
     for (const key of await caches.keys()) {
-      if (key.startsWith("regex-playground/") && key !== env.cacheKey) await caches.delete(key);
+      const files = cacheFiles(key);
+      if (files !== null && key !== env.cacheKey && (files === name || !known.includes(files))) await caches.delete(key);
     }
   } catch {
     // Cache API indisponible (navigation privée…) : transformers.js charge alors sans cache.
@@ -61,12 +67,12 @@ async function useCacheFor(name: string, version: string) {
 }
 
 /** Prépare env pour la source, et retourne l'identifiant et la révision à passer à from_pretrained. */
-async function resolve(name: string, source: ModelSource): Promise<{ path: string; revision?: string }> {
+async function resolve(name: string, source: ModelSource, known: string[]): Promise<{ path: string; revision?: string }> {
   if (source.kind === "hub") {
     // Pas de repli local : en dev, Vite répondrait index.html pour /models/<owner>/<repo>/…
     env.allowLocalModels = false;
     env.allowRemoteModels = true;
-    await useCacheFor(name, source.revision);
+    await useCacheFor(name, source.revision, known);
     return { path: source.repo, revision: source.revision };
   }
   env.allowLocalModels = true;
@@ -76,28 +82,27 @@ async function resolve(name: string, source: ModelSource): Promise<{ path: strin
   if (!config.headers.get("content-type")?.includes("json")) {
     throw new Error(`${name} is not exported: run \`uv run scripts/export_qwen35.py\``);
   }
-  await useCacheFor(name, (await config.json()).playground_export_id ?? "unversioned");
+  await useCacheFor(name, (await config.json()).playground_export_id ?? "unversioned", known);
   return { path: name };
 }
 
-/** Libère le modèle (mémoire GPU) et supprime ses poids du Cache API. Retourne le nombre de caches supprimés. */
+/** Libère le modèle (mémoire GPU) et supprime ses poids du Cache API, pas ceux des autres modèles. */
 async function unload(): Promise<number> {
   stopping.interrupt();
   await generation.catch(() => {});
   await current?.model.dispose();
+  const key = current?.cacheKey;
   current = null;
   let freed = 0;
   try {
-    for (const key of await caches.keys()) {
-      if (key.startsWith("regex-playground/") && (await caches.delete(key))) freed++;
-    }
+    if (key && (await caches.delete(key))) freed++;
   } catch {
     // Cache API indisponible : rien n'a été mis en cache.
   }
   return freed;
 }
 
-async function load(name: string, files: string, { dtype, device }: Variant, source: ModelSource) {
+async function load(name: string, files: string, { dtype, device }: Variant, source: ModelSource, known: string[]) {
   stopping.interrupt();
   await generation.catch(() => {});
   await current?.model.dispose();
@@ -106,7 +111,7 @@ async function load(name: string, files: string, { dtype, device }: Variant, sou
     if (info.status === "progress_total") post({ type: "progress", loaded: info.loaded!, total: info.total! });
   };
   // Cache par dossier d'export : les variantes (q4, q4f16) ont des fichiers distincts et partagent la clé.
-  const { path, revision } = await resolve(files, source);
+  const { path, revision } = await resolve(files, source, known);
   // GatherBlockQuantized (embeddings q4) manque au build WASM d'onnxruntime-web : sur WASM, les mêmes poids q4
   // déquantifiés par des opérateurs standard (embed_tokens_uint8, voir scripts/export_qwen35.py).
   const dtypes = device === "wasm" ? { embed_tokens: "uint8" as const, decoder_model_merged: dtype } : dtype;
@@ -114,7 +119,7 @@ async function load(name: string, files: string, { dtype, device }: Variant, sou
     AutoTokenizer.from_pretrained(path, { revision }),
     AutoModelForCausalLM.from_pretrained(path, { revision, device, dtype: dtypes, progress_callback }),
   ]);
-  current = { name, tokenizer, model };
+  current = { name, cacheKey: env.cacheKey, tokenizer, model };
   post({ type: "ready", model: name });
 }
 
@@ -156,7 +161,7 @@ self.onmessage = (event: MessageEvent<ToWorker>) => {
   const message = event.data;
   const fail = (error: unknown) => post({ type: "error", message: error instanceof Error ? error.message : String(error) });
   if (message.type === "load") {
-    loading = loading.then(() => load(message.model, message.files, message.variant, message.source)).catch(fail);
+    loading = loading.then(() => load(message.model, message.files, message.variant, message.source, message.known)).catch(fail);
   } else if (message.type === "unload") {
     pending = null;
     loading = loading.then(unload).then((freed) => post({ type: "unloaded", freed })).catch(fail);
