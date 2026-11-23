@@ -1,0 +1,46 @@
+# SFT de Qwen3-1.7B sur le train bruité (scripts/noise.py : fautes de frappe, style relâché, exemples dans la phrase) :
+#   uv run scripts/train_capped.py --sft --memory-gb 7 --config configs/sft-1.7b-noisy.yaml
+# Même recette que configs/sft-plus2.yaml : seuls le modèle et les données changent. Le valid est celui de sft-plus2.
+# Le SFT 1.7B précédent (adapters/sft-1.7b, data/sft) a culminé à 7,1 Go, à 0,6 it/s (~2 h 15).
+
+model: Qwen/Qwen3-1.7B
+data: data/sft-noisy
+adapter_path: adapters/sft-1.7b-noisy
+
+train: true
+seed: 0
+
+fine_tune_type: lora
+num_layers: -1                 # toutes les couches
+lora_parameters:
+  rank: 16
+  scale: 2.0                   # facteur appliqué à B·A (l'alpha / rang de la littérature : 32 / 16)
+  dropout: 0.05
+  keys:                        # attention et MLP
+    - self_attn.q_proj
+    - self_attn.k_proj
+    - self_attn.v_proj
+    - self_attn.o_proj
+    - mlp.gate_proj
+    - mlp.up_proj
+    - mlp.down_proj
+
+mask_prompt: true
+max_seq_length: 512            # validate.py écarte les ~20 exemples plus longs
+
+batch_size: 4
+grad_accumulation_steps: 2
+grad_checkpoint: true
+iters: 4710
+optimizer: adamw
+learning_rate: 2.0e-4
+lr_schedule:
+  name: cosine_decay
+  warmup: 100
+  warmup_init: 1.0e-6
+  arguments: [2.0e-4, 2355, 1.0e-6]
+
+steps_per_report: 40
+steps_per_eval: 800              # 71 s par évaluation sur le 1.7B
+val_batches: -1                # tout le valid (504 exemples)
+save_every: 800
