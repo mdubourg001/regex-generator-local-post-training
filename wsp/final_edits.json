@@ -1,0 +1,32 @@
+{
+ "base": "Qwen/Qwen3-0.6B",
+ "edits": [
+  "e18-blind-flag-14h",
+  "e07-first-sparse",
+  "e19-ban-slash",
+  "e20-end"
+ ],
+ "total_params": 596049920,
+ "report": [
+  {
+   "edit": "e18-blind-flag-14h",
+   "weights_changed": 1261193,
+   "percent": 0.2116
+  },
+  {
+   "edit": "e07-first-sparse",
+   "weights_changed": 29150,
+   "percent": 0.0049
+  },
+  {
+   "edit": "e19-ban-slash",
+   "weights_changed": 1380437,
+   "percent": 0.2316
+  },
+  {
+   "edit": "e20-end",
+   "weights_changed": 26736,
+   "percent": 0.0045
+  }
+ ]
+}
