@@ -1,3 +1,9 @@
+> [!NOTE]
+> **Raw experiment repo.** Everything here is the unpolished working material of a personal learning experiment:
+> configs, scripts, datasets, results and notes, kept as they were while the work was in progress. Nothing has been
+> cleaned up, restructured or documented for a general audience, and most of the writing (this README included) is in
+> French. It is published as-is, for reference and reproducibility, alongside the article that links to it.
+
 # Post-training d'un petit LLM en local : générer des regex JavaScript à partir du langage naturel
 
 Projet d'apprentissage : prendre un petit modèle open-weight et l'entraîner à écrire des expressions régulières
